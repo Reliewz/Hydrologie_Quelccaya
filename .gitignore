@@ -52,7 +52,3 @@ rsconnect/
 renv/library/
 renv/staging/
 Dataframes&Workspace/
-results/
-
-# Lokale oder experimentelle R-Skripte
-RScripts/*.R
