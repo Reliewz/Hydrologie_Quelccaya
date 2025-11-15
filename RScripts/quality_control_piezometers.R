@@ -52,6 +52,7 @@ library(dplyr)      # Für Datenmanipulation
 library(tidyr)      # Für Datenstruktur
 library(lubridate)  # Für Datumsoperationen
 library(readxl)     # Für Excel-Import
+library(stringr)    # Added to extract Piezometer ID part of tidyr
 
 # ========== CONFIGURATION ==========
 input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
@@ -72,62 +73,77 @@ cat("Column names:", paste(names(data_raw), collapse = ", "), "\n")
 cat("\nFirst 3 rows:\n")
 print(head(data_raw, 3))
 
+# ========== STEP 2: STANDARDIZE DATE FORMAT ==========
+cat("\n=== STEP 2: Standardize date format to ISO ===\n")
+
+# Show current format
+cat("Original date format (first entry):", data_raw[[date_column]][1], "\n")
+cat("Original date class:", class(data_raw[[date_column]]), "\n")
+
+# Convert US format (MM.DD.YY hh:mm:ss AM/PM) to ISO
+data_raw <- data_raw %>%
+  mutate(Date = mdy_hms(Date, tz = "UTC"))
+
+# GOOD PRACTICE: Validate immediately after transformation
+cat("Checking date conversion...\n")
+sum(is.na(data_raw$Date))
+if(failed_conversions > 0) {
+  stop("ERROR: ", failed_conversions, " dates could not be converted! Check your date format.")
+}
 
 
+# Assigning multiple columns from logi -> chr format
+data_raw <- data_raw %>%
+  mutate(across(c(Connection_off, Connection_on, Host_connected, Data_end), 
+                as.character))
+cat("✓ Converted connection status columns to character format\n")
+
+# ========== STEP 3: Determine time INTERVALS ==========
+cat("\n=== STEP 3: Detect time intervals ===\n")
+
+# Calculate time differences for each piezometer !! directly interprets id_column as PZ_ID. sym() converts to a symbol instead of a column like expected. Sort by PZ_ID and then Date.
+interval_check <- data_raw %>%
+  arrange(!!sym(id_column), Date) %>%  # !! directly interprets id_column as PZ_ID. sym() converts to a symbol instead of a column like expected. Sort by PZ_ID and then Date.
+  group_by(!!sym(id_column)) %>% # grouping the piezometer according to their ID to different blocks. this functions makes sure only same piezometer data gets compared and then jumps to the next group for analysis.
+  mutate(time_diff = as.numeric(difftime(Date, lag(Date), units = "mins"))) %>%
+  ungroup()
 
 
+# ========== STEP 3: DETECT TIME INTERVALS TO INDENTIFY TIME STEP DEVIATIONS ========== #Note that the mutate command is specificly for PZ_ID´s!!
+cat("\n=== STEP 3: Detect time intervals ===\n")
 
+# Extract main piezometer ID (PZ01_01 → PZ01)
+cat("Extracting main piezometer IDs...\n")
+interval_check <- data_raw %>%
+  arrange(!!sym(id_column), Date) %>% # !! directly interprets id_column as PZ_ID. sym() converts to a symbol instead of a column like expected. Sort by PZ_ID and then Date.
+  mutate(PZ_main = str_sub(!!sym(id_column), 1, 4)) %>%  # Extract first 4 characters and create an new column PZ_main
+  group_by(PZ_main) %>%  # Seperating the piezometer data, according to their main ID, into different blocks. this functions makes sure only same piezometers get compared and then jumps to the next segment for analysis.
+  mutate(time_diff = as.numeric(difftime(Date, lag(Date), units = "mins"))) %>% #lag selects date of the previous line. difftime() time difference between two timesteps.
+  ungroup() # Best practice always ungroup after group_by to prevent unwanted results.
 
+cat("✓ Main IDs extracted\n")
+cat("Example: ", data_raw[[id_column]][1], " → ", 
+    str_sub(data_raw[[id_column]][1], 1, 4), "\n", sep = "")
 
+# ========== Analyze intervals per piezometer group ==========
+cat("\nAnalyzing time intervals per piezometer...\n")
 
+interval_summary <- interval_check %>%
+  filter(!is.na(time_diff)) %>%  # Filter/Remove NA values (first entry per piezometer)
+  group_by(PZ_main) %>%
+  summarise(
+    n_measurements = n(),
+    min_interval = min(time_diff),
+    max_interval = max(time_diff),
+    median_interval = median(time_diff),
+    n_15min = sum(time_diff == 15), # Count specific intervals:
+    n_60min = sum(time_diff == 60),
+    n_between = sum(time_diff > 15 & time_diff < 60),
+    n_above_60 = sum(time_diff > 60),   # Lücken!
+    n_below_15 = sum(time_diff < 15),  # Unerwartete Werte, potenzielle Sensorfehler,
+    .groups = "drop" # selbe funktion wie ungroup(), nur speziell für summarise.
+  )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Lade benötigtes Paket
-library(sf)
-
-# Beispiel-Daten (du kannst hier deine eigenen Werte einfügen)
-# Spaltennamen müssen "Este" (Easting) und "Norte" (Northing) heißen
-puntos <- data.frame(
-  Codigo = c("PZ01", "PZ02", "PZ03", "PZ04", "PZ05", "PZ06", "PZ07", "PZ08", "PZ09", "PZ10", "PZ11", "PZ12"),
-  Este = c(299053, 299173, 299245, 299328, 299480, 299611, 299604, 299479, 299434, 299306, 299284, 299186),
-  Norte = c(8463389, 8463374, 8463449, 8463368, 8463311, 8463320, 8463205, 8463143, 8463200, 8463292, 8463170, 8463245)
-)
-
-# Schritt 1: Erstelle ein sf-Objekt mit Koordinaten und UTM-Zone 19S
-# EPSG:32719 = WGS84 / UTM zone 19S (Südhalbkugel)
-puntos_sf <- st_as_sf(puntos, coords = c("Este", "Norte"), crs = 32719)
-
-# Schritt 2: Transformation in geografische Koordinaten (Dezimalgrad)
-puntos_geo <- st_transform(puntos_sf, crs = 4326)
-
-# Schritt 3: Extrahiere Längen- und Breitengrade
-puntos_final <- cbind(
-  puntos,
-  st_coordinates(puntos_geo)
-)
-
-# Optional: Spalten umbenennen für Klarheit
-names(puntos_final)[names(puntos_final) %in% c("X", "Y")] <- c("Lon_deg", "Lat_deg")
-
-# Ausgabe anzeigen
-print(puntos_final)
-
-# Optional: als CSV speichern
-# write.csv(puntos_final, "Koordinaten_Quelccaya_WGS84.csv", row.names = FALSE)
+# Display results
+cat("\n=== Interval Summary by Piezometer ===\n")
+print(interval_summary, n = Inf)
