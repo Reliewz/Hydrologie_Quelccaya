@@ -1,5 +1,5 @@
 #======================================================================
-# Scriptname: quality_control_waterlevel_lagoon.R
+# Scriptname: quality_control_waterlevel.R
 # Goal(s): 
   # Documentation steps in Power Quiery
 # Author: Kai Albert Zwießler
@@ -20,15 +20,12 @@
 ##Documentation of Power Quiery steps##
 # First column removed
 # Correct column assigned as headlines
-# Changed column names from "Count" to "RECORD"
-# Adding customized column to convert the date from US to format: YYYY-MM-DD hh:mm:ss
-    # = DateTime.FromText([#"Date Time, GMT-5:00"], "en-US")
-    # = DateTime.ToText([Date_Standardized], "yyyy-MM-dd HH:mm:ss")
-# Changing order of column & removing old Date column
-# Changing type to decimal with location information "English (USA)"
+# Changed all column names from to general standart amogs datasets
+# Changing order of columns
 # Data in Folder merged
-# Name change of columns
-# Assigning a Source.Name to every line
+# Assigned a Source.Name to every line
+# Assigned a ID column to identify individual sensor
+# All water level data is now merged into one Excel file for furhter analysis in RStudio.
 #======================================================================
 
 library(dplyr)
@@ -46,6 +43,10 @@ sheet_name <- "Rinput"
 date_column <- "Date"        # Column name for Date
 id_column <- "ID"         # Column for identification
 output_column <- "time_diff" # Column for calculated output
+# Coordinate data: WLS + BAROM
+utm_coords_wls <- data.frame(Device = c("WLS_L", "WLS_O", "BAROM"),
+                             x = c(300467.4405, 297097.5124, 298822.5337),
+                             y = c(8462061.4462, 8463168.4825, 8463357.8907))
 # ===================================
 
 cat("Step 1: Columns and data type")
@@ -66,9 +67,17 @@ interval_check <- calc_time_diff(
   out_col = output_column
 )
 
+# Step 3 coordinate transformation + Barometer coordinates
+wgs_coords_wls <- utm_to_latlon(
+  df = utm_coords_wls,
+  x_col = "x",
+  y_col = "y",
+  zone = 19,
+  hemisphere = "south"
+)
 
-# ========== 3b Analyze intervals per WLS group ==========
-cat("\nStep3b: Analyzing time intervals per WLS...\n")
+# ========== 4b Analyze intervals per WLS group ==========
+cat("\nStep4b: Analyzing time intervals per WLS...\n")
 
 interval_summary <- interval_check %>%
   filter(!is.na(time_diff)) %>%  # Filter/Remove NA values (first entry per WLS)
