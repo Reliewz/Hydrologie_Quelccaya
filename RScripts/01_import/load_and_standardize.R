@@ -52,17 +52,19 @@ library(lubridate)  # Für Datumsoperationen
 library(readxl)     # Für Excel-Import
 library(stringr)    # Added to extract Piezometer ID part of tidyr
 
+
 #Sources
 
 
 
 # ========== CONFIGURATION ==========
 #Dataframe
-input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
+input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx"
 #Parameters
 sheet_name <- "Rinput"
 date_column <- "Date"        # Column name for timestamp
 id_column <- "ID"         # Column for identification
+output_column <- "time_diff" # Column for calculated output
 # ===================================
 message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
@@ -88,7 +90,7 @@ cat("Original date class:", class(data_raw[[date_column]]), "\n")
 data_raw <- data_raw %>%
   mutate(Date = mdy_hms(!!sym(date_column), tz = "Etc/GMT+5"))
 
-# ========== STEP 3: GPE Validation after transformation ==========
+# ========== Validation after transformation ==========
 cat("Validate date convertion...")
 
 if (any(is.na(data_raw[[date_column]]))) {
@@ -119,6 +121,7 @@ if (any(is.na(data_raw[[date_column]]))) {
 message("Inbetween verification === Are all columns assigned the correct type?===")
 print(str(data_raw))
 
+# ========== STEP 3: ORGANIZE DATE column ==========
 cat("\n=== STEP 3: Sort data by ID (if available) and Date ===\n")
 
 if (id_column %in% names(data_raw)) {
@@ -134,5 +137,6 @@ if (id_column %in% names(data_raw)) {
 cat("First 3 rows after sorting:\n")
 print(head(data_raw, 3))
 
- 
+# ========== STEP 4: Remove columns that have no information content ==========
+cat("\n=== STEP 4: Removing columns without information content ===\n")
 

@@ -28,7 +28,7 @@
 
 
 calc_time_diff <- function(df, id_col, date_col = "Date", out_col = "time_diff",
-                           units = "mins", sort = TRUE) {
+                           units = "mins") {
 # GPE: If no column names of the loaded input_file contains the stringed "id_column" then the function immediately stops and prints an error message.
 
   if (!id_col %in% names(df)) stop(sprintf("id_col '%s' not found in input_file, df.", id_col))

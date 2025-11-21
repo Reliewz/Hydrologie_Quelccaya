@@ -74,7 +74,7 @@ message("columns have been assigned the correct type.")
 cat("Step 2: No missing values found in Date column. Continueing with Analysis...")
 
 cat("Step 3: Coordinate transformation. UTM 19S to WGS84")
-wgs_coords_pz_pz <- utm_to_latlon(
+wgs_coords_pz <- utm_to_latlon(
   df = utm_coords_pz,
   x_col = "x",
   y_col = "y",
