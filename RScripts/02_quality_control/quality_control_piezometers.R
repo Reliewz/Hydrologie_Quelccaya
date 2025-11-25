@@ -140,129 +140,110 @@ cat("  - Temp NA:    ", sum(is.na(rows_with_na$Temp)), "\n")
 cat("\n=== All rows with missing values ===\n")
 print(rows_with_na, n = 40)
 
-# ========== STEP 5: IDENTIFY NA SEQUENCES WITH "Protokolliert" they are maintance related. ==========
+# ========== STEP 5: IDENTIFY NA SEQUENCES WITH "Protokolliert" ==========
 cat("\n=== STEP 4c: Identify maintenance-related NA sequences ===\n")
 
 # ========== IDENTIFY RECORD BLOCKS AROUND "Protokolliert" ==========
 cat("\n=== Identify RECORD blocks containing 'Protokolliert' ===\n")
 
+# ---- NEW: Extract sensor group (PZ01, PZ02, …) ----
+rows_with_na <- rows_with_na %>%
+  mutate(sensor_group = sub("(_.*)$", "", ID)) # New column "sensor_group" Extract everything from the ID until the "_" PZ01_01 -> PZ01
+
 # Step 1: Find all "Protokolliert" rows
 protokolliert_anchors <- rows_with_na %>%
-  filter(!is.na(Connection_off) & Connection_off == "Protokolliert") %>% #filter all rows where exactly "protokolliert" appears in the "connection_off" column
-  select(ID, RECORD, row_id) %>% # extract only this 3 columns
-  rename(protokolliert_record = RECORD, protokolliert_row = row_id) # rename the columns to clarify the "protokolliert" connection
+  filter(!is.na(Connection_off) & Connection_off == "Protokolliert") %>% # Filter everything that is not "NA" and that is exatcly "==" "Protokolliert".
+  select(sensor_group, ID, RECORD, row_id) %>% # Extract following column names.
+  rename(protokolliert_record = RECORD, # rename columns
+         protokolliert_row = row_id)
 
 cat("Found", nrow(protokolliert_anchors), "Protokolliert events\n")
 print(protokolliert_anchors)
 
-# Step 2: For each NA row, find if it belongs to a "Protokolliert" block
-na_with_blocks <- rows_with_na %>% # Send all NA rows into the pipeline operator
-  arrange(ID, RECORD) %>% # organize primary ID secondary RECORD
-  mutate(block_id = NA_integer_) # generate a new column that will later get filled.
+# Step 2: Create NA block container
+na_with_blocks <- rows_with_na %>% # Pipeline Operator
+  arrange(sensor_group, ID, RECORD) %>% # Organize the data first by Sensor_group, then ID and then RECORD.
+  mutate(block_id = NA_integer_) # create a new column type "integer" fill in NA for now.
 
-# Step 3: For each Protokolliert anchor, expand in both directions
-for(i in 1:nrow(protokolliert_anchors)) { # loop to build a block for each "protokolliert" event. starting at 1, ":" is an operator who sets the range on how many protokolliert anchors exist and how many times the loop hast to continue.
-  anchor_id <- protokolliert_anchors$ID[i] # safing the protokolliert_ID according to the timestep [i]
-  anchor_record <- protokolliert_anchors$protokolliert_record[i] # safing the protokolliert_record according to the timestep [i].
-  #This logic ensures that the "protokolliert ID and RECORD serves as an anchor where future operations will build on.
+# Step 3: Build ±1 RECORD blocks within each sensor_group
+for(i in 1:nrow(protokolliert_anchors)) { # for indicates the beginning of a loop for the number 1 until the number of Protokolliert anchors.
   
-  cat("\nProcessing Protokolliert at ID:", anchor_id, "RECORD:", anchor_record, "\n")
+  # safing the sensor group, id and record.
+  anchor_group  <- protokolliert_anchors$sensor_group[i]
+  anchor_id     <- protokolliert_anchors$ID[i]
+  anchor_record <- protokolliert_anchors$protokolliert_record[i]
   
-  # Get all rows for this ID
-  id_rows <- na_with_blocks %>%
-    filter(ID == anchor_id) %>%
+  cat("\nProcessing Protokolliert at GROUP:", anchor_group,
+      "ID:", anchor_id, "RECORD:", anchor_record, "\n")
+  
+  # Filter only this sensor_group and this ID
+  id_rows <- na_with_blocks %>% 
+    filter(sensor_group == anchor_group, # thats where the changed happen. now we also filter according to sensor group so that now other sensor will get included. Filter only rows where both conditions are true. Sensor Group and anchor_group.
+           ID == anchor_id) %>% # filter only rows where the anchor_id matches the ID
     arrange(RECORD)
   
-  # Find the anchor position
-  anchor_pos <- which(id_rows$RECORD == anchor_record)
+  anchor_pos <- which(id_rows$RECORD == anchor_record) # establishes a logic vector where id_rows$reocrds matches anchor_record. Which extracts the row number.
+  if(length(anchor_pos) == 0) next # Check if in the filtered rows a anchor "protokolliert" can be detected. if not the next rows will be analyszed
   
-  if(length(anchor_pos) == 0) next
-  
-  # Expand backward (lower RECORD numbers)
   block_records <- anchor_record
-  current_pos <- anchor_pos - 1
   
-  while(current_pos >= 1) {
-    current_record <- id_rows$RECORD[current_pos]
-    diff <- anchor_record - current_record
-    
-    # Check if connected (within ±2 of any block member)
-    if(any(abs(block_records - current_record) <= 2)) {
+  # === backward (±1 only) ===
+  current_pos <- anchor_pos - 1 # Starting point. Start is a row before the anchor.
+  while(current_pos >= 1) { # while loop. The loop continues itself as long as the conditions are TRUE. WHILE - COndition. as long as we have rows the loop continues
+    current_record <- id_rows$RECORD[current_pos] # the values of the id_rows$Record is extracted and safed in current_record
+    if(any(abs(block_records - current_record) <= 1)) { # IF. only if the condition is true the block will be executed. any() allows the if condition to accept 2 logical decisions. Because it originally accepts only 1. abs() checks value independently of its algebraic sign.
       block_records <- c(block_records, current_record)
       current_pos <- current_pos - 1
-    } else {
-      break  # Not connected, stop
-    }
+    } else break
   }
   
-  # Expand forward (higher RECORD numbers)
+  # === forward (±1 only) ===
   current_pos <- anchor_pos + 1
-  
   while(current_pos <= nrow(id_rows)) {
     current_record <- id_rows$RECORD[current_pos]
-    
-    # Check if connected (within ±2 of any block member)
-    if(any(abs(block_records - current_record) <= 2)) {
+    if(any(abs(block_records - current_record) <= 1)) {
       block_records <- c(block_records, current_record)
       current_pos <- current_pos + 1
-    } else {
-      break  # Not connected, stop
-    }
+    } else break
   }
   
-  # Mark all these records with block ID
+  # Write block_id
   na_with_blocks <- na_with_blocks %>%
-    mutate(
-      block_id = ifelse(ID == anchor_id & RECORD %in% block_records, i, block_id)
-    )
-  
-  cat("  Block", i, "contains", length(block_records), "records:",
-      paste(sort(block_records), collapse=", "), "\n")
+    mutate(block_id = ifelse(sensor_group == anchor_group &
+                               ID == anchor_id &
+                               RECORD %in% block_records,
+                             i, block_id))
 }
 
-# Step 4: Assign remaining NA rows (without Protokolliert) to separate blocks
+# Step 4: Assign orphan blocks (also grouped!)
 max_block_id <- max(na_with_blocks$block_id, na.rm = TRUE)
 
 na_with_blocks <- na_with_blocks %>%
-  group_by(ID) %>%
+  group_by(sensor_group, ID) %>%
   arrange(RECORD) %>%
   mutate(
-    # For rows without block_id, create new blocks
     is_orphan = is.na(block_id),
     record_diff_prev = RECORD - lag(RECORD),
-    new_orphan_block = is_orphan & (row_number() == 1 | is.na(record_diff_prev) | record_diff_prev > 2),
-    orphan_block_id = ifelse(is_orphan, cumsum(new_orphan_block) + max_block_id, NA)
-  ) %>%
-  mutate(
+    new_orphan_block = is_orphan &
+      (row_number() == 1 | is.na(record_diff_prev) | record_diff_prev > 1),
+    orphan_block_id = ifelse(is_orphan,
+                             cumsum(new_orphan_block) + max_block_id,
+                             NA),
     final_block_id = ifelse(is.na(block_id), orphan_block_id, block_id)
   ) %>%
   ungroup()
 
-cat("\n=== First 30 rows with block assignment ===\n")
-print(na_with_blocks %>%
-        select(row_id, ID, RECORD, Connection_off, final_block_id) %>%
-        head(30))
-
-# Step 5: Summarize blocks
+# Step 5: Summaries
 block_summary <- na_with_blocks %>%
-  group_by(ID, final_block_id) %>%
+  group_by(sensor_group, ID, final_block_id) %>%
   summarise(
     n_rows = n(),
     first_record = min(RECORD),
     last_record = max(RECORD),
-    has_protokolliert = any(!is.na(Connection_off) & Connection_off == "Protokolliert"),
+    has_protokolliert = any(Connection_off == "Protokolliert"),
     .groups = "drop"
   ) %>%
-  mutate(
-    action = ifelse(has_protokolliert, "REMOVE", "KEEP")
-  )
+  mutate(action = ifelse(has_protokolliert, "REMOVE", "KEEP"))
 
-cat("\n=== Block Summary ===\n")
 print(block_summary, n = Inf)
-
-cat("\n=== Statistics ===\n")
-cat("Total blocks:", nrow(block_summary), "\n")
-cat("  WITH Protokolliert (REMOVE):", sum(block_summary$has_protokolliert), "\n")
-cat("  WITHOUT Protokolliert (KEEP):", sum(!block_summary$has_protokolliert), "\n")
-
 
