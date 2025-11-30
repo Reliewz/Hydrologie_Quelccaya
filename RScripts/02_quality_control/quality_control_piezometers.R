@@ -45,6 +45,7 @@
 #Sources required
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
+source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
 # ========== CONFIGURATION ==========
@@ -53,6 +54,7 @@ sheet_name <- "Rinput"
 date_column <- "Date"        # Column name for Date
 id_column <- "ID"         # Column for identification
 output_column <- "time_diff" # Column for calculated output
+
 # Coordinate data: Piezometer + BAROM
 utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAROM"),
                             x = c(299184.3993, 299279.3782, 299475.9968, 299601.0980, 299607.1613, 
@@ -97,27 +99,14 @@ interval_check <- calc_time_diff(
 )
 
 
-# ========== 4a Analyze intervals per piezometer group ==========
-cat("\nStep4a: Analyzing time intervals per piezometer...\n")
-
-interval_summary <- interval_check %>%
-  filter(!is.na(time_diff)) %>%  # Filter/Remove NA values (first entry per piezometer)
-  group_by(ID) %>%
-  summarise(
-    n_measurements = n(),
-    min_interval = min(time_diff),
-    max_interval = max(time_diff),
-    average_interval = mean(time_diff),
-    n_15min = sum(time_diff == 15), # Count specific intervals:
-    n_60min = sum(time_diff == 60),
-    n_between = sum(time_diff > 15 & time_diff < 60),
-    n_above_60 = sum(time_diff > 60),   # gaps!
-    n_below_15 = sum(time_diff < 15),  # Unexpected values potentially in connection with maintanance and sensor errors
-    .groups = "drop" # same effect than the command ungroup(), special for summarize.
-  )
-
-# Display results
-cat("\n=== Interval Summary by Piezometer ===\n")
+# ========== 4a Analyze intervals and generate statistical summary with function_timediff_sum.R ==========
+cat("\nStep4a: Analyzing time temporal consistency intervals per piezometer...\n")
+interval_summary <- sum_timediff(
+  df = interval_check,
+  id_col = id_column,
+  date_col = date_column,
+  td_col = output_column
+)
 print(interval_summary, n = Inf)
 
 # ========== STEP 4b: Identify columns that have no information content ==========
@@ -274,7 +263,8 @@ data_raw_flagged <- data_raw_flagged %>%
 
 # ======================STEP 7: Further Explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchor.)==============================
 
-# select orphan blocks
+# select orphan blocks for further analysis
+message("The orphan blocks have been generated but will be analyzed apart of this script")
 orphans_clean <- na_with_blocks %>% 
   filter(final_block_id == 44) %>%
   select(ID, Date, RECORD, Abs_pres, Temp) %>%
