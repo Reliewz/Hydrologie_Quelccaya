@@ -150,22 +150,22 @@ cat("\n=== Identify RECORD blocks containing 'Protokolliert' ===\n")
 rows_with_na <- rows_with_na %>%
   mutate(sensor_group = sub("(_.*)$", "", ID)) # New column "sensor_group" Extract everything from the ID until the "_" PZ01_01 -> PZ01
 
-# Step 1: Find all "Protokolliert" rows
+# Find all "Protokolliert" rows
 protokolliert_anchors <- rows_with_na %>%
   filter(!is.na(Connection_off) & Connection_off == "Protokolliert") %>% # Filter everything that is not "NA" and that is exatcly "==" "Protokolliert".
   select(sensor_group, ID, RECORD, row_id) %>% # Extract following column names.
   rename(protokolliert_record = RECORD, # rename columns
-         protokolliert_row = row_id)
+         protokolliert_row = row_id) 
 
 cat("Found", nrow(protokolliert_anchors), "Protokolliert events\n")
 print(protokolliert_anchors)
 
-# Step 2: Create NA block container
+# Create NA block container
 na_with_blocks <- rows_with_na %>% # Pipeline Operator
   arrange(sensor_group, ID, RECORD) %>% # Organize the data first by Sensor_group, then ID and then RECORD.
   mutate(block_id = NA_integer_) # create a new column type "integer" fill in NA for now.
 
-# Step 3: Build ±1 RECORD blocks within each sensor_group
+# Build ±1 RECORD blocks within each sensor_group
 for(i in 1:nrow(protokolliert_anchors)) { # for indicates the beginning of a loop for the number 1 until the number of Protokolliert anchors.
   
   # safing the sensor group, id and record.
@@ -176,12 +176,13 @@ for(i in 1:nrow(protokolliert_anchors)) { # for indicates the beginning of a loo
   cat("\nProcessing Protokolliert at GROUP:", anchor_group,
       "ID:", anchor_id, "RECORD:", anchor_record, "\n")
   
-  # Filter only this sensor_group and this ID
+  # Building id_rows dataframe so that the loop recieves filtered and arranged data. from one Device at a time.
   id_rows <- na_with_blocks %>% 
     filter(sensor_group == anchor_group, # thats where the changed happen. now we also filter according to sensor group so that now other sensor will get included. Filter only rows where both conditions are true. Sensor Group and anchor_group.
-           ID == anchor_id) %>% # filter only rows where the anchor_id matches the ID
+           ID == anchor_id) %>% # filter only rows where the anchor_id matches the ID.
     arrange(RECORD)
   
+  # Build dataframe anchor_pos to extract the "protokolliert" rows
   anchor_pos <- which(id_rows$RECORD == anchor_record) # establishes a logic vector where id_rows$reocrds matches anchor_record. Which extracts the row number.
   if(length(anchor_pos) == 0) next # Check if in the filtered rows a anchor "protokolliert" can be detected. if not the next rows will be analyszed
   
@@ -189,17 +190,17 @@ for(i in 1:nrow(protokolliert_anchors)) { # for indicates the beginning of a loo
   
   # === backward (±1 only) ===
   current_pos <- anchor_pos - 1 # Starting point. Start is a row before the anchor.
-  while(current_pos >= 1) { # while loop. The loop continues itself as long as the conditions are TRUE. WHILE - COndition. as long as we have rows the loop continues
-    current_record <- id_rows$RECORD[current_pos] # the values of the id_rows$Record is extracted and safed in current_record
-    if(any(abs(block_records - current_record) <= 1)) { # IF. only if the condition is true the block will be executed. any() allows the if condition to accept 2 logical decisions. Because it originally accepts only 1. abs() checks value independently of its algebraic sign.
-      block_records <- c(block_records, current_record)
-      current_pos <- current_pos - 1
+  while(current_pos >= 1) { # while loop. The loop continues itself as long as the conditions are TRUE. WHILE - COndition. as long as we have rows the loop continues. Makes sure that it stops when no more rows exist.
+    current_record <- id_rows$RECORD[current_pos] # the values of the id_rows$Record is extracted and will be compared later with block_records [] allow to work with the index not value
+    if(any(abs(block_records - current_record) <= 1)) { # IF. only if the condition is true the block will be executed. any() allows the if condition to accept more than 1 logical decision, allows the current_pos to get compared to ALL block numbers. Because it originally accepts only 1. abs() checks value independently of its algebraic sign. allowing connections to all block numbers in both directions
+      block_records <- c(block_records, current_record) # combine logic that attaches the current_pos to the block records.
+      current_pos <- current_pos - 1  
     } else break
   }
   
   # === forward (±1 only) ===
-  current_pos <- anchor_pos + 1
-  while(current_pos <= nrow(id_rows)) {
+  current_pos <- anchor_pos + 1 # forward count from "protokolliert" anchor_pos.
+  while(current_pos <= nrow(id_rows)) { #nrows marks the last record index existing in this dataframe. Tells the loop where to stop.
     current_record <- id_rows$RECORD[current_pos]
     if(any(abs(block_records - current_record) <= 1)) {
       block_records <- c(block_records, current_record)
@@ -209,41 +210,76 @@ for(i in 1:nrow(protokolliert_anchors)) { # for indicates the beginning of a loo
   
   # Write block_id
   na_with_blocks <- na_with_blocks %>%
-    mutate(block_id = ifelse(sensor_group == anchor_group &
-                               ID == anchor_id &
-                               RECORD %in% block_records,
-                             i, block_id))
+    mutate(block_id = ifelse(sensor_group == anchor_group & #ifelse condition. TRUE Argument: only when anchor_group is in the same sensor_group
+                               ID == anchor_id & # AND only if the ID matches the Anchor
+                               RECORD %in% block_records, # AND the record value is within our generated block.
+                             i, block_id)) # If all requirements are met, assign block number of the current loop to index i. FALSE Condition: if not, keep existing block_id
 }
 
-# Step 4: Assign orphan blocks (also grouped!)
-max_block_id <- max(na_with_blocks$block_id, na.rm = TRUE)
+# Assign grouped orphan blocks. Blocks that do not have a protokolliert anchor count as orphan blocks.
+max_block_id <- max(na_with_blocks$block_id, na.rm = TRUE) # return the maximum value on how many block_id´s exist. ignores NA values.
 
 na_with_blocks <- na_with_blocks %>%
-  group_by(sensor_group, ID) %>%
-  arrange(RECORD) %>%
+  group_by(sensor_group, ID) %>% # group first by sensor_group then by ID
+  arrange(RECORD) %>% # organize the data by records
   mutate(
-    is_orphan = is.na(block_id),
-    record_diff_prev = RECORD - lag(RECORD),
+    is_orphan = is.na(block_id), # counts as orphan when it didnt get assigned to a "protokolliert" block yet and therefore has NA
+    record_diff_prev = RECORD - lag(RECORD), # logic to detect jumps when difference higher than 1.
     new_orphan_block = is_orphan &
-      (row_number() == 1 | is.na(record_diff_prev) | record_diff_prev > 1),
+      (row_number() == 1 | is.na(record_diff_prev) | record_diff_prev > 1), # rows that mark the beginning of a new orphan block 
     orphan_block_id = ifelse(is_orphan,
-                             cumsum(new_orphan_block) + max_block_id,
+                             cumsum(new_orphan_block) + max_block_id, # to assign all orphan blocks the number 44
                              NA),
-    final_block_id = ifelse(is.na(block_id), orphan_block_id, block_id)
+    final_block_id = ifelse(is.na(block_id), orphan_block_id, block_id) # if else condition when block ID contains NA use orphan block id or keep the original block_id
   ) %>%
   ungroup()
 
-# Step 5: Summaries
+# Summaries
 block_summary <- na_with_blocks %>%
   group_by(sensor_group, ID, final_block_id) %>%
   summarise(
     n_rows = n(),
     first_record = min(RECORD),
     last_record = max(RECORD),
-    has_protokolliert = any(Connection_off == "Protokolliert"),
+    has_protokolliert = any(Connection_off == "Protokolliert", na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  mutate(action = ifelse(has_protokolliert, "REMOVE", "KEEP"))
+  mutate(action = ifelse(has_protokolliert, "DELETE", "REVIEW"))
 
 print(block_summary, n = Inf)
+
+#=============STEP 6: Creating a dataframe that contains the selected flags from the previous workflow ===============
+cat("Creaiting a dataframe that contains the actions that later will be executed as flags")
+
+# Create full copy of the raw dataset
+data_raw_flagged <- data_raw
+
+# Select only the relevant block information
+block_info <- na_with_blocks %>%
+  select(ID, sensor_group, final_block_id, RECORD)
+
+# Add block information back to the full dataset
+#    (This step restores final_block_id for the entire data_raw)
+data_raw_flagged <- data_raw_flagged %>%
+  left_join(block_info,
+            by = c("ID", "RECORD"))
+
+# Join the block actions (REMOVE / REVIEW)
+data_raw_flagged <- data_raw_flagged %>%
+  left_join(
+    block_summary %>% select(ID, sensor_group, final_block_id, action),
+    by = c("ID", "sensor_group", "final_block_id")
+  ) %>%
+  rename(Flags = action)
+
+# ======================STEP 7: Further Explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchor.)==============================
+
+# select orphan blocks
+orphans_clean <- na_with_blocks %>% 
+  filter(final_block_id == 44) %>%
+  select(ID, Date, RECORD, Abs_pres, Temp) %>%
+  arrange(ID, Date)
+
+print(orphans_clean, n = Inf, width = Inf)
+
 
