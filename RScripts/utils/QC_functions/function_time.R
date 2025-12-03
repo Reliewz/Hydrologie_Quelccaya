@@ -14,8 +14,8 @@
 
 #' calc_time_diff
 #' 
-#' Berechnet die Zeitdifferenz (in Minuten) pro Gerät/ID und hängt eine Spalte an.
-#' Generisch für Piezometer, WLS, Meteo usw.
+#' Colculate time difference (in minutes) of each individual device and add column
+#' Generic forpiezometer, WLS, meteorological stations.
 #' # ========== CONFIGURATION ==========
 #' @param df data.frame
 #' @param id_col string: Name der ID-Spalte
@@ -44,6 +44,7 @@ calc_time_diff <- function(df, id_col, date_col = "Date", out_col = "time_diff",
   
 df <- df %>% # df will be later assigned to the used data frame
   group_by(!!id_column) %>% #grouped by id
+  arrange(!!id_column, !!date_column) %>%
   mutate(
   !!output_column :=
   as.numeric(difftime(!!date_column, lag(!!date_column), units = units)) # generating a new column with :=. difftime() function
