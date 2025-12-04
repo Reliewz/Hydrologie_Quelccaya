@@ -46,15 +46,14 @@
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
+source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
-# ========== CONFIGURATION ==========
-# Parameters
-sheet_name <- "Rinput"
-date_column <- "Date"        # Column name for Date
-id_column <- "ID"         # Column for identification
-output_column <- "time_diff" # Column for calculated output
 
+# ========== CONFIGURATION ==========
+#Parameters
+maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+measurement_columns <- c("Abs_pres", "Temp")
 # Coordinate data: Piezometer + BAROM
 utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAROM"),
                             x = c(299184.3993, 299279.3782, 299475.9968, 299601.0980, 299607.1613, 
@@ -69,7 +68,7 @@ utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAR
 cat("Step 1: Columns and data type")
 # Assigning multiple columns from logi -> chr format
 data_raw <- data_raw %>%
-  mutate(across(c(Connection_off, Connection_on, Host_connected, Data_end), 
+  mutate(across(all_of(maintenance_info_columns), # all_of for vectors, instead of !!sym() for strings/symbols
                 as.character))
 cat("✓ Converted connection status columns to character format")
 message("columns have been assigned the correct type.")
@@ -87,10 +86,10 @@ wgs_coords_pz <- utm_to_latlon(
   hemisphere = "south"
 )
 
-#===== STEP 4 Starting with the temporal evaluation if timesteps are uniform and tiding steps are necessary.
+#===== STEP 4 Starting with the temporal evaluation if time steps are uniform and tiding steps are necessary.
 cat("Starting with the temporal evaluation if timesteps are uniform and tiding steps are necessary.")
 
-# calculating the time different between the timesteps for temporal consistency test. creating time_diff column, using function_time.R
+# STEP 4a calculating the time different between the time steps for temporal consistency test. creating time_diff column, using function_time.R
 interval_check <- calc_time_diff(
   df = data_raw,
   id_col = id_column,
@@ -99,37 +98,45 @@ interval_check <- calc_time_diff(
 )
 
 
-# ========== 4a Analyze intervals and generate statistical summary with function_timediff_sum.R ==========
+# ========== 4b Analyze intervals and generate statistical summary with function_timediff_sum.R ==========
 cat("\nStep4a: Analyzing time temporal consistency intervals per piezometer...\n")
 interval_summary <- sum_timediff(
   df = interval_check,
   id_col = id_column,
   date_col = date_column,
-  td_col = output_column
+  td_col = timediff_column
 )
+cat("\n=== Interval Summary by Piezometer group ===\n")
 print(interval_summary, n = Inf)
 
-# ========== STEP 4b: Identify columns that have no information content ==========
-cat("\n=== STEP 4b: Prepairing to remove columns without any information content ===\n")
+# ========= 4c Visual determination of rows with temporal inconsistencies with function_interval_determination.R ========
+# categories and thresholds are determined internally in the function-logic.
+temporal_issues_rows <- check_temporal_inconsistencies(
+  df = interval_check,
+  id_col = id_column,
+  date_col = date_column,
+  timediff_col = timediff_column
+)
+print(temporal_issues_rows)
+
+# ========== STEP 5: Identify columns that have no information content ==========
+cat("\n=== STEP 4b: Prepairing to remove columns without any information content (NA) ===\n")
 
 # Identify rows with NA in on of the two measurement columns and safe it for further examination in the dataframe rows_with_na
 rows_with_na <- data_raw %>%
   mutate(
     row_id = row_number(), # extracts the original row number from the dataset. Because filter() function would assign new ones.
-    has_any_na = is.na(Abs_pres) | is.na(Temp) # if one of the two is NA it gets stored in the object has_any_na
-  ) %>%
+    has_any_na = if_any(all_of(measurement_columns), is.na)) %>% # if one of the two is NA it gets stored in the object has_any_na
   filter(has_any_na == TRUE) # Since the output of is.na() function is logical (TRUE/FALSE) == makes sure that only outputs with TRUE get filtered.
 
-# Summary
-cat("Total rows with NA:", nrow(rows_with_na), "\n")
-cat("  - Abs_pres NA:", sum(is.na(rows_with_na$Abs_pres)), "\n")
-cat("  - Temp NA:    ", sum(is.na(rows_with_na$Temp)), "\n")
+rows_with_na %>%
+  summarise(across(all_of(measurement_columns), ~ sum(is.na(.x))))
 
 # Display all rows with NA
 cat("\n=== All rows with missing values ===\n")
 print(rows_with_na, n = 40)
 
-# ========== STEP 5: IDENTIFY NA SEQUENCES WITH "Protokolliert" ==========
+# ========== STEP 6: IDENTIFY NA SEQUENCES WITH "Protokolliert" ==========
 cat("\n=== STEP 4c: Identify maintenance-related NA sequences ===\n")
 
 # ========== IDENTIFY RECORD BLOCKS AROUND "Protokolliert" ==========
@@ -141,10 +148,15 @@ rows_with_na <- rows_with_na %>%
 
 # Find all "Protokolliert" rows
 protokolliert_anchors <- rows_with_na %>%
-  filter(!is.na(Connection_off) & Connection_off == "Protokolliert") %>% # Filter everything that is not "NA" and that is exatcly "==" "Protokolliert".
+  filter(
+    !is.na(.data[[maintenance_info_columns[1]]]) & #.data[[]] allows to access a column via a string.
+      .data[[maintenance_info_columns[1]]] == "Protokolliert" # Filter everything that is not "NA" and that is exactly "Protokolliert".
+  ) %>%
   select(sensor_group, ID, RECORD, row_id) %>% # Extract following column names.
-  rename(protokolliert_record = RECORD, # rename columns
-         protokolliert_row = row_id) 
+  rename(
+    protokolliert_record = RECORD,
+    protokolliert_row = row_id # rename columns
+  )
 
 cat("Found", nrow(protokolliert_anchors), "Protokolliert events\n")
 print(protokolliert_anchors)
@@ -237,7 +249,7 @@ block_summary <- na_with_blocks %>%
 
 print(block_summary, n = Inf)
 
-#=============STEP 6: Creating a dataframe that contains the selected flags from the previous workflow ===============
+#=============STEP 7: Creating a dataframe that contains the selected flags determined by the previous step ===============
 cat("Creaiting a dataframe that contains the actions that later will be executed as flags")
 
 # Create full copy of the raw dataset
@@ -261,15 +273,17 @@ data_raw_flagged <- data_raw_flagged %>%
   ) %>%
   rename(Flags = action)
 
-# ======================STEP 7: Further Explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchor.)==============================
+# ===========STEP 8: Preperation to explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchors.) to identify potential patterns ================
 
 # select orphan blocks for further analysis
 message("The orphan blocks have been generated but will be analyzed apart of this script")
-orphans_clean <- na_with_blocks %>% 
+orphans_isolated <- na_with_blocks %>% 
   filter(final_block_id == 44) %>%
   select(ID, Date, RECORD, Abs_pres, Temp) %>%
   arrange(ID, Date)
 
 print(orphans_clean, n = Inf, width = Inf)
 
-
+# ==== STEP 9: Analyzing for duplicates
+duplicated()
+distinct()
