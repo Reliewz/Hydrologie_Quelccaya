@@ -73,8 +73,9 @@ data_raw <- data_raw %>%
 cat("✓ Converted connection status columns to character format")
 message("columns have been assigned the correct type.")
 
-#===== STEP 2: Verify no missing values were found by the previous workflow
-cat("Step 2: No missing values found in Date column. Continuing with Analysis...")
+#===== STEP 2: Assign a sensor group column to the dataframe for further analysis.
+data_raw <- data_raw %>%
+mutate(sensor_group = sub("(_.*)$", "", ID))
 
 #===== STEP 3: Coordinate transformation from UTM Zone 19s to WGS84
 cat("Step 3: Coordinate transformation. UTM Zone 19S to WGS84")
@@ -129,6 +130,7 @@ rows_with_na <- data_raw %>%
     has_any_na = if_any(all_of(measurement_columns), is.na)) %>% # if one of the two is NA it gets stored in the object has_any_na
   filter(has_any_na == TRUE) # Since the output of is.na() function is logical (TRUE/FALSE) == makes sure that only outputs with TRUE get filtered.
 
+# Summary
 rows_with_na %>%
   summarise(across(all_of(measurement_columns), ~ sum(is.na(.x))))
 
