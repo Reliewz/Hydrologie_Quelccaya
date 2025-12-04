@@ -41,10 +41,8 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
 # ========== CONFIGURATION ==========
 # Parameters
-sheet_name <- "Rinput"
-date_column <- "Date"        # Column name for Date
-id_column <- "ID"         # Column for identification
-output_column <- "time_diff" # Column for calculated output
+maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+measurement_columns <- c("Abs_pres", "Temp")
 # Coordinate data: WLS + BAROM
 utm_coords_wls <- data.frame(Device = c("WLS_L", "WLS_O", "BAROM"),
                              x = c(300467.4405, 297097.5124, 298822.5337),
@@ -54,7 +52,7 @@ utm_coords_wls <- data.frame(Device = c("WLS_L", "WLS_O", "BAROM"),
 cat("Step 1: Columns and data type")
 # Assigning multiple columns from logi -> chr format
 data_raw <- data_raw %>%
-  mutate(across(c(Connection_off, Connection_on, Host_connected, Data_end), 
+  mutate(across(all_of(maintenance_info_columns), # all_of for vectors, instead of !!sym() for strings/symbols
                 as.character))
 cat("✓ Converted connection status columns to character format")
 message("columns have been assigned the correct type.")
@@ -100,14 +98,12 @@ cat("\n=== STEP 4b: Prepairing to remove columns without any information content
 rows_with_na <- data_raw %>%
   mutate(
     row_id = row_number(), # extracts the original row number from the dataset. Because filter() function would assign new ones.
-    has_any_na = is.na(Abs_pres) | is.na(Temp) # if one of the two is NA it gets stored in the object has_any_na
-  ) %>%
+    has_any_na = if_any(all_of(measurement_columns), is.na)) %>% # if one of the two is NA it gets stored in the object has_any_na
   filter(has_any_na == TRUE) # Since the output of is.na() function is logical (TRUE/FALSE) == makes sure that only outputs with TRUE get filtered.
 
 # Summary
-cat("Total rows with NA:", nrow(rows_with_na), "\n")
-cat("  - Abs_pres NA:", sum(is.na(rows_with_na$Abs_pres)), "\n")
-cat("  - Temp NA:    ", sum(is.na(rows_with_na$Temp)), "\n")
+rows_with_na %>%
+  summarise(across(all_of(measurement_columns), ~ sum(is.na(.x))))
 
 # Display all rows with NA
 cat("\n=== All rows with missing values ===\n")
@@ -119,12 +115,17 @@ cat("\n=== STEP 4c: Identify maintenance-related NA sequences ===\n")
 # ========== IDENTIFY RECORD BLOCKS AROUND "Protokolliert" ==========
 cat("\n=== Identify RECORD blocks containing 'Protokolliert' ===\n")
 
-# Step 1: Find all "Protokolliert" rows
+# Find all "Protokolliert" rows
 protokolliert_anchors <- rows_with_na %>%
-  filter(!is.na(Connection_off) & Connection_off == "Protokolliert") %>% # Filter everything that is not "NA" and that is exatcly "==" "Protokolliert".
-  select(ID, RECORD, row_id) %>% # Extract following column names.
-  rename(protokolliert_record = RECORD, # rename columns
-         protokolliert_row = row_id) 
+  filter(
+    !is.na(.data[[maintenance_info_columns[1]]]) & #.data[[]] allows to access a column via a string.
+      .data[[maintenance_info_columns[1]]] == "Protokolliert" # Filter everything that is not "NA" and that is exactly "Protokolliert".
+  ) %>%
+  select(sensor_group, ID, RECORD, row_id) %>% # Extract following column names.
+  rename(
+    protokolliert_record = RECORD,
+    protokolliert_row = row_id # rename columns
+  )
 
 cat("Found", nrow(protokolliert_anchors), "Protokolliert events\n")
 print(protokolliert_anchors)
