@@ -13,11 +13,14 @@
 
 
 # ========== Load Library ==========
-library(dplyr)      # Für Datenmanipulation
-library(tidyr)      # Für Datenstruktur
-library(lubridate)  # Für Datumsoperationen
-library(readxl)     # Für Excel-Import
+library(dplyr)      # For Datamanipulation
+library(tidyr)      # For Datastructure
+library(lubridate)  # For Date Options
+library(readxl)     # For Excel Import
 library(stringr)    # Added to extract Piezometer ID part of tidyr
+library(naniar)     # Examination of NA data
+library(gtExtras)   # Creating easy tables
+
 
 
 # Import Data Sources
@@ -26,7 +29,7 @@ library(stringr)    # Added to extract Piezometer ID part of tidyr
 
 # ========== CONFIGURATION ==========
 #Dataframe
-input_file <- "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QORIKALIS\\Meteorological_data\\processed\\QORIKALIS_merged.xlsx"
+input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
 #alternative paths: 
 # WLS: D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx
 #Parameters
@@ -41,7 +44,7 @@ message("Column names have been assigned beforehand in Power Quiery===")
 cat("\n=== STEP 1: Load data ===\n")
 
 # Import Excel file
-data_raw <- read_excel(input_file, sheet = sheet_name)
+data_raw <- read_excel(input_file, sheet = sheet_name, guess_max = 100000) # guess_max allows for column identification to cahracter in the maintenance columns.
 
 # Initial inspection
 cat("Dimensions:", nrow(data_raw), "rows x", ncol(data_raw), "columns\n")
