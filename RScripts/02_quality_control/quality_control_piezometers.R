@@ -144,10 +144,6 @@ cat("\n=== STEP 4c: Identify maintenance-related NA sequences ===\n")
 # ========== IDENTIFY RECORD BLOCKS AROUND "Protokolliert" ==========
 cat("\n=== Identify RECORD blocks containing 'Protokolliert' ===\n")
 
-# ---- NEW: Extract sensor group (PZ01, PZ02, …) ----
-rows_with_na <- rows_with_na %>%
-  mutate(sensor_group = sub("(_.*)$", "", ID)) # New column "sensor_group" Extract everything from the ID until the "_" PZ01_01 -> PZ01
-
 # Find all "Protokolliert" rows
 protokolliert_anchors <- rows_with_na %>%
   filter(
@@ -165,7 +161,7 @@ print(protokolliert_anchors)
 
 # Create NA block container
 na_with_blocks <- rows_with_na %>% # Pipeline Operator
-  arrange(sensor_group, ID, RECORD) %>% # Organize the data first by Sensor_group, then ID and then RECORD.
+  arrange(sensor_group, !!sym(id_column), !!sym(date_column), RECORD) %>% # Organize the data first by Sensor_group, then ID and then RECORD.
   mutate(block_id = NA_integer_) # create a new column type "integer" fill in NA for now.
 
 # Build ±1 RECORD blocks within each sensor_group
@@ -259,7 +255,7 @@ data_raw_flagged <- data_raw
 
 # Select only the relevant block information
 block_info <- na_with_blocks %>%
-  select(ID, sensor_group, final_block_id, RECORD)
+  select(ID, final_block_id, RECORD)
 
 # Add block information back to the full dataset
 #    (This step restores final_block_id for the entire data_raw)
@@ -267,24 +263,32 @@ data_raw_flagged <- data_raw_flagged %>%
   left_join(block_info,
             by = c("ID", "RECORD"))
 
-# Join the block actions (REMOVE / REVIEW)
+# Join the block actions (DELETE / REVIEW)
 data_raw_flagged <- data_raw_flagged %>%
   left_join(
-    block_summary %>% select(ID, sensor_group, final_block_id, action),
-    by = c("ID", "sensor_group", "final_block_id")
+    block_summary %>% select(ID, final_block_id, action),
+    by = c("ID", "final_block_id")
   ) %>%
   rename(Flags = action)
 
 # ===========STEP 8: Preperation to explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchors.) to identify potential patterns ================
 
-# select orphan blocks for further analysis
-message("The orphan blocks have been generated but will be analyzed apart of this script")
+# Isolate orphan blocks for external QC analysis
+message("The orphan blocks are isolated here but analyzed in a dedicated QC script. (qc_analysis_piezometer.R)")
 orphans_isolated <- na_with_blocks %>% 
   filter(final_block_id == 44) %>%
-  select(ID, Date, RECORD, Abs_pres, Temp) %>%
-  arrange(ID, Date)
+  select(
+    !!sym(id_column),           # dynamically selected ID column
+    !!sym(date_column),         # dynamically selected datetime column
+    RECORD,                     # keep RECORD metadata
+    all_of(maintenance_info_columns),  # maintenance-related metadata
+    all_of(measurement_columns)        # sensor measurement variables
+  ) %>%
+  arrange(!!sym(id_column), !!sym(date_column))   # sort for consistency
 
-print(orphans_clean, n = Inf, width = Inf)
+
+
+print(orphans_isolated, n = Inf, width = Inf)
 
 # ==== STEP 9: Analyzing for duplicates
 duplicated()
