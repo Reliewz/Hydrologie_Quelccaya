@@ -8,6 +8,7 @@
 
 # User-specific files
 .Ruserdata
+.Rprofile
 
 # Example code in package build process
 *-Ex.R
@@ -20,6 +21,7 @@
 
 # RStudio files
 .Rproj.user/
+*.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -48,7 +50,24 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# lokale Projekt-spezifische Einträge
+# renv - nur Library ignorieren, Settings behalten für Reproduzierbarkeit
 renv/library/
 renv/staging/
+renv/local/
+
+# lokale Projekt-spezifische Einträge
 Dataframes&Workspace/
+Datenquellen/
+Workspace/
+results/
+
+# Old/experimental scripts
+RScripts/Old airGR/
+RScripts/utils/Git_test.R
+
+# Text files
+RStudio_Headline.txt
+
+# Temporäre Systemdateien
+.DS_Store
+Thumbs.db
