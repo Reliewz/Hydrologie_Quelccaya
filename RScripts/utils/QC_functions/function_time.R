@@ -22,7 +22,6 @@
 #' @param date_col string: Name der Zeit-Spalte (default "Date")
 #' @param out_col string: Name der Ausgabespalte (default "time_diff")
 #' @param units string: units für difftime (default "mins")
-#' @param sort logical: ob vorab nach id_col & time_col sortiert werden soll (default TRUE)
 #' @return tibble mit zusätzlicher Spalte out_col
 #' @export
 
