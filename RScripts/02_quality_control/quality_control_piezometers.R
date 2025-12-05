@@ -52,8 +52,34 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
 # ========== CONFIGURATION ==========
 #Parameters
-maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+#Process Parameters
+date_column <- "Date"        # Column name for timestamp
+id_column <- "ID"         # Column for identification
+output_column <- "time_diff" # Column for calculated output
+timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
 measurement_columns <- c("Abs_pres", "Temp")
+maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+
+# Metadata parameters
+sensor_units <- list(Abs_pres = "kPa", Temp = "°C")
+Sensor_information <- list(
+  PZ01_SN = "21826509",
+  PZ02_SN = "21826502",
+  PZ03_SN = "21826497",
+  PZ04_SN = "21826519",
+  PZ05_SN = "21826512",
+  PZ06_SN = "21826504",
+  PZ07_SN = "21826505",
+  PZ08_SN = "21826596",
+  PZ09_SN = "21826594",
+  PZ10_SN = "21826516",
+  PZ11_SN = "21826500",
+  PZ12_SN = "21826503")
+
+# Workflow Parameters:
+record_tolerance <- 1
+timezone <- "America/Lima GMT +5"
+
 # Coordinate data: Piezometer + BAROM
 utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAROM"),
                             x = c(299184.3993, 299279.3782, 299475.9968, 299601.0980, 299607.1613, 
@@ -87,8 +113,8 @@ wgs_coords_pz <- utm_to_latlon(
   hemisphere = "south"
 )
 
-#===== STEP 4 Starting with the temporal evaluation if time steps are uniform and tiding steps are necessary.
-cat("Starting with the temporal evaluation if timesteps are uniform and tiding steps are necessary.")
+#===== STEP 4 Starting with the temporal evaluation if time steps are uniform and data cleaning steps are necessary.
+cat("Starting with the temporal evaluation if timesteps are uniform and data data cleaning steps are necessary.")
 
 # STEP 4a calculating the time different between the time steps for temporal consistency test. creating time_diff column, using function_time.R
 interval_check <- calc_time_diff(
@@ -121,7 +147,7 @@ temporal_issues_rows <- check_temporal_inconsistencies(
 print(temporal_issues_rows)
 
 # ========== STEP 5: Identify columns that have no information content ==========
-cat("\n=== STEP 4b: Prepairing to remove columns without any information content (NA) ===\n")
+cat("\n=== STEP 4b: Preparing to remove columns without any information content (NA) ===\n")
 
 # Identify rows with NA in on of the two measurement columns and safe it for further examination in the dataframe rows_with_na
 rows_with_na <- data_raw %>%

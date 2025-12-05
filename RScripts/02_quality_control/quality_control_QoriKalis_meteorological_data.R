@@ -25,7 +25,22 @@ source("RScripts/utils/qc_functions/function_interval_determination.R")
 
 # ========== CONFIGURATION ==========
 #Parameters
+#Process Parameters
+date_column <- "Date"        # Column name for timestamp
+id_column <- "ID"         # Column for identification
+output_column <- "time_diff" # Column for calculated output
+timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
+measurement_columns <- c("AirTC", "RH", "Precip_Tot", "WS", "WS_Max", "WD", "DewP")
 
+# Metadata parameters
+sensor_units <- list(AirTC = "°C", RH = "%", Precip_Tot = "mm", WS = "m/s", WS_Max = "m/s", WD = "°", Dewp = "°C")
+Sensor_information <- list(
+  AirTC/RH_S-THC-M008_SN = "21666169",
+  Rain_Gauge_HOBO_S-RGB-M002_SN = "21673752",
+  Wind_HOBO_S-WCF-M003_SN = "21742435")
+
+#Workflow Parameter
+timezone <- "America/Lima GMT +5"
 
 # ======STEP 1  Starting with the temporal evaluation if time steps are uniform and tiding steps are necessary. =======
 cat("Starting with the temporal evaluation if timesteps are uniform and tiding steps are necessary.")

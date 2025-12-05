@@ -28,11 +28,6 @@
 # All water level data is now merged into one Excel file for furhter analysis in RStudio.
 #======================================================================
 
-library(dplyr)
-library(lubridate)
-library(readxl)
-library(renv)
-
 #Sources required
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
@@ -41,8 +36,24 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
 # ========== CONFIGURATION ==========
 # Parameters
-maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+#Process Parameters
+date_column <- "Date"        # Column name for timestamp
+id_column <- "ID"         # Column for identification
+output_column <- "time_diff" # Column for calculated output
+timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
 measurement_columns <- c("Abs_pres", "Temp")
+maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+
+# Metadata parameters
+sensor_units <- list(Abs_pres = "kPa", Temp = "°C")
+Sensor_information <- list(
+  WLS_L_SN = "21826493",
+  WLS_O_SN = "21826515")
+
+#Workflow Parameter
+record_tolerance <- 1
+timezone <- "America/Lima GMT +5"
+
 # Coordinate data: WLS + BAROM
 utm_coords_wls <- data.frame(Device = c("WLS_L", "WLS_O", "BAROM"),
                              x = c(300467.4405, 297097.5124, 298822.5337),
