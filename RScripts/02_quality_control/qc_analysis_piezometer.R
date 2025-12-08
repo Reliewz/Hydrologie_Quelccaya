@@ -27,7 +27,7 @@ deleted_rows <- interval_check %>%
 filter_interv_check <- interval_check %>%
   filter(Flags != "DELETE" | is.na(Flags))
 
-
+# STEP 3: Filter all rows marked as "REVIEW"
 
 
   
