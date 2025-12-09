@@ -27,34 +27,31 @@ deleted_rows <- interval_check %>%
 filter_interv_check <- interval_check %>%
   filter(Flags != "DELETE" | is.na(Flags))
 
-# STEP 3: Filter all rows marked as "REVIEW"
+# ====STEP 3: Filter all rows marked as "REVIEW" =====
+filter_interv_check <- interval_check %>%
+  filter(Flags != "REVIEW" | is.na(Flags))
 
+# ===== Review Flags analysis =====
 
-  
-  miss_var_summary(data_raw) %>%
-  gt() %>% 
-  gt_theme_guardian() %>%
-  tab_header(title = "Missingness of variables")
-#Verification step if there are any other value than NA in the following columns.
-  unique(unlist(data_raw %>% select(all_of(maintenance_info_columns[2:4]))))
+# Documentation "REVIEW" flags since there is no information content in the measurement value section
+deleted_rows <- interval_check %>% 
+  filter(Flags == "DELETE" | Flags == "REVIEW")
 
+# Keep alls rows that are not "DELETE" and "REVIEW"
+filter_interv_check <- interval_check %>%
+  filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
 
-  
-
-
-
-# STEP 3 comparing results in a summary
-interval_summary <- sum_timediff(
+# STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
+filter_interval_summary <- sum_timediff(
   df = filter_interv_check,
   id_col = id_column,
   date_col = date_column,
   td_col = output_column
 )
 cat("\n=== Interval Summary by Piezometer group ===\n")
-print(interval_summary, n = Inf)
+print(filter_interval_summary, n = Inf)
 
-#STEP 4 Idetifing the specific rows
-#Visual determination of rows with temporal inconsistencies with function_interval_determination.R ========
+# Visual determination of rows with temporal inconsistencies with function_interval_determination.R
 temporal_issues_rows <- check_temporal_inconsistencies(
   df = filter_interv_check,
   id_col = id_column,
@@ -63,40 +60,11 @@ temporal_issues_rows <- check_temporal_inconsistencies(
 )
 print(temporal_issues_rows)
 
+# STEP 5: Verification if all maintenance related columns have been removed completely
+temporal_issues_rows <- temporal_issues_rows %>%
+  as.data.frame(temporal_issues_rows)
+  select(all_of(maintenance_info_columns)) %>%
+  is.na(all_of(maintenance_info_columns))
+  
 
 
-
-
-
-
-
-
-
-
-# ===== Rewview Flags analysis =====
-
-# Also adding "REVIEW" rows since there is no information content in the measurement value section
-deleted_rows <- interval_check %>% 
-  filter(Flags == "DELETE" | Flags == "REVIEW")
-
-# Keep alls rows that are not "DELETE" and "REVIEW"
-filter_interv_check <- interval_check %>%
-  filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
-
-# STEP 3 comparing results when "DELETED" and "REVIEW" are removed
-interval_summary <- sum_timediff(
-  df = filter_interv_check,
-  id_col = id_column,
-  date_col = date_column,
-  td_col = output_column
-)
-cat("\n=== Interval Summary by Piezometer group ===\n")
-print(interval_summary, n = Inf)
-
-# STEP 2: Summarize the change in the datafrrame interval_summary
-
-# STEP 3: Analyzing "REVIEW" flags and temporal context =====
-
-#  Analyse "REVIEW" flags in temporal context
-# Extract Indices
-review_idx <- which(data_raw_flagged$Flags == "REVIEW")
