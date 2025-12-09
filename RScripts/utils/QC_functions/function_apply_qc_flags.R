@@ -20,34 +20,53 @@
 #' @param flag_value a parameter where the user has to assign a flag value f.e. "REVIEW", "DELETE" (...)
 #' @param apply_flags_col the column where the flags will be applied to
 #' @param merge_col the column who serves as a link between the dataframe and flag_info to perform joins, to merge the information
+#' @param df_flag_info second data frame which contains the flag information that later will be joined with df
 #' @param id_col (optional) if the data set contains more than one measurement device. This column adds a group_by logic to apply the logic to one device before going to the next
 #' @param sort=TRUE default value "TRUE" the function will sort the dataset with the following logic: if a id_col is assigned group by id_col, if a merge_col is assigned arrange by merge_col afterwards. If sort = false no sorting mechanism is carried out, a warning message will be displayed that the user has to sort before applying the function.
-#' @param
+#' 
 #' @return tibble or dataframe where the new assigned flags will be safed into the previous arranged and i nthe function assigned column
 
 apply_qc_flags <- function(
     df,
     flag_value = NULL,
-    flag_apply_col,
+    df_flag_info,
+    apply_flags_col,
     merge_col,
-    id_col = NA,
+    id_col = NULL,
     sort = TRUE
     )
   
 # Input validation
-  if!(merge_col %in% names(df) & merge_col %in% names(flag_info), stop("The data frame and flag_info do not contain an identical column")) # Dangerous because flag_info might be hard coded. a second dataframe is required here - revise.
+if (!is.data.frame(df)) {
+  stop("df must be a data frame or tibble")
+  }
+  
+if (!is.data.frame(df_flag_info)) {
+  stop("df_flag_info must be a data frame or tibble")
+  }  
+  
+if (!merge_col %in% names(df)) {
+  stop("The merge column, where both data frames contain identical information, need to be assigned. This serves as a connection to merge the wanted information")
+  }
+if (!merge_col %in% names(df_flag_info)) {
+  stop("The merge column, where both data frames contain identical information, need to be assigned. This serves as a connection to merge the wanted information")
+}
+
+if (class(df[[merge_col]]) != class(df_flag_info[[merge_col]])) {
+  warning("merge_col hat unterschiedliche Datentypen in df und df_flag_info!")
+}
 
 # User must assign a flag value
 if (is.null(flag_value)) {
   stop("flag_value must be specified (e.g., 'DELETE', 'REVIEW', 'SUSPECT', 'VERIFIED')")
 }
 # Missing id column
-if (id_col == Null) {
+if (is.null(id_col)) {
   warning("The function assumes that only one measurement device exists. No goup_by mechanism or measurment device distinction is applied.")
 }
 
 # Assignment of an output column where flags will be applied to.
-if !(apply_flag_col %in% names(df) {
+if (!apply_flag_col %in% names(df)) {
   stop("The data frame contains no column with flag information. A column where the flag information will be stored has to be assigned.")
 }
 
@@ -57,6 +76,7 @@ if (sort == FALSE) {
 }
 
 # Convertion of strings with characters, containing column information, to symbols.
-id_colum <- rlang::sym(!!id_col)
-apply_flags_column <- rlang::sym(!!apply_flags_col)
-merge_column <- rlang::sym(!!merge_col)
+id_colum <- rlang::sym(id_col)
+apply_flags_column <- rlang::sym(apply_flags_col)
+merge_column <- rlang::sym(merge_col)
+
