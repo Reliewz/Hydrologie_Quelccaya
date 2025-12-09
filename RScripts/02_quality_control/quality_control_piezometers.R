@@ -75,6 +75,8 @@ Sensor_information <- list(
   PZ10_SN = "21826516",
   PZ11_SN = "21826500",
   PZ12_SN = "21826503")
+apply_flags_column <- "Flags"
+merge_column <- "RECORD"
 
 # Workflow Parameters:
 record_tolerance <- 1

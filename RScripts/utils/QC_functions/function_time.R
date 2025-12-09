@@ -14,7 +14,7 @@
 
 #' calc_time_diff
 #' 
-#' Colculate time difference (in minutes) of each individual device and add column
+#' Calculate time difference (in minutes) of each individual device and add column
 #' Generic forpiezometer, WLS, meteorological stations.
 #' # ========== CONFIGURATION ==========
 #' @param df data.frame
@@ -33,7 +33,7 @@ calc_time_diff <- function(df, id_col, date_col = "Date", out_col = "time_diff",
   if (!id_col %in% names(df)) stop(sprintf("id_col '%s' not found in input_file, df.", id_col))
   if (!date_col %in% names(df)) stop(sprintf("date_col '%s' not found in input_file, df.", date_col))
  
-# Convertion of strings with characters from columns convertion to symbols. The convertion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. 
+# Convertion of strings with characters, containing column information, to symbols. The conversion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. Dplyr internal logic.
  cat("=== Strings to symbols ===")  
   id_column <- rlang::sym(id_col)
   date_column <- rlang::sym(date_col)
