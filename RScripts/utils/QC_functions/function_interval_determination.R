@@ -17,7 +17,8 @@
 #' @param categories String to analyze intervals < 15 minutes, > 15 < 60 minutes and >60 minutes. Default: all categories will be analyzed
 #' @param thresholds sets the threshold value in minutes. Default: 15, 60
 #' @param sort Logical. Should data be sorted within function? Default: TRUE
-#' @return List containing data frames for each selected category
+#' @param output c("df", "list", "both")
+#' @return Data frame or tibble containing columns for each selected category
 #' 
 
 check_temporal_inconsistencies <- function(
@@ -27,7 +28,8 @@ check_temporal_inconsistencies <- function(
     timediff_col,
     categories = c("below15", "between15_60", "between60_1440", "above1440"),
     thresholds = c(15, 60, 1440),
-    sort = TRUE
+    sort = TRUE,
+    output = c("df", "list", "both")
 ) {
   # Input validation
     # 1. Check if data frame has right type
@@ -69,7 +71,7 @@ df <- df %>%
     ungroup()
     }
   
-# creating an empty list where the results will be safed.  
+# creating an empty list where the results will be saved.  
   interval_results <- list()
   
 # calculates & safes the time steps > daily timesteps into a list
@@ -100,7 +102,36 @@ df <- df %>%
   mutate(category = "below15")
   }
   
-return(interval_results)
+  
+  # Add flag columns for each category to create a data frame (vectorized)
+  df <- df %>%
+    mutate(
+      below15 = if ("below15" %in% categories) {
+        !!timediff_column < thresholds[1]
+      } else {
+        NA
+      },
+      
+      between15_60 = if ("between15_60" %in% categories) {
+        !!timediff_column > thresholds[1] & !!timediff_column < thresholds[2]
+      } else {
+        NA
+      },
+      
+      between60_1440 = if ("between60_1440" %in% categories) {
+        !!timediff_column > thresholds[2] & !!timediff_column < thresholds[3]
+      } else {
+        NA
+      },
+      
+      above1440 = if ("above1440" %in% categories) {
+        !!timediff_column > thresholds[3]
+      } else {
+        NA
+      }
+    )
+  
+return(df)
 }  
 
 
