@@ -23,7 +23,12 @@
 #' @param df_flag_info second data frame which contains the flag information that later will be joined with df
 #' @param id_col (optional) if the data set contains more than one measurement device. This column adds a group_by logic to apply the logic to one device before going to the next
 #' @param sort=TRUE default value "TRUE" the function will sort the dataset with the following logic: if a id_col is assigned group by id_col, if a merge_col is assigned arrange by merge_col afterwards. If sort = false no sorting mechanism is carried out, a warning message will be displayed that the user has to sort before applying the function.
-#' 
+#' @param conflict_mode in case of a merging conflict (overlapping of QC flags) the user decides how to handle it 
+#'  \describe{
+#'    \item{stop}{default setting for good practice methods. The user has to solve the conflict manually or set a conflict_mode}
+#'    \item{overwrite}{The new flags assigment will be chosen old ones will be removed}
+#'    \item{combine}{Both flags will be kept and combined into one column. seperated by ","}
+#'  }
 #' @return tibble or dataframe where the new assigned flags will be safed into the previous arranged and i nthe function assigned column
 
 apply_qc_flags <- function(
@@ -33,8 +38,9 @@ apply_qc_flags <- function(
     apply_flags_col,
     merge_col,
     id_col = NULL,
-    sort = TRUE
-    )
+    sort = TRUE,
+    conflict_mode = c("stop", "overwrite", "combine")
+    ) {
   
 # Input validation
 if (!is.data.frame(df)) {
@@ -62,7 +68,7 @@ if (is.null(flag_value)) {
 }
 # Missing id column
 if (is.null(id_col)) {
-  warning("The function assumes that only one measurement device exists. No goup_by mechanism or measurment device distinction is applied.")
+  warning("The function assumes that only one measurement device exists. No group_by mechanism or measurment device distinction is applied.")
 }
 
 # Assignment of an output column where flags will be applied to.
@@ -71,7 +77,7 @@ if (!apply_flags_col %in% names(df)) {
 }
 
 # Sort function
-if (sort == FALSE) {
+if (!sort) {
   warning("no sorting mechanism is carried out. Good practice examples suggest to always organize the data before appling operational steps.")
 }
 
@@ -79,11 +85,17 @@ if (sort == FALSE) {
 if (is.list(df_flag_info) && !is.data.frame(df_flag_info)) {
   stop("df_flag_info appears to be a list. Please extract a single data frame first (e.g., df_flag_info$below15)")
 }
-
+# input validation of choice of conflict mode. match.arg allows only the table of strings set in the function.
+conflict_mode <- match.arg(conflict_mode)
+  
+  
 # Convertion of strings with characters, containing column information, to symbols.
-id_column <- rlang::sym(id_col)
 apply_flags_column <- rlang::sym(apply_flags_col)
 merge_column <- rlang::sym(merge_col)
+# only convert id_col to a symbol when not 0. Converting 0 into a symbol results in an error.
+if (!is.null(id_col)) {
+  id_column <- rlang::sym(id_col)
+}
 
 # Functionbody for sort - logic
 if (sort){
@@ -106,7 +118,6 @@ if (sort){
  }
 }
 
-
 # execution of join-logic (left_join)
 # Selection of the important columns for merge-process
 if (!is.null(id_col)) {
@@ -121,45 +132,71 @@ flag_info <- df_flag_info %>%
 flag_info <- flag_info %>%
   mutate(!!apply_flags_column := flag_value)
 
-
-
+# Workflow according to id_column:
+if (!is.null(id_col)) {
+  join_cols <- c(id_col, merge_col)        
+} else {
+  join_cols <- merge_col                   
+  }
 
 # Mechanism to identify a merge conflict: overlapping. isolating flagged values from original data frame
-# Extract which rows match
+# Extract which rows match.
 matched_rows <- df %>%
-  semi_join(flag_info, by = c(id_col, merge_col))
+  semi_join(flag_info, by = join_cols)
 
-# What rows already contain QC values
+# Filter What rows already contain QC values
 conflict_rows <- matched_rows %>%
   filter(!is.na(!!apply_flags_column))
 
 # If conflicts exist
 if (nrow(conflict_rows) > 0) {
-  message("Overlap conflict detected in the following rows")
   print(
     conflict_rows %>%
-      select(all_of(c(id_col, merge_col)), !!apply_flags_column)
+      select(all_of(join_cols), !!apply_flags_column)
   )
-  stop("Flag assignment conflict: Some rows already contain QC Flags Information.")
-}
-
-
-
-
-
-# Double flag assignment problem
-if (df_flag_content == df_info_flag_content) {
-  stop("Flag assignment conflict: The rows you want to merge already contain a value in the original df.")
-}
   
-# Add flag information back to the full dataset
-if (!is.null(id_col)) {
+  # Add flag information back to the full data set
   df <- df %>% 
-  left_join(flag_info,
-            by = c(id_col, merge_col))
+    left_join(flag_info, by = join_cols)
+  
+  # combining strings to handle flags.x and flags.y according to users choice
+  col_x <- paste0(apply_flags_col, ".x")
+  col_y <- paste0(apply_flags_col, ".y")
+  
+  # For Choice 1: overwrite old flags, with new flags
+  if (conflict_mode == "overwrite") {
+    df <- df %>%
+      mutate(!!apply_flags_column := !!sym(col_y))
+  }
+  
+  # For Choice 2: Combine the two flags
+  if (conflict_mode == "combine"){
+    df <- df %>%
+      mutate(
+        !!apply_flags_column :=
+          str_c(!!sym(col_x), !!sym(col_y), sep = ", ", na.rm = TRUE)
+      )
+    }
+  
+  # For choice 3: User solves the problem manually
+  if (conflict_mode == "stop"){
+    stop(
+      "Flag assignment conflict detected.\n",
+      "Conflicting rows printed above.\n",
+      "Set conflict_mode = 'overwrite' or 'combine' to proceed."
+    )
+  }
+  
+  # cleaning of columns from matching error.
+  
+  df <- df %>%
+    select(-all_of(c(col_x, col_y)))
+  
 } else {
+  # Add flag information back to the full data set
   df <- df %>% 
-    left_join(flag_info,
-              by = c(merge_col))
+    left_join(flag_info, by = join_cols)
 }
 
+return(df)
+}
