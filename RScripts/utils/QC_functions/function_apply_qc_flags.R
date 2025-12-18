@@ -1,5 +1,5 @@
 #======================================================================
-# Scriptname: utils/function_apply_qc_flags.R
+# Scriptname: utils/QC_functions/function_apply_qc_flags.R
 # Function name: apply_qc_flags()
 # Goal(s): 
   # The function assigns QC flags to the data frame: data_raw_flagged
@@ -41,6 +41,14 @@ apply_qc_flags <- function(
     sort = TRUE,
     conflict_mode = c("stop", "overwrite", "combine")
     ) {
+
+ # Convertion of strings with characters, containing column information, to symbols.
+  apply_flags_column <- rlang::sym(apply_flags_col)
+  merge_column <- rlang::sym(merge_col)
+ # only convert id_col to a symbol when not 0. Converting 0 into a symbol results in an error.
+  if (!is.null(id_col)) {
+    id_column <- rlang::sym(id_col)
+  }  
   
 # Input validation
 if (!is.data.frame(df)) {
@@ -71,11 +79,25 @@ if (is.null(id_col)) {
   warning("The function assumes that only one measurement device exists. No group_by mechanism or measurment device distinction is applied.")
 }
 
-# Assignment of an output column where flags will be applied to.
+# Assignment of an output column where flags will be applied to. If no column exist in the selected data frame it will be created
 if (!apply_flags_col %in% names(df)) {
-  stop("The data frame contains no column with flag information. A column where the flag information will be stored has to be assigned.")
-}
+  message(
+  "The data frame contains no column where the flag information will be stored. ",
+  "A column with the name '", apply_flags_col, "' will be created with NA.")
 
+  df <- df %>%
+    mutate(!!apply_flags_column := NA_character_)
+  }
+
+# Check if an existing column is type character
+if (!is.character(df[[apply_flags_col]])) {
+ warning(
+      "Flag column '", apply_flags_col,
+      "' is not of type character. Coercing to character."
+    )
+    df[[apply_flags_col]] <- as.character(df[[apply_flags_col]])
+  }
+  
 # Sort function
 if (!sort) {
   warning("no sorting mechanism is carried out. Good practice examples suggest to always organize the data before appling operational steps.")
@@ -87,15 +109,7 @@ if (is.list(df_flag_info) && !is.data.frame(df_flag_info)) {
 }
 # input validation of choice of conflict mode. match.arg allows only the table of strings set in the function.
 conflict_mode <- match.arg(conflict_mode)
-  
-  
-# Convertion of strings with characters, containing column information, to symbols.
-apply_flags_column <- rlang::sym(apply_flags_col)
-merge_column <- rlang::sym(merge_col)
-# only convert id_col to a symbol when not 0. Converting 0 into a symbol results in an error.
-if (!is.null(id_col)) {
-  id_column <- rlang::sym(id_col)
-}
+
 
 # Functionbody for sort - logic
 if (sort){
