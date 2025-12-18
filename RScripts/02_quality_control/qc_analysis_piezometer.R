@@ -62,7 +62,7 @@ print(temporal_issues_rows)
 
 # STEP 5: Verification if all maintenance related columns have been removed completely
 temporal_issues_rows <- temporal_issues_rows %>%
-  as.data.frame(temporal_issues_rows)
+  as.data.frame(temporal_issues_rows) %>%
   select(all_of(maintenance_info_columns)) %>%
   is.na(all_of(maintenance_info_columns))
   
