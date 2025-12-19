@@ -201,16 +201,24 @@ if (nrow(conflict_rows) > 0) {
     )
   }
   
-  # cleaning of columns from matching error.
+  # Add flag information back to the full data set and cleaning of columns of matching error.
   
   df <- df %>%
     select(-all_of(c(col_x, col_y)))
-  
+  # add information back to full data frame and cleaning of columns
 } else {
-  # Add flag information back to the full data set
+  # combining strings to handle flags.x and flags.y columns
+  col_x <- paste0(apply_flags_col, ".x")
+  col_y <- paste0(apply_flags_col, ".y")
+  
   df <- df %>% 
-    left_join(flag_info, by = join_cols)
+    left_join(flag_info, by = join_cols) %>%
+    mutate(
+      !!apply_flags_column := coalesce(!!sym(col_y), !!sym(col_x))
+    ) %>%
+    select(-all_of(c(col_x, col_y)))
 }
+
 
 return(df)
 }
