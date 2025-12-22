@@ -9,36 +9,48 @@
 
 #=================================================================================================================
 
-#=== Cleansing of "DELETE" Flags and rerun the sum_timediff function. ====
+#=== Cleansing of "DELETE" Flags and re-run the sum_timediff function. ====
 
-# STEP 1: left join of flags into the dataframe interval_check who now serves as the experiment df for all temporal consistency checks.
-flag_info <- data_raw_flagged %>%
-  select(ID, RECORD, Flags)
-# Add flag information back to the full dataset
+# Add flag information back to experimental data set for temporal consistency checks
 interval_check <- interval_check %>% 
   left_join(flag_info,
             by = c("ID", "RECORD"))
 
-# STEP 2: Filtering DELETED rows into separate data frame for documentation. WIll later be extracted.
+# STEP 2: Isolating DELETED rows for documentation.
 deleted_rows <- interval_check %>% 
   filter(Flags == "DELETE")
 
-# Keep all rows that are not "DELETE" also NA values.
-filter_interv_check <- interval_check %>%
+# Creating a tibble for documentation
+qc_log_piezometer <- tibble::tibble()
+
+# Documentation of QC Flags using function log_qc_flags
+qc_log_piezometer <- bind_rows(
+  qc_log_piezometer, 
+  log_qc_flags(
+  df = deleted_rows,
+  action = "initial_assignment",
+  to_flag = 'DELETE',
+  reason = "The following rows add no additional information content to analysis. (NA values in measurement columns). Protocolled  maintenance or data collection events caused the sensor to lose it´s connection. For further analysis this rows will be excluded."
+  ))
+
+# Keep all rows that are not "DELETE" also keep NA values.
+interval_check %>%
   filter(Flags != "DELETE" | is.na(Flags))
 
 # ====STEP 3: Filter all rows marked as "REVIEW" =====
-filter_interv_check <- interval_check %>%
+# Documentation "REVIEW" flags since there is no information content in the measurement value section
+review_rows <- interval_check %>% 
+  filter(Flags == "REVIEW")
+
+interval_check %>%
   filter(Flags != "REVIEW" | is.na(Flags))
 
 # ===== Review Flags analysis =====
 
-# Documentation "REVIEW" flags since there is no information content in the measurement value section
-deleted_rows <- interval_check %>% 
-  filter(Flags == "DELETE" | Flags == "REVIEW")
+
 
 # Keep alls rows that are not "DELETE" and "REVIEW"
-filter_interv_check <- interval_check %>%
+interval_check %>%
   filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
 
 # STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.

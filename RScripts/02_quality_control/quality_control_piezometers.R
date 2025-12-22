@@ -1,12 +1,12 @@
 #======================================================================
-# Scriptname: load_and_standardize.R
+# Script name: load_and_standardize.R
 # Goal(s): 
 # Documentation of steps taken in Power Quiery
 # Change Date format to POSIXct
-# Preperation of Analysis of temporal consistency -> Note that the "time_diff" column will be established for each data set but             analyszed is the respective QC_ scripts.
+# Preparation of Analysis of temporal consistency -> Note that the "time_diff" column will be established for each data set but             analyzed is the respective QC_ scripts.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
-# Input Dataset: Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx
+# Input Data set: Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx
 # Outputs: 
 # figures/temperature_timeseries.png	#
 # Units:
@@ -48,17 +48,22 @@ source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
-
+source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
+source("RScripts/utils/qc_functions/function_log_qc_flags.R")
 
 # ========== CONFIGURATION ==========
-#Parameters
-#Process Parameters
+# Parameters
+# Process Parameters temporal consistency
 date_column <- "Date"        # Column name for timestamp
-id_column <- "ID"         # Column for identification
+id_column <- "ID"# Column for identification
+sensor_group <- "sensor_group"
 output_column <- "time_diff" # Column for calculated output
 timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
 measurement_columns <- c("Abs_pres", "Temp")
 maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+  # apply qc flags workflow
+apply_flags_column <- "Flags"
+merge_column <- "RECORD"
 
 # Metadata parameters
 sensor_units <- list(Abs_pres = "kPa", Temp = "°C")
@@ -75,12 +80,12 @@ Sensor_information <- list(
   PZ10_SN = "21826516",
   PZ11_SN = "21826500",
   PZ12_SN = "21826503")
-apply_flags_column <- "Flags"
-merge_column <- "RECORD"
+
 
 # Workflow Parameters:
 record_tolerance <- 1
-timezone <- "America/Lima GMT +5"
+timezone_data <- "America/Lima"
+timezone_process <- "Europe/Berlin"
 
 # Coordinate data: Piezometer + BAROM
 utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAROM"),
@@ -250,7 +255,7 @@ na_with_blocks <- na_with_blocks %>%
   group_by(sensor_group, ID) %>% # group first by sensor_group then by ID
   arrange(RECORD) %>% # organize the data by records
   mutate(
-    is_orphan = is.na(block_id), # counts as orphan when it didnt get assigned to a "protokolliert" block yet and therefore has NA
+    is_orphan = is.na(block_id), # counts as orphan when it didn´t get assigned to a "protokolliert" block yet and therefore has NA
     record_diff_prev = RECORD - lag(RECORD), # logic to detect jumps when difference higher than 1.
     new_orphan_block = is_orphan &
       (row_number() == 1 | is.na(record_diff_prev) | record_diff_prev > 1), # rows that mark the beginning of a new orphan block 
@@ -275,29 +280,43 @@ block_summary <- na_with_blocks %>%
 
 print(block_summary, n = Inf)
 
-#=============STEP 7: Creating a dataframe that contains the selected flags determined by the previous step ===============
-cat("Creaiting a dataframe that contains the actions that later will be executed as flags")
+# assignment of correct flags with function apply_qc_flags
 
-# Create full copy of the raw dataset
+# Isolation of DELETE-blocks
+delete_blocks <- block_summary %>% filter(action == "DELETE")
+# Assign "DELETE" flag to the respective rows with function apply_qc_flags
+na_with_blocks <- apply_qc_flags(
+  df = na_with_blocks,
+  df_flag_info = delete_blocks,
+  flag_value = "DELETE",
+  apply_flags_col = apply_flags_column,
+  merge_col = "final_block_id",
+  id_col = id_column
+)
+
+# Isolation of REVIEW-Blocks
+review_blocks <- block_summary %>% filter(action == "REVIEW")
+
+# Assign "REVIEW" flag to the respective rows with function apply_qc_flags
+na_with_blocks <- apply_qc_flags(
+  df = na_with_blocks,
+  df_flag_info = review_blocks,
+  flag_value = "REVIEW",
+  apply_flags_col = apply_flags_column,
+  merge_col = "final_block_id",
+  id_col = id_column
+)
+
+#=============STEP 7: Creating a data frame that contains all QC flags determined in the workflows ===============
+cat("Creating a data frame that contains the actions that contains the flags from the previous workflow")
+
+# Create full copy of the raw data set
 data_raw_flagged <- data_raw
 
-# Select only the relevant block information
-block_info <- na_with_blocks %>%
-  select(ID, final_block_id, RECORD)
+#Preparing the object flag_info to transfer "Flags" column
 
-# Add block information back to the full dataset
-#    (This step restores final_block_id for the entire data_raw)
-data_raw_flagged <- data_raw_flagged %>%
-  left_join(block_info,
-            by = c("ID", "RECORD"))
-
-# Join the block actions (DELETE / REVIEW)
-data_raw_flagged <- data_raw_flagged %>%
-  left_join(
-    block_summary %>% select(ID, final_block_id, action),
-    by = c("ID", "final_block_id")
-  ) %>%
-  rename(Flags = action)
+flag_info <- na_with_blocks %>%
+  select(ID, RECORD, Flags)
 
 # ===========STEP 8: Preperation to explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchors.) to identify potential patterns ================
 
@@ -314,9 +333,8 @@ orphans_isolated <- na_with_blocks %>%
   ) %>%
   arrange(!!sym(id_column), !!sym(date_column))   # sort for consistency
 
-
-
 print(orphans_isolated, n = Inf, width = Inf)
+
 
 # ==== STEP 9: Analyzing for duplicates
 duplicated()
