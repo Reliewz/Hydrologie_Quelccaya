@@ -42,7 +42,7 @@
 # All Piezometers are merged in Excel to further analyse them in RStudio
 #======================================================================
 
-#Sources required
+# Sources required
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
@@ -95,6 +95,9 @@ utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAR
                             y = c(8463245.9423, 8463168.2165, 8463142.1306, 8463205.7897, 8463323.1859, 
                                   8463313.4492, 8463202.6988, 8463294.1563, 8463376.2507, 8463452.2814, 
                                   8463383.1424, 8463376.6515, 8463357.8907))
+# Outputs
+log_file <- "results/logs/qc_log_piezo_master.csv"
+
 # ===================================
 
 # ======STEP 1 =======
@@ -280,12 +283,17 @@ block_summary <- na_with_blocks %>%
 
 print(block_summary, n = Inf)
 
-# assignment of correct flags with function apply_qc_flags
+
+#=============STEP 7: Creating a data frame that contains all QC flags determined in the workflows ===============
+cat("Creating a data frame that contains the actions that contains the flags from the previous workflow")
+
+# Create full copy of the raw data set
+data_raw_flagged <- data_raw
 
 # Isolation of DELETE-blocks
 delete_blocks <- block_summary %>% filter(action == "DELETE")
 # Assign "DELETE" flag to the respective rows with function apply_qc_flags
-na_with_blocks <- apply_qc_flags(
+data_raw_flagged <- apply_qc_flags(
   df = na_with_blocks,
   df_flag_info = delete_blocks,
   flag_value = "DELETE",
@@ -296,9 +304,8 @@ na_with_blocks <- apply_qc_flags(
 
 # Isolation of REVIEW-Blocks
 review_blocks <- block_summary %>% filter(action == "REVIEW")
-
 # Assign "REVIEW" flag to the respective rows with function apply_qc_flags
-na_with_blocks <- apply_qc_flags(
+data_raw_flagged <- apply_qc_flags(
   df = na_with_blocks,
   df_flag_info = review_blocks,
   flag_value = "REVIEW",
@@ -307,16 +314,13 @@ na_with_blocks <- apply_qc_flags(
   id_col = id_column
 )
 
-#=============STEP 7: Creating a data frame that contains all QC flags determined in the workflows ===============
-cat("Creating a data frame that contains the actions that contains the flags from the previous workflow")
 
-# Create full copy of the raw data set
-data_raw_flagged <- data_raw
 
 #Preparing the object flag_info to transfer "Flags" column
 
 flag_info <- na_with_blocks %>%
   select(ID, RECORD, Flags)
+
 
 # ===========STEP 8: Preperation to explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchors.) to identify potential patterns ================
 
