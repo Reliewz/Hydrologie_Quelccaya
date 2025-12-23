@@ -284,17 +284,26 @@ block_summary <- na_with_blocks %>%
 print(block_summary, n = Inf)
 
 
-#=============STEP 7: Creating a data frame that contains all QC flags determined in the workflows ===============
+#=============STEP 7: Creating a data frame that contains all QC flags determined in the separated workflows ===============
 cat("Creating a data frame that contains the actions that contains the flags from the previous workflow")
 
-# Create full copy of the raw data set
+# Create full copy of the raw data set to create a flagged version
 data_raw_flagged <- data_raw
+
+# Preparing the object flag_info to transfer "RECORD" column
+flag_info <- na_with_blocks %>%
+  select(ID, RECORD, final_block_id)
+
+# Merge information with data_raw_flagged, add block logic
+data_raw_flagged <- data_raw_flagged %>%
+  left_join(flag_info,
+            by = c("ID", "RECORD"))
 
 # Isolation of DELETE-blocks
 delete_blocks <- block_summary %>% filter(action == "DELETE")
 # Assign "DELETE" flag to the respective rows with function apply_qc_flags
 data_raw_flagged <- apply_qc_flags(
-  df = na_with_blocks,
+  df = data_raw_flagged,
   df_flag_info = delete_blocks,
   flag_value = "DELETE",
   apply_flags_col = apply_flags_column,
@@ -302,43 +311,18 @@ data_raw_flagged <- apply_qc_flags(
   id_col = id_column
 )
 
+
 # Isolation of REVIEW-Blocks
 review_blocks <- block_summary %>% filter(action == "REVIEW")
 # Assign "REVIEW" flag to the respective rows with function apply_qc_flags
 data_raw_flagged <- apply_qc_flags(
-  df = na_with_blocks,
+  df = data_raw_flagged,
   df_flag_info = review_blocks,
   flag_value = "REVIEW",
   apply_flags_col = apply_flags_column,
   merge_col = "final_block_id",
   id_col = id_column
 )
-
-
-
-#Preparing the object flag_info to transfer "Flags" column
-
-flag_info <- na_with_blocks %>%
-  select(ID, RECORD, Flags)
-
-
-# ===========STEP 8: Preperation to explore the temporal context of orphan blocks (Blocks that are not associated with a "protokolliert" anchors.) to identify potential patterns ================
-
-# Isolate orphan blocks for external QC analysis
-message("The orphan blocks are isolated here but analyzed in a dedicated QC script. (qc_analysis_piezometer.R)")
-orphans_isolated <- na_with_blocks %>% 
-  filter(final_block_id == 44) %>%
-  select(
-    !!sym(id_column),           # dynamically selected ID column
-    !!sym(date_column),         # dynamically selected datetime column
-    RECORD,                     # keep RECORD metadata
-    all_of(maintenance_info_columns),  # maintenance-related metadata
-    all_of(measurement_columns)        # sensor measurement variables
-  ) %>%
-  arrange(!!sym(id_column), !!sym(date_column))   # sort for consistency
-
-print(orphans_isolated, n = Inf, width = Inf)
-
 
 # ==== STEP 9: Analyzing for duplicates
 duplicated()
