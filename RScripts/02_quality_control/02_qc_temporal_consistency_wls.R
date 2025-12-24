@@ -29,6 +29,7 @@
 #======================================================================
 
 #Sources required
+source("RScripts/01_import/00_config_piezometer_wls.R")
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
@@ -44,20 +45,9 @@ timediff_column <- "time_diff" # Column for further analysis in the field of tem
 measurement_columns <- c("Abs_pres", "Temp")
 maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
 
-# Metadata parameters
-sensor_units <- list(Abs_pres = "kPa", Temp = "°C")
-Sensor_information <- list(
-  WLS_L_SN = "21826493",
-  WLS_O_SN = "21826515")
 
-#Workflow Parameter
-record_tolerance <- 1
-timezone <- "America/Lima GMT +5"
 
-# Coordinate data: WLS + BAROM
-utm_coords_wls <- data.frame(Device = c("WLS_L", "WLS_O", "BAROM"),
-                             x = c(300467.4405, 297097.5124, 298822.5337),
-                             y = c(8462061.4462, 8463168.4825, 8463357.8907))
+
 # ===================================
 
 cat("Step 1: Columns and data type")
@@ -76,15 +66,6 @@ interval_check <- calc_time_diff(
   id_col = id_column,
   date_col = date_column,
   out_col = output_column
-)
-
-# Step 3 coordinate transformation + Barometer coordinates
-wgs_coords_wls <- utm_to_latlon(
-  df = utm_coords_wls,
-  x_col = "x",
-  y_col = "y",
-  zone = 19,
-  hemisphere = "south"
 )
 
 # ========== 4b Analyze intervals per WLS group ==========

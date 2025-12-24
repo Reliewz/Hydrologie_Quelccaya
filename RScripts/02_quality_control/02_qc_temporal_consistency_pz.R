@@ -1,5 +1,5 @@
 #======================================================================
-# Script name: qc_temporal_consistency_piezometer.R
+# Script name: 02_qc_temporal_consistency_pz.R
 # Goal(s): 
   # Temporal consistency among Date column
   # Cleaning of maintenance - related events
