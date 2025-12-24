@@ -1,30 +1,14 @@
 #======================================================================
-# Script name: load_and_standardize.R
+# Script name: qc_temporal_consistency_piezometer.R
 # Goal(s): 
-# Documentation of steps taken in Power Quiery
-# Change Date format to POSIXct
-# Preparation of Analysis of temporal consistency -> Note that the "time_diff" column will be established for each data set but             analyzed is the respective QC_ scripts.
+  # Temporal consistency among Date column
+  # Cleaning of maintenance - related events
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
 # Input Data set: Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx
 # Outputs: 
-# figures/temperature_timeseries.png	#
-# Units:
-# Abs.pres <- kPa
-# Temp <- °C
-# Sensor information:
-# PZ01  S/N: 21826509
-# PZ02  S/N: 21826502
-# PZ03  S/N: 21826497
-# PZ04  S/N: 21826519
-# PZ05  S/N: 21826512
-# PZ06  S/N: 21826504
-# PZ07  S/N: 21826505
-# PZ08  S/N: 21826596
-# PZ09  S/N: 21826594
-# PZ010 S/N: 21826516
-# PZ011 S/N: 21826500
-# PZ12  S/N: 21826503
+  # data frame: data_raw_flagged
+
 
 #======================================================================
 ##Documentation of Power Quiery steps##
@@ -43,6 +27,7 @@
 #======================================================================
 
 # Sources required
+source("RScripts/01_import/master_clean_data_hydro.R")
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
@@ -56,7 +41,7 @@ source("RScripts/utils/qc_functions/function_log_qc_flags.R")
 # Process Parameters temporal consistency
 date_column <- "Date"        # Column name for timestamp
 id_column <- "ID"# Column for identification
-sensor_group <- "sensor_group"
+sensor_group_column <- "sensor_group"
 output_column <- "time_diff" # Column for calculated output
 timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
 measurement_columns <- c("Abs_pres", "Temp")
@@ -87,16 +72,9 @@ record_tolerance <- 1
 timezone_data <- "America/Lima"
 timezone_process <- "Europe/Berlin"
 
-# Coordinate data: Piezometer + BAROM
-utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAROM"),
-                            x = c(299184.3993, 299279.3782, 299475.9968, 299601.0980, 299607.1613, 
-                                  299479.9303, 299432.1672, 299302.1533, 299168.8984, 299240.7638, 
-                                  299053.4642, 299322.6926, 298822.5337),
-                            y = c(8463245.9423, 8463168.2165, 8463142.1306, 8463205.7897, 8463323.1859, 
-                                  8463313.4492, 8463202.6988, 8463294.1563, 8463376.2507, 8463452.2814, 
-                                  8463383.1424, 8463376.6515, 8463357.8907))
+
 # Outputs
-log_file <- "results/logs/qc_log_piezo_master.csv"
+log_file <- "results/logs/qc_log_piezo__temporal_consistency.csv"
 
 # ===================================
 
@@ -108,20 +86,9 @@ data_raw <- data_raw %>%
                 as.character))
 cat("✓ Converted connection status columns to character format")
 message("columns have been assigned the correct type.")
-
-#===== STEP 2: Assign a sensor group column to the dataframe for further analysis.
+# Assign a sensor group column to the dataframe for further analysis.
 data_raw <- data_raw %>%
 mutate(sensor_group = sub("(_.*)$", "", ID))
-
-#===== STEP 3: Coordinate transformation from UTM Zone 19s to WGS84
-cat("Step 3: Coordinate transformation. UTM Zone 19S to WGS84")
-wgs_coords_pz <- utm_to_latlon(
-  df = utm_coords_pz,
-  x_col = "x",
-  y_col = "y",
-  zone = 19,
-  hemisphere = "south"
-)
 
 #===== STEP 4 Starting with the temporal evaluation if time steps are uniform and data cleaning steps are necessary.
 cat("Starting with the temporal evaluation if timesteps are uniform and data data cleaning steps are necessary.")
@@ -133,7 +100,6 @@ interval_check <- calc_time_diff(
   date_col = date_column,
   out_col = output_column
 )
-
 
 # ========== 4b Analyze intervals and generate statistical summary with function_timediff_sum.R ==========
 cat("\nStep4a: Analyzing time temporal consistency intervals per piezometer...\n")
@@ -159,7 +125,7 @@ print(temporal_issues_rows)
 # ========== STEP 5: Identify columns that have no information content ==========
 cat("\n=== STEP 4b: Preparing to remove columns without any information content (NA) ===\n")
 
-# Identify rows with NA in on of the two measurement columns and safe it for further examination in the dataframe rows_with_na
+# Identify rows with NA in on of the two measurement columns and safe it for further examination in the data frame rows_with_na
 rows_with_na <- data_raw %>%
   mutate(
     row_id = row_number(), # extracts the original row number from the dataset. Because filter() function would assign new ones.
@@ -311,7 +277,6 @@ data_raw_flagged <- apply_qc_flags(
   id_col = id_column
 )
 
-
 # Isolation of REVIEW-Blocks
 review_blocks <- block_summary %>% filter(action == "REVIEW")
 # Assign "REVIEW" flag to the respective rows with function apply_qc_flags
@@ -324,6 +289,105 @@ data_raw_flagged <- apply_qc_flags(
   id_col = id_column
 )
 
-# ==== STEP 9: Analyzing for duplicates
-duplicated()
-distinct()
+# ==== MAINTENANCE RELATED ANALYSIS ====
+# PURPOSE: === Cleansing of "DELETE" Flags and re-run the sum_timediff function. ====
+# Transfering the flagged records to a experimental data frame where the upcoming analysis of temporal consistency will be carried out
+flag_info <- data_raw_flagged %>%
+  select(ID, RECORD, Flags)
+
+# STEP 1: Add flag information to experimental data set
+interval_check <- interval_check %>% 
+  left_join(flag_info,
+            by = c("ID", "RECORD"))
+
+# STEP 2: Documentation of flagging workflow
+# Isolating DELETED rows to prepare documentation with function_log_qc_flags.
+deleted_rows <- interval_check %>% 
+  filter(Flags == "DELETE")
+
+# create a tibble to safe documentation developed by log_qc_flags
+qc_log_piezometer <- tibble::tibble()
+
+# Documentation of QC Flags using function log_qc_flags
+qc_log_piezometer <- bind_rows(qc_log_piezometer <- log_qc_flags(
+  df = deleted_rows,
+  action = "initial_assignment",
+  to_flag = 'DELETE',
+  reason = "The isolated segment adds no additional information content to analysis, because of NA values in the measurement columns. Protocolled maintenance or data collection events caused the sensor to lose it´s connection. For further analysis this rows will be excluded."
+))
+
+
+# Keep all rows that are not "DELETE" also keep NA values.
+interval_check <- interval_check %>%
+  filter(Flags != "DELETE" | is.na(Flags))
+
+# ====STEP 3: Filter all rows marked as "REVIEW" =====
+# Documentation "REVIEW" flags since there is no information content in the measurement value section
+review_rows <- interval_check %>% 
+  filter(Flags == "REVIEW")
+
+# ===== Review Flags documentation =====
+# Documentation of QC Flags using function log_qc_flags
+qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
+  df = review_rows,
+  action = "initial_assignment",
+  to_flag = 'REVIEW',
+  reason = "The isolated segments are flagged as REVIEW, since it not related to directly related to a protocolled disconnection of the sensor. In a second step other maintenance and information columns will be reviewed."
+))
+
+# === After REVIEW Flag analysis: Reclassification of REVIEW Flags ===
+# Documentation of QC Flags using function log_qc_flags
+qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
+  df = review_rows,
+  action = "reclassification",
+  from_flag = 'REVIEW',
+  to_flag = 'DELETE',
+  reason = "The isolated 'REVIEW' segment also add no additional information content to analysis, because of NA values in the measurement columns. The reason was a protocolled re-booting mechanism, also after maintenance or data collection events. For further analysis this rows can be excluded."
+))
+
+# ===Documentation Append to Log file ===
+# Load existing log file if available. This ensures that old entrys will not be overwritten when this script gets sourced.
+if (file.exists(log_file)) {
+  existing_log <- read.csv(log_file, stringsAsFactors = FALSE)
+} else {
+  existing_log <- tibble::tibble() # if first entry create a tibble
+}
+
+# Combination of existing log with new log entry
+qc_log_complete <- bind_rows(existing_log, qc_log_piezometer)
+
+# safe the results as .csv
+write.csv(qc_log_complete, log_file, row.names = FALSE)
+
+# Ausgabe
+cat("✓ QC Log gespeichert:", nrow(qc_log_piezometer), "neue Einträge\n")
+cat("✓ Gesamt im Master-Log:", nrow(qc_log_complete), "Einträge\n")
+
+# ===== CONTINUATION WITH TEMPORAL CONSISTENCY CHECKS =====
+# Prepairing experimental dataframe for further analysis... Filter "DELETE" and "REVIEW"
+interval_check <- interval_check %>%
+  filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
+
+# STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
+filter_interval_summary <- sum_timediff(
+  df = filter_interv_check,
+  id_col = id_column,
+  date_col = date_column,
+  td_col = output_column
+)
+cat("\n=== Interval Summary by Piezometer group ===\n")
+print(filter_interval_summary, n = Inf)
+
+# Visual determination of rows with temporal inconsistencies with function_interval_determination.R
+temporal_issues_rows <- check_temporal_inconsistencies(
+  df = filter_interv_check,
+  id_col = id_column,
+  date_col = date_column,
+  timediff_col = timediff_column
+)
+print(temporal_issues_rows)
+
+# ========== CLEANUP SECTION ==========
+# Remove temporary objects, keep only:
+# - data (main dataframe with new flags)
+# - qc_stats_[workflow_name] (for reporting)
