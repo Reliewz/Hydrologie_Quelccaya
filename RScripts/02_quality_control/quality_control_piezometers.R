@@ -369,23 +369,30 @@ interval_check <- interval_check %>%
   filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
 
 # STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
-filter_interval_summary <- sum_timediff(
-  df = filter_interv_check,
+interval_summary <- sum_timediff(
+  df = interval_check,
   id_col = id_column,
   date_col = date_column,
   td_col = output_column
 )
 cat("\n=== Interval Summary by Piezometer group ===\n")
-print(filter_interval_summary, n = Inf)
+print(interval_summary, n = Inf)
 
 # Visual determination of rows with temporal inconsistencies with function_interval_determination.R
 temporal_issues_rows <- check_temporal_inconsistencies(
-  df = filter_interv_check,
+  df = interval_check,
   id_col = id_column,
   date_col = date_column,
   timediff_col = timediff_column
 )
 print(temporal_issues_rows)
+
+# STEP 5: Verification if all maintenance related columns have been removed completely
+temporal_issues_rows <- temporal_issues_rows %>%
+  as.data.frame(temporal_issues_rows) %>%
+  select(all_of(maintenance_info_columns)) %>%
+  is.na(all_of(maintenance_info_columns))
+
 
 # ========== CLEANUP SECTION ==========
 # Remove temporary objects, keep only:
