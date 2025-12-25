@@ -21,62 +21,10 @@
 # = DateTime.ToText([Date_Standardized], "yyyy-MM-dd HH:mm:ss")
 # Changing order of column & removing old Date column
 # Changing type to decimal with location information "English (USA)"
-# Assigning a Source.Name to every line
+# Assigning a Source.Name to every row
 # Extracting Piezometer_ID and WLS_ID from source.name
 # All Piezometers are merged in Excel to further analyse them in RStudio
 #======================================================================
-
-# Sources required
-source("RScripts/01_import/master_clean_data_hydro.R")
-source("RScripts/01_import/load_and_standardize.R")
-source("RScripts/utils/qc_functions/function_time.R")
-source("RScripts/utils/qc_functions/function_timediff_sum.R")
-source("RScripts/utils/qc_functions/function_interval_determination.R")
-source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
-source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
-source("RScripts/utils/qc_functions/function_log_qc_flags.R")
-
-# ========== CONFIGURATION ==========
-# Parameters
-# Process Parameters temporal consistency
-date_column <- "Date"        # Column name for timestamp
-id_column <- "ID"# Column for identification
-sensor_group_column <- "sensor_group"
-output_column <- "time_diff" # Column for calculated output
-timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
-measurement_columns <- c("Abs_pres", "Temp")
-maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
-  # apply qc flags workflow
-apply_flags_column <- "Flags"
-merge_column <- "RECORD"
-
-# Metadata parameters
-sensor_units <- list(Abs_pres = "kPa", Temp = "°C")
-Sensor_information <- list(
-  PZ01_SN = "21826509",
-  PZ02_SN = "21826502",
-  PZ03_SN = "21826497",
-  PZ04_SN = "21826519",
-  PZ05_SN = "21826512",
-  PZ06_SN = "21826504",
-  PZ07_SN = "21826505",
-  PZ08_SN = "21826596",
-  PZ09_SN = "21826594",
-  PZ10_SN = "21826516",
-  PZ11_SN = "21826500",
-  PZ12_SN = "21826503")
-
-
-# Workflow Parameters:
-record_tolerance <- 1
-timezone_data <- "America/Lima"
-timezone_process <- "Europe/Berlin"
-
-
-# Outputs
-log_file <- "results/logs/qc_log_piezo__temporal_consistency.csv"
-
-# ===================================
 
 # ======STEP 1 =======
 cat("Step 1: Columns and data type")
@@ -89,6 +37,10 @@ message("columns have been assigned the correct type.")
 # Assign a sensor group column to the dataframe for further analysis.
 data_raw <- data_raw %>%
 mutate(sensor_group = sub("(_.*)$", "", ID))
+
+# ==============================================================================
+# Section 1: QC-DETECTION
+# ==============================================================================
 
 #===== STEP 4 Starting with the temporal evaluation if time steps are uniform and data cleaning steps are necessary.
 cat("Starting with the temporal evaluation if timesteps are uniform and data data cleaning steps are necessary.")
@@ -235,6 +187,10 @@ na_with_blocks <- na_with_blocks %>%
   ) %>%
   ungroup()
 
+# ==============================================================================
+# Section 2a: QC-INTERPRETATION
+# ==============================================================================
+
 # Summaries
 block_summary <- na_with_blocks %>%
   group_by(sensor_group, ID, final_block_id) %>%
@@ -264,6 +220,10 @@ flag_info <- na_with_blocks %>%
 data_raw_flagged <- data_raw_flagged %>%
   left_join(flag_info,
             by = c("ID", "RECORD"))
+
+# ==============================================================================
+# Section 3a: QC-ACTION
+# ==============================================================================
 
 # Isolation of DELETE-blocks
 delete_blocks <- block_summary %>% filter(action == "DELETE")
@@ -305,6 +265,10 @@ interval_check <- interval_check %>%
 deleted_rows <- interval_check %>% 
   filter(Flags == "DELETE")
 
+# ==============================================================================
+# Section 2b: QC-INTERPRETATION
+# ==============================================================================
+
 # create a tibble to safe documentation developed by log_qc_flags
 qc_log_piezometer <- tibble::tibble()
 
@@ -316,6 +280,9 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer <- log_qc_flags(
   reason = "The isolated segment adds no additional information content to analysis, because of NA values in the measurement columns. Protocolled maintenance or data collection events caused the sensor to lose it´s connection. For further analysis this rows will be excluded."
 ))
 
+# ==============================================================================
+# Section 3b: QC-ACTION
+# ==============================================================================
 
 # Keep all rows that are not "DELETE" also keep NA values.
 interval_check <- interval_check %>%
@@ -363,10 +330,16 @@ write.csv(qc_log_complete, log_file, row.names = FALSE)
 cat("✓ QC Log gespeichert:", nrow(qc_log_piezometer), "neue Einträge\n")
 cat("✓ Gesamt im Master-Log:", nrow(qc_log_complete), "Einträge\n")
 
+
+
 # ===== CONTINUATION WITH TEMPORAL CONSISTENCY CHECKS =====
 # Prepairing experimental dataframe for further analysis... Filter "DELETE" and "REVIEW"
 interval_check <- interval_check %>%
   filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
+
+# ==============================================================================
+# Section 2c: QC-INTERPRETATION
+# ==============================================================================
 
 # STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
 interval_summary <- sum_timediff(
@@ -394,7 +367,15 @@ temporal_issues_rows <- temporal_issues_rows %>%
   is.na(all_of(maintenance_info_columns))
 
 
+# ==============================================================================
+# Section 3c: QC-ACTION
+# ==============================================================================
+# new flagging...
+## transferring all changes from interval_check to data_raw_flagged
+
 # ========== CLEANUP SECTION ==========
 # Remove temporary objects, keep only:
 # - data (main dataframe with new flags)
 # - qc_stats_[workflow_name] (for reporting)
+
+# ====EXPORT VARIALBE =====
