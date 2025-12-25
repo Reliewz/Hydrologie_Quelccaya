@@ -1,5 +1,5 @@
 #====================================================================
-# Skript name: quality_control_QoriKalis_meteorological_data.R
+# Skript name: 02_qc_temporal_consistency_qk.R
 # Goals:
     # assigning correct format for Date column
     # identifying missing values and safing them for further analysis in qc_analysis script

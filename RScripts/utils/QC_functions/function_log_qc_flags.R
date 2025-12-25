@@ -34,13 +34,13 @@
 
 
 
-log_qc_flags(
+log_qc_flags <- function(
   df = NULL,
   action = c("initial_assignment", "reclassification", "manual_documentation"),
   from_flag = NULL,
   to_flag,
   reason,
-  tz = "Europe/Berlin"){
+  tz = "Europe/Berlin") {
 
 # === STEP 1 ===
 # Input validation for declared action
@@ -129,7 +129,7 @@ qc_log <- tibble::tibble(
   from_flag = from_flag,
   to_flag = to_flag,
   reason = reason,
-  nrows = nrow_value
+  nrows = nrows_value
 )} else {
   qc_log <- tibble::tibble(
     timestamp = timestamp,
@@ -139,10 +139,5 @@ qc_log <- tibble::tibble(
     reason = reason,
     nrows = NA_integer_
   )
-}
-
-
-
-
-
+  }
 }

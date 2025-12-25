@@ -1,8 +1,8 @@
 #=================================================================================================================
 # Scriptname: function_interval_determination.R
 # Goal(s):
-  # The function analyses different intervals in context of the temporal consistency analysis.
-  # The intervals are < 15min, 15< - <60 min, 60min> - <1440.
+# The function analyses different intervals in context of the temporal consistency analysis.
+# The intervals are < 15min, 15< - <60 min, 60min> - <1440.
 # Author: Kai Albert Zwießler
 # Date: 2025.12.01
 # Outputs: 
@@ -17,8 +17,7 @@
 #' @param categories String to analyze intervals < 15 minutes, > 15 < 60 minutes and >60 minutes. Default: all categories will be analyzed
 #' @param thresholds sets the threshold value in minutes. Default: 15, 60
 #' @param sort Logical. Should data be sorted within function? Default: TRUE
-#' @param output c("df", "list", "both")
-#' @return Data frame or tibble containing columns for each selected category
+#' @return List containing data frames for each selected category
 #' 
 
 check_temporal_inconsistencies <- function(
@@ -28,11 +27,10 @@ check_temporal_inconsistencies <- function(
     timediff_col,
     categories = c("below15", "between15_60", "between60_1440", "above1440"),
     thresholds = c(15, 60, 1440),
-    sort = TRUE,
-    output = c("df", "list", "both")
+    sort = TRUE
 ) {
   # Input validation
-    # 1. Check if data frame has right type
+  # 1. Check if data frame has right type
   if (!is.data.frame(df)){
     stop("df must be a data.frame or tibble.")
   }
@@ -42,12 +40,12 @@ check_temporal_inconsistencies <- function(
     stop("Date_column must deliver be a column name in the data frame. Standard 'Date'")
   }
   if (!id_col %in% names(df)) {
-      stop("ID_column must deliver a column name in the data frame. Standard 'ID'")
+    stop("ID_column must deliver a column name in the data frame. Standard 'ID'")
   }    
   if (!timediff_col %in% names(df)) {
-        stop("timediff_column must deliver a column name in the data frame. Standard 'time_diff'")
+    stop("timediff_column must deliver a column name in the data frame. Standard 'time_diff'")
   }
-
+  
   # 3. Prüfe ob thresholds numerisch und sortiert sind
   if (!is.numeric(thresholds)) {
     stop("thresholds must be numeric.")
@@ -65,74 +63,42 @@ check_temporal_inconsistencies <- function(
   
   #Sort logic, default data will be sorted. FALSE data will not be sorted.
   if (sort) { # argument inside parentheses default TRUE
-df <- df %>%
-    group_by(!!id_column) %>%
-    arrange(!!id_column, !!date_column) %>%
-    ungroup()
-    }
+    df <- df %>%
+      group_by(!!id_column) %>%
+      arrange(!!id_column, !!date_column) %>%
+      ungroup()
+  }
   
-# creating an empty list where the results will be saved.  
+  # creating an empty list where the results will be safed.  
   interval_results <- list()
   
-# calculates & safes the time steps > daily timesteps into a list
+  # calculates & safes the time steps > daily timesteps into a list
   if ("above1440" %in% categories) {
     interval_results$above1440 <- df %>%
-    filter(!!timediff_column > thresholds[3]) %>%
-    mutate(category = "above1440")  
-    }
-
+      filter(!!timediff_column > thresholds[3]) %>%
+      mutate(category = "above1440")  
+  }
+  
   # calculates the results inbetween 60 min and daily timestep and safes it
   if ("between60_1440" %in% categories) {
     interval_results$between60_1440 <- df %>%
-    filter(!!timediff_column < thresholds[3], !!timediff_column > thresholds[2]) %>%
-    mutate(category = "between60_1440") 
-    }  
+      filter(!!timediff_column < thresholds[3], !!timediff_column > thresholds[2]) %>%
+      mutate(category = "between60_1440") 
+  }  
   
-# calculates the results inbetween 60 min and daily timestep and safes it
+  # calculates the results inbetween 60 min and daily timestep and safes it
   if ("between15_60" %in% categories) {
     interval_results$between15_60 <- df %>%
-    filter(!!timediff_column > thresholds[1], !!timediff_column < thresholds[2]) %>%
-    mutate(category = "between15_60")  
-    }  
+      filter(!!timediff_column > thresholds[1], !!timediff_column < thresholds[2]) %>%
+      mutate(category = "between15_60")  
+  }  
   
- # calculates the time steps below 15 minutes  and safes it into a list
+  # calculates the time steps below 15 minutes  and safes it into a list
   if ("below15" %in% categories){ 
-  interval_results$below15 <- df %>% 
-  filter(!!timediff_column < thresholds[1]) %>%
-  mutate(category = "below15")
+    interval_results$below15 <- df %>% 
+      filter(!!timediff_column < thresholds[1]) %>%
+      mutate(category = "below15")
   }
   
-  
-  # Add flag columns for each category to create a data frame (vectorized)
-  df <- df %>%
-    mutate(
-      below15 = if ("below15" %in% categories) {
-        !!timediff_column < thresholds[1]
-      } else {
-        NA
-      },
-      
-      between15_60 = if ("between15_60" %in% categories) {
-        !!timediff_column > thresholds[1] & !!timediff_column < thresholds[2]
-      } else {
-        NA
-      },
-      
-      between60_1440 = if ("between60_1440" %in% categories) {
-        !!timediff_column > thresholds[2] & !!timediff_column < thresholds[3]
-      } else {
-        NA
-      },
-      
-      above1440 = if ("above1440" %in% categories) {
-        !!timediff_column > thresholds[3]
-      } else {
-        NA
-      }
-    )
-  
-return(df)
+  return(interval_results)
 }  
-
-
-  
