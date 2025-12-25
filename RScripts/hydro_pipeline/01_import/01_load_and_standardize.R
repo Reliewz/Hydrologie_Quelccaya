@@ -1,44 +1,15 @@
 #======================================================================
-# Scriptname: load_and_standardize.R
+# Scriptname: 01_load_and_standardize.R
 # Goal(s): 
-  # Change Date format to POSIXct
-  # Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC_ scripts.
+# Change Date format to POSIXct
+# Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC_ scripts.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
 # Input Dataset: 
-# Outputs: 
-  # 
+# Output: 
+# standardized data frame: data_standardized
 
-
-
-
-# ========== Load Library ==========
-library(dplyr)      # For Datamanipulation
-library(tidyr)      # For Datastructure
-library(lubridate)  # For Date Options
-library(readxl)     # For Excel Import
-library(stringr)    # Added to extract Piezometer ID part of tidyr
-library(naniar)     # Examination of NA data
-library(gtExtras)   # Creating easy tables
-
-
-
-# Import Data Sources
-# Met Station Qori_Kalis "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QORIKALIS\\Meteorological_data\\processed\\QORIKALIS_merged.xlsx"
-# Piezometer "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
-
-# ========== CONFIGURATION ==========
-#Dataframe
-input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
-#alternative paths: 
-# WLS: D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx
-#Parameters
-sheet_name <- "Rinput"
-date_column <- "Date"        # Column name for timestamp
-id_column <- "ID"         # Column for identification
-output_column <- "time_diff" # Column for calculated output
-timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
-# ===================================
+# =======================================
 message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
 cat("\n=== STEP 1: Load data ===\n")
@@ -76,30 +47,30 @@ data_raw <- data_raw %>%
 cat("Validate date convertion...")
 
 if (any(is.na(data_raw[[date_column]]))) {
-    n_failed_parsing <- sum(is.na(data_raw[[date_column]]))
-    n_total <- nrow(data_raw)
-    pct_failed <- round((n_failed_parsing / n_total) * 100, 2)
-    warning(sprintf(
+  n_failed_parsing <- sum(is.na(data_raw[[date_column]]))
+  n_total <- nrow(data_raw)
+  pct_failed <- round((n_failed_parsing / n_total) * 100, 2)
+  warning(sprintf(
     "Date conversion failed: column '%s' contains NA values after parsing.",
     date_column
-    ))
-    # Extract problematic row indices
-    failed_rows <- which(is.na(data_raw[[date_column]]))
-    
-    # ===== PREPARE DATA FOR QC ANALYSIS =====
-    
-    # Show problematic rows with ALL columns for context
-    cat("\n   Problematic rows (first 10 with all columns):\n")
-    problem_rows <- data_raw %>%
-      filter(is.na(!!sym(date_column))) %>%
-      head(10)
-    print(problem_rows)
+  ))
+  # Extract problematic row indices
+  failed_rows <- which(is.na(data_raw[[date_column]]))
+  
+  # ===== PREPARE DATA FOR QC ANALYSIS =====
+  
+  # Show problematic rows with ALL columns for context
+  cat("\n   Problematic rows (first 10 with all columns):\n")
+  problem_rows <- data_raw %>%
+    filter(is.na(!!sym(date_column))) %>%
+    head(10)
+  print(problem_rows)
 } else {
   # All dates parsed successfully
   cat("✓ Date conversion successful. All dates parsed correctly. The Date column contains no NA values")
   message("✓ Date conversion successful. All dates parsed correctly. The Date column contains no NA values")
 }
-  
+
 # Assigning other columns in their separate scripts
 message("Inbetween verification === Are all columns assigned the correct type?===")
 print(str(data_raw))
@@ -120,3 +91,16 @@ if (id_column %in% names(data_raw)) {
 cat("First 3 rows after sorting:\n")
 print(head(data_raw, 3))
 
+# ========== STEP 4: RENAME OUTPUT VARIABLE ==========
+# Rename indicates that this is the standardized output
+data_standardized <- data_raw
+
+# Cleanup intermediate variables
+rm(data_raw)
+
+cat("\n✓ Step 1 complete: data_standardized ready (", nrow(data_standardized), "rows)\n")
+
+# ==============================================================================
+# END OF STEP 1
+# Output: data_standardized
+# ==============================================================================
