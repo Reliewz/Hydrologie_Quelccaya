@@ -23,6 +23,8 @@ utm_coords_pz <- data.frame(Device = c(paste0("PZ", sprintf("%02d", 1:12)), "BAR
                                   8463383.1424, 8463376.6515, 8463357.8907))
 
 
+
+
 # Coordinate transformation from UTM Zone 19s to WGS84
 cat("Step 3: Coordinate transformation. UTM Zone 19S to WGS84")
 wgs_coords_pz <- utm_to_latlon(
@@ -44,6 +46,21 @@ wgs_coords_wls <- utm_to_latlon(
   df = utm_coords_wls,
   x_col = "x",
   y_col = "y",
+  zone = 19,
+  hemisphere = "south"
+)
+
+# Coordinate data: WLS + BAROM
+wgs_coords_meteo_stations <- data.frame(Device = c("QORI-KALIS", "CARABAYA", "QUISOQUEPINA", "SIBINACOCHA", "QUELCCAYA"),
+                             x = c(-70.86160, -70.66759, -70.88622, -71.01823, -70.82639),
+                             y = c(-13.8936, -13.8728, -13.7951, -13.9221, -13.9325))
+
+# Coordinate transformation from WGS84 to UTM Zone 19s
+utm_coords_met_stations <- utm_latlon_transform(
+  df = wgs_coords_meteo_stations,
+  x_col = "x",
+  y_col = "y",
+  convertion_mode = "to_utm",
   zone = 19,
   hemisphere = "south"
 )
