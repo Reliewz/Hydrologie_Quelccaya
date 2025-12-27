@@ -5,7 +5,7 @@
 # Date: 2025.12.24
 # Input Dataset: 
 # Outputs: 
-# figures/
+  # .csv with coordinates
 #=================================================================================================================
 
 # Library
@@ -64,3 +64,44 @@ utm_coords_met_stations <- utm_latlon_transform(
   zone = 19,
   hemisphere = "south"
 )
+print(utm_coords_met_stations)
+
+# test transfomration back to wgs
+wgs_coords_met_stations_test <- utm_latlon_transform(
+  df = utm_coords_met_stations,
+  x_col = "utm_east",
+  y_col = "utm_north",
+  convertion_mode = "to_wgs",
+  zone = 19,
+  hemisphere = "south"
+)
+print(wgs_coords_met_stations_test)
+
+# Correct transformation
+utm_coords_met_stations <- utm_latlon_transform(
+  df = wgs_coords_meteo_stations,
+  x_col = "x",
+  y_col = "y",
+  convertion_mode = "to_utm",
+  zone = 19,
+  hemisphere = "south"
+)
+
+# Change name first column
+names(utm_coords_met_stations)[1] <- "Device"
+
+# change columns names
+names(utm_coords_wls)[1] <- "Device"
+names(utm_coords_pz)[1] <- "Device"
+
+# combine
+all_stations <- rbind(
+  utm_coords_met_stations,
+  utm_coords_wls,
+  utm_coords_pz
+)
+
+# Export
+write.csv(all_stations, 
+          file = "all_stations_utm.csv", 
+          row.names = FALSE)

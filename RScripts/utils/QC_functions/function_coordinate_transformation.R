@@ -21,7 +21,7 @@
 #'  }
 #' @param zone assigns the correct zone for the hemisphere of interest.
 #' @param hemisphere assigns if the coordinate system is in the northern part or southern part of the world
-#' \intemize{
+#' \itemize{
 #' \item south for southern part
 #' \item north for the northern part
 #' }
@@ -64,9 +64,10 @@ utm_latlon_transform <- function(
   # Determine EPSG code (UTM north/south logic)
   if (hemisphere == "south") {
     epsg_utm <- 32700 + zone
-  } else (hemisphere == "north")
+  } else {(hemisphere == "north")
     epsg_utm <- 32600 + zone
- 
+  }
+  
   # Determine input and output CRS based on conversion mode
   if (convertion_mode == "to_wgs") {
     input_crs <- epsg_utm   # From UTM
@@ -99,8 +100,8 @@ utm_latlon_transform <- function(
   } else {  # "to_utm"
     result <- data.frame(
       df[, !(names(df) %in% c(x_col, y_col))],
-      utm_north = coords[, "Y"],
-      utm_east = coords[, "X"]
+      y = coords[, "Y"],
+      x = coords[, "X"]
     )
   }
   
