@@ -94,10 +94,8 @@ print(head(data_raw, 3))
 # ========== STEP 4: RENAME OUTPUT VARIABLE ==========
 # Rename indicates that this is the standardized output
 data_standardized <- data_raw
-
 # Cleanup intermediate variables
 rm(data_raw)
-
 cat("\n✓ Step 1 complete: data_standardized ready (", nrow(data_standardized), "rows)\n")
 
 # ==============================================================================

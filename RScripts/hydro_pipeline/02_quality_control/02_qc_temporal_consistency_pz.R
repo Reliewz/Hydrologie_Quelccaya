@@ -7,7 +7,7 @@
 # Date: 2025.11.14
 # Input Data set: Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx
 # Outputs: 
-  # data frame: data_raw_flagged
+  # data frame: data_standardized_flagged
 
 
 #======================================================================
@@ -29,13 +29,13 @@
 # ======STEP 1 =======
 cat("Step 1: Columns and data type")
 # Assigning multiple columns from logi -> chr format
-data_raw <- data_raw %>%
+data_standardized <- data_standardized %>%
   mutate(across(all_of(maintenance_info_columns), # all_of for vectors, instead of !!sym() for strings/symbols
                 as.character))
 cat("✓ Converted connection status columns to character format")
 message("columns have been assigned the correct type.")
 # Assign a sensor group column to the dataframe for further analysis.
-data_raw <- data_raw %>%
+data_standardized <- data_standardized %>%
 mutate(sensor_group = sub("(_.*)$", "", ID))
 
 # ==============================================================================
@@ -47,7 +47,7 @@ cat("Starting with the temporal evaluation if timesteps are uniform and data dat
 
 # STEP 4a calculating the time different between the time steps for temporal consistency test. creating time_diff column, using function_time.R
 interval_check <- calc_time_diff(
-  df = data_raw,
+  df = data_standardized,
   id_col = id_column,
   date_col = date_column,
   out_col = output_column
@@ -78,7 +78,7 @@ print(temporal_issues_rows)
 cat("\n=== STEP 4b: Preparing to remove columns without any information content (NA) ===\n")
 
 # Identify rows with NA in on of the two measurement columns and safe it for further examination in the data frame rows_with_na
-rows_with_na <- data_raw %>%
+rows_with_na <- data_standardized %>%
   mutate(
     row_id = row_number(), # extracts the original row number from the dataset. Because filter() function would assign new ones.
     has_any_na = if_any(all_of(measurement_columns), is.na)) %>% # if one of the two is NA it gets stored in the object has_any_na
@@ -210,14 +210,14 @@ print(block_summary, n = Inf)
 cat("Creating a data frame that contains the actions that contains the flags from the previous workflow")
 
 # Create full copy of the raw data set to create a flagged version
-data_raw_flagged <- data_raw
+data_standardized_flagged <- data_standardized
 
 # Preparing the object flag_info to transfer "RECORD" column
 flag_info <- na_with_blocks %>%
   select(ID, RECORD, final_block_id)
 
-# Merge information with data_raw_flagged, add block logic
-data_raw_flagged <- data_raw_flagged %>%
+# Merge information with data_standardized_flagged, add block logic
+data_standardized_flagged <- data_standardized_flagged %>%
   left_join(flag_info,
             by = c("ID", "RECORD"))
 
@@ -228,8 +228,8 @@ data_raw_flagged <- data_raw_flagged %>%
 # Isolation of DELETE-blocks
 delete_blocks <- block_summary %>% filter(action == "DELETE")
 # Assign "DELETE" flag to the respective rows with function apply_qc_flags
-data_raw_flagged <- apply_qc_flags(
-  df = data_raw_flagged,
+data_standardized_flagged <- apply_qc_flags(
+  df = data_standardized_flagged,
   df_flag_info = delete_blocks,
   flag_value = "DELETE",
   apply_flags_col = apply_flags_column,
@@ -240,8 +240,8 @@ data_raw_flagged <- apply_qc_flags(
 # Isolation of REVIEW-Blocks
 review_blocks <- block_summary %>% filter(action == "REVIEW")
 # Assign "REVIEW" flag to the respective rows with function apply_qc_flags
-data_raw_flagged <- apply_qc_flags(
-  df = data_raw_flagged,
+data_standardized_flagged <- apply_qc_flags(
+  df = data_standardized_flagged,
   df_flag_info = review_blocks,
   flag_value = "REVIEW",
   apply_flags_col = apply_flags_column,
@@ -252,7 +252,7 @@ data_raw_flagged <- apply_qc_flags(
 # ==== MAINTENANCE RELATED ANALYSIS ====
 # PURPOSE: === Cleansing of "DELETE" Flags and re-run the sum_timediff function. ====
 # Transfering the flagged records to a experimental data frame where the upcoming analysis of temporal consistency will be carried out
-flag_info <- data_raw_flagged %>%
+flag_info <- data_standardized_flagged %>%
   select(ID, RECORD, Flags)
 
 # STEP 1: Add flag information to experimental data set
@@ -316,7 +316,12 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 # Load existing log file if available. This ensures that old entrys will not be overwritten when this script gets sourced.
 if (file.exists(log_file)) {
   existing_log <- read.csv(log_file, stringsAsFactors = FALSE)
-} else {
+ 
+  if ("timestamp" %in% names(existing_log) && nrow(existing_log) > 0) {
+    existing_log$timestamp <- as.POSIXct(existing_log$timestamp, 
+                                       tz = "Europe/Berlin")
+  }
+}else {
   existing_log <- tibble::tibble() # if first entry create a tibble
 }
 
@@ -371,7 +376,7 @@ temporal_issues_rows <- temporal_issues_rows %>%
 # Section 3c: QC-ACTION
 # ==============================================================================
 # new flagging...
-## transferring all changes from interval_check to data_raw_flagged
+## transferring all changes from interval_check to data_standardized_flagged
 
 # ========== CLEANUP SECTION ==========
 # Remove temporary objects, keep only:
@@ -379,3 +384,4 @@ temporal_issues_rows <- temporal_issues_rows %>%
 # - qc_stats_[workflow_name] (for reporting)
 
 # ====EXPORT VARIALBE =====
+safe.rds(data_qc_temporal <- interval_check)
