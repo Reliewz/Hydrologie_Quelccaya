@@ -57,8 +57,8 @@ record_tolerance <- 1
 timezone_data <- "America/Lima"
 timezone_process <- "Europe/Berlin"
 # Outputs
-log_file <- "results/logs/qc_log_piezo__temporal_consistency.csv"
-
+log_file_tc <- "results/logs/qc_log_piezo_temporal_consistency.csv"
+log_file_duplicates <- "results/logs/qc_log_piezo_duplicates.csv"
 # = DUPLICATES
 
 # = PHYSICAL PLAUSIBILITY
