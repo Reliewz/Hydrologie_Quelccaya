@@ -14,8 +14,6 @@ input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/
 # WLS: D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx
 #Parameters
 sheet_name <- "Rinput"
-date_column <- "Date"        # Column name for timestamp
-id_column <- "ID"         # Column for identification
 # ===================================
 
 # ====== QUALITY-CONTROL WORKFLOWs CONFIGURATION ======
@@ -44,13 +42,17 @@ sensor_information_wls <- list(
 
 # Process Parameters temporal consistency
 date_column <- "Date"        # Column name for timestamp
-sensor_group_column <- "sensor_group"
+id_column <- "ID"         # Column for identification (e.g. PZ01_01m PZ01_02, PZ02_01 (...))
+sensor_group_column <- "sensor_group" # One level above id_column for identification (e.g. PZ01, PZ02 (...))
 output_column <- "time_diff" # Column for calculated output
 timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency
 measurement_columns <- c("Abs_pres", "Temp")
 maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
 # apply qc flags workflow
-apply_flags_column <- "Flags"
+QC_LEVELS <- c(
+  "temporal_consistency",
+  "physical_plausibility"
+)
 merge_column <- "RECORD"
 # Workflow Parameters:
 record_tolerance <- 1
