@@ -10,11 +10,8 @@
 # Outputs: 
 #===================================================================
 
-library(dplyr)
-library(lubridate)
-library(readxl)
-library(renv)
-
+renv::snapshot()
+renv::status
 #Sources required
 source("RScripts/01_import/load_and_standardize.R")
 source("RScripts/utils/qc_functions/function_time.R")
@@ -35,7 +32,7 @@ measurement_columns <- c("AirTC", "RH", "Precip_Tot", "WS", "WS_Max", "WD", "Dew
 # Metadata parameters
 sensor_units <- list(AirTC = "°C", RH = "%", Precip_Tot = "mm", WS = "m/s", WS_Max = "m/s", WD = "°", Dewp = "°C")
 Sensor_information <- list(
-  AirTC/RH_S-THC-M008_SN = "21666169",
+  AirTC_RH_S-THC-M008_SN = "21666169",
   Rain_Gauge_HOBO_S-RGB-M002_SN = "21673752",
   Wind_HOBO_S-WCF-M003_SN = "21742435")
 

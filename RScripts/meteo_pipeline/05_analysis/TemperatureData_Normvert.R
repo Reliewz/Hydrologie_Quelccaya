@@ -238,7 +238,9 @@ head(SIBINA)
 #####Spezielle Vorprüfung für IDW - Methode#####
 ###Geoanalyse Variogramm###
 # Notwendige Bibliothek laden
-library(gstat)
+
+
+# =====================library(gstat) required ================================
 
 # Funktion zur Erstellung und zum Plotten von Variogrammen
 create_variogram <- function(df, value_column, df_name) {

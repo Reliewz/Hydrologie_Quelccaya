@@ -6,8 +6,9 @@
 # Date: 2025.12.24
 
 #=================================================================================================================
+
 # ==============================================================================
-# HYDRO PIPELINE MASTER SCRIPT
+# HYDROLOGICAL PIPELINE - MASTER SCRIPT
 # ==============================================================================
 # Clear workspace at start
 rm(list = ls())
@@ -40,7 +41,7 @@ PIPELINE_STEP <- "after_load"
 
 # Optional: Save checkpoint
 if (KEEP_INTERMEDIATE) {
-  saveRDS(data_standardized, "results/pipeline_debugging/01_data_standardized.rds")
+  saveRDS(data_standardized, "results/hydro_pipeline_debugging/01_data_standardized.rds")
 }
 
 # 2. Load Functions for Temporal Consistency workflow
@@ -51,7 +52,9 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_flags.R")
 
-# 3. QC Step 1: Temporal consistency
+# ------------------------------------------------------------------------------
+# 3. QC - Level 1 - Temporal consistency
+# ------------------------------------------------------------------------------
 source("RScripts/hydro_pipeline/02_quality_control/02_qc_temporal_consistency_pz.R")
 
 # Verify expected outputs
@@ -63,7 +66,7 @@ if (!exists("data_qc_temporal")) {
 
 
 # ------------------------------------------------------------------------------
-# 3. QC - DUPLICATE DETECTION
+# 3. QC - LEVEL DUPLICATE DETECTION
 # ------------------------------------------------------------------------------
 cat("\n=== Step 3: QC Duplicate Detection ===\n")
 # data_qc_duplicates
