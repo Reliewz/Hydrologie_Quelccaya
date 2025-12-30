@@ -18,7 +18,7 @@
 #' # ========== CONFIGURATION ==========
 #' @param df the dataframe where the qc flags are supposed to be applied to
 #' @param flag_value a parameter where the user has to assign a flag value f.e. "REVIEW", "DELETE" (...)
-#' @param qc_level the parameter connection the information in which qc_level the flags will be applied. - will be used as column name
+#' @param qc_level cprovides the information in which qc_level the flags will be applied. - QC_level will be used as column name.
 #' @param merge_col the column who serves as a link between the data frame and flag_info to perform joins, to merge the information.
 #' @param df_flag_info second data frame which contains the flag information that later will be joined with df
 #' @param id_col (optional) if the data set contains more than one measurement device. This column adds a group_by logic to apply the logic to one device before going to the next
@@ -29,7 +29,7 @@
 #'    \item{overwrite}{The new flags assigment will be chosen old ones will be removed}
 #'    \item{combine}{Both flags will be kept and combined into one column. seperated by ","}
 #'  }
-#' @return tibble or dataframe where the new assigned flags will be safed into the previous arranged and i nthe function assigned column
+#' @return tibble or data frame where the new assigned flags will be in the stored in the column of qc_level.
 
 apply_qc_flags <- function(
     df,
@@ -71,16 +71,25 @@ if (is.null(flag_value)) {
   stop("flag_value must be specified (e.g., 'DELETE', 'REVIEW', 'SUSPECT', 'VERIFIED')")
 }
 
+# Check if QC_LEVELS is defined in global environment
+if (!exists("QC_LEVELS")) {
+  stop(
+      "QC_LEVELS must be defined in the global environment.\n",
+      "Example: QC_LEVELS <- c('temporal_consistency', 'physical_plausibility')"
+    )
+  }
+  
+# Additional validation: QC_LEVELS should not be NULL or empty
+  if (is.null(QC_LEVELS) || length(QC_LEVELS) == 0) {
+    stop("QC_LEVELS exists but is empty. Please define valid QC level names.")
+  }
+  
 # User must assign a QC level
   if (is.null(qc_level)) {
     stop(
       "qc_level must be specified.\n",
       "Allowed values: ", paste(QC_LEVELS, collapse = ", ")
     )
-  }
-# User assignment of global QC_LEVEL options
-  if (is.null(QC_LEVELS)){
-    stop("Choices of QC Levels must be assigned in the global environment.")
   }
   
 # input validation of qc-levels from QC_LEVELS
@@ -164,6 +173,12 @@ flag_info <- df_flag_info %>%
 flag_info <- flag_info %>%
   mutate(!!qc_column := flag_value)
 
+# validation if df_flag_info contains any rows
+if (nrow(flag_info) == 0) {
+  message("No rows to flag in df_flag_info. Returning original data unchanged.")
+  return(df)
+}
+
 # Workflow according to id_column:
 if (!is.null(id_col)) {
   join_cols <- c(id_col, merge_col)        
@@ -232,7 +247,7 @@ if (nrow(conflict_rows) > 0) {
       select(-all_of(c(col_existing, col_new)))
   }
   
-  message("Successfully resolved conflicts: applied ", sum(!is.na(preview[[col_new]])), 
+  message("✓ Successfully resolved conflicts: applied ", sum(!is.na(preview[[col_new]])), 
           " flags to QC level '", qc_level, "' using '", conflict_mode, "' mode")
  }
   # add information back to full data frame and cleaning of columns NO CONFLICT CASE
@@ -279,7 +294,7 @@ if (nrow(conflict_rows) > 0) {
     ) %>%
     select(-all_of(c(col_existing, col_new)))
   
-  message("Successfully applied ", sum(!is.na(preview[[col_new]])), 
+  message("✓ Successfully applied ", sum(!is.na(preview[[col_new]])), 
           " flags to QC level '", qc_level, "'")
  }
 return(df)

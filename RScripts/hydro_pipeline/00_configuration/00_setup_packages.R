@@ -6,7 +6,8 @@ required_packages <- c(
   "readxl",     # Excel import
   "stringr",    # String extraction (Piezometer ID)
   "naniar",     # NA data examination
-  "gtExtras"    # Easy tables
+  "gtExtras",    # Easy tables
+  "rlang"       # Symbol conversion for functions
 )
 
 # Install missing packages
