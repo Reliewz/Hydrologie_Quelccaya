@@ -313,7 +313,7 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 # ===Documentation Append to Log file ===
 # Load existing log file if available. This ensures that old entrys will not be overwritten when this script gets sourced.
 if (file.exists(LOG_TEMPORAL)) {
-  existing_log <- read.csv(!!sym(LOG_TEMPORAL), stringsAsFactors = FALSE)
+  existing_log <- read.csv(LOG_TEMPORAL, stringsAsFactors = FALSE)
  
   if ("timestamp" %in% names(existing_log) && nrow(existing_log) > 0) {
     existing_log$timestamp <- as.POSIXct(existing_log$timestamp, 
@@ -335,14 +335,11 @@ cat("✓ Gesamt im Master-Log:", nrow(qc_log_complete), "Einträge\n")
 
 
 # ===== CONTINUATION WITH TEMPORAL CONSISTENCY CHECKS =====
-# Prepairing experimental dataframe for further analysis... Filter "DELETE" and "REVIEW"
-interval_check <- interval_check %>%
-  filter(!(!!sym(TC_FLAGS_COLUMN) %in% c("DELETE", "REVIEW")) | is.na(!!sym(TC_FLAGS_COLUMN)))
 
 # ==============================================================================
 # Section 2c: QC-INTERPRETATION
 # ==============================================================================
-
+# Did the removement of the flagged rows caused the timediff jumps or are this real QC artefacts
 # STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
 interval_summary <- sum_timediff(
   df = interval_check,
@@ -362,6 +359,32 @@ temporal_issues_rows <- check_temporal_inconsistencies(
 )
 print(temporal_issues_rows)
 
+# Comparisson with deleted NA rows with flags
+# Preparing experimental data frame for further analysis... Filter "DELETE" and "REVIEW"
+interval_check_flagfiltered <- interval_check %>%
+  filter(!(!!sym(TC_FLAGS_COLUMN) %in% c("DELETE", "REVIEW")) | is.na(!!sym(TC_FLAGS_COLUMN)))
+
+# STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
+interval_summary_flagfiltered <- sum_timediff(
+  df = interval_check_flagfiltered,
+  id_col = id_column,
+  date_col = date_column,
+  td_col = output_column
+)
+cat("\n=== Interval Summary by Piezometer group ===\n")
+print(interval_summary_flagfiltered, n = Inf)
+
+# Visual determination of rows with temporal inconsistencies with function_interval_determination.R
+temporal_issues_rows_flagfiltered <- check_temporal_inconsistencies(
+  df = interval_check_flagfiltered,
+  id_col = id_column,
+  date_col = date_column,
+  timediff_col = timediff_column
+)
+print(temporal_issues_rows_flagfiltered$between15_60, n = Inf)
+print(temporal_issues_rows_flagfiltered$below15, n = Inf)
+
+
 # STEP 5: Verification if all maintenance related columns have been removed completely
 temporal_issues_rows <- temporal_issues_rows %>%
   as.data.frame(temporal_issues_rows) %>%
@@ -372,6 +395,8 @@ temporal_issues_rows <- temporal_issues_rows %>%
 # ==============================================================================
 # Section 3c: QC-ACTION
 # ==============================================================================
+
+
 # new flagging...
 ## transferring all changes from interval_check to data_standardized_flagged
 
