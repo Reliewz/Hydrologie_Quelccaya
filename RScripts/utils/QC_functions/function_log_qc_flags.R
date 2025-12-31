@@ -17,6 +17,7 @@
 #' @param df Optional: Data frame, tibble or object that contains the affected rows.
 #' If provided, summary information (e.g. number of affected rows) is derived automatically.
 #' If NULL, the QC step is documented without direct relation to data input.
+#' @param device enables to user to differentiate between devices which are related to the documented flags.
 #' @param action Description of the QC action that is documented.
 #'  \describe{
 #'      \item {initial_assignment}{Primary assignment of a QC flag based on a data frame}
@@ -36,6 +37,7 @@
 
 log_qc_flags <- function(
   df = NULL,
+  device,
   action = c("initial_assignment", "reclassification", "manual_documentation"),
   from_flag = NULL,
   to_flag,
@@ -126,6 +128,7 @@ nrows_value <- nrow(df)
 qc_log <- tibble::tibble(
   timestamp = timestamp,
   action = action,
+  device = device,
   from_flag = from_flag,
   to_flag = to_flag,
   reason = reason,
@@ -134,6 +137,7 @@ qc_log <- tibble::tibble(
   qc_log <- tibble::tibble(
     timestamp = timestamp,
     action = action,
+    device = device,
     from_flag = from_flag,
     to_flag = to_flag,
     reason = reason,

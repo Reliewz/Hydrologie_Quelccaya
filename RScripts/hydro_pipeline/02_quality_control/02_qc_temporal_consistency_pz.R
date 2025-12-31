@@ -271,22 +271,14 @@ deleted_rows <- interval_check %>%
 
 # create a tibble to safe documentation developed by log_qc_flags
 qc_log_piezometer <- tibble::tibble()
-
 # Documentation of QC Flags using function log_qc_flags
 qc_log_piezometer <- bind_rows(qc_log_piezometer <- log_qc_flags(
   df = deleted_rows,
   action = "initial_assignment",
+  device = "Piezometer",
   to_flag = 'DELETE',
   reason = "The isolated segment adds no additional information content to analysis, because of NA values in the measurement columns. Protocolled maintenance or data collection events caused the sensor to lose it´s connection. For further analysis this rows will be excluded."
 ))
-
-# ==============================================================================
-# Section 3b: QC-ACTION
-# ==============================================================================
-
-# Keep all rows that are not "DELETE" also keep NA values.
-interval_check <- interval_check %>%
-  filter(!!sym(TC_FLAGS_COLUMN) != "DELETE" | is.na(!!sym(TC_FLAGS_COLUMN)))
 
 # ====STEP 3: Filter all rows marked as "REVIEW" =====
 # Documentation "REVIEW" flags since there is no information content in the measurement value section
@@ -298,6 +290,7 @@ review_rows <- interval_check %>%
 qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
   df = review_rows,
   action = "initial_assignment",
+  device = "Piezometer",
   to_flag = 'REVIEW',
   reason = "The isolated segments are flagged as REVIEW, since it not related to directly related to a protocolled disconnection of the sensor. In a second step other maintenance and information columns will be reviewed."
 ))
@@ -307,10 +300,15 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
   df = review_rows,
   action = "reclassification",
+  device = "Piezometer",
   from_flag = 'REVIEW',
   to_flag = 'DELETE',
   reason = "The isolated 'REVIEW' segment also add no additional information content to analysis, because of NA values in the measurement columns. The reason was a protocolled re-booting mechanism, also after maintenance or data collection events. For further analysis this rows can be excluded."
 ))
+
+# ==============================================================================
+# Section 3b: QC-ACTION
+# ==============================================================================
 
 # ===Documentation Append to Log file ===
 # Load existing log file if available. This ensures that old entrys will not be overwritten when this script gets sourced.
@@ -334,7 +332,6 @@ write.csv(qc_log_complete, LOG_TEMPORAL, row.names = FALSE)
 # Ausgabe
 cat("✓ QC Log gespeichert:", nrow(qc_log_piezometer), "neue Einträge\n")
 cat("✓ Gesamt im Master-Log:", nrow(qc_log_complete), "Einträge\n")
-
 
 
 # ===== CONTINUATION WITH TEMPORAL CONSISTENCY CHECKS =====
