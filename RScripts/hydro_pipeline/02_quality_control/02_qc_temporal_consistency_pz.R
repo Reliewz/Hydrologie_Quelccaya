@@ -231,8 +231,8 @@ delete_blocks <- block_summary %>% filter(action == "DELETE")
 data_standardized_flagged <- apply_qc_flags(
   df = data_standardized_flagged,
   df_flag_info = delete_blocks,
+  qc_level = "temporal_consistency",
   flag_value = "DELETE",
-  apply_flags_col = apply_flags_column,
   merge_col = "final_block_id",
   id_col = id_column
 )
@@ -243,9 +243,9 @@ review_blocks <- block_summary %>% filter(action == "REVIEW")
 data_standardized_flagged <- apply_qc_flags(
   df = data_standardized_flagged,
   df_flag_info = review_blocks,
+  qc_level = "temporal_consistency",
   flag_value = "REVIEW",
-  apply_flags_col = apply_flags_column,
-  merge_col = "final_block_id",
+    merge_col = "final_block_id",
   id_col = id_column
 )
 
@@ -314,8 +314,8 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 
 # ===Documentation Append to Log file ===
 # Load existing log file if available. This ensures that old entrys will not be overwritten when this script gets sourced.
-if (file.exists(log_file_tc)) {
-  existing_log <- read.csv(log_file_tc, stringsAsFactors = FALSE)
+if (file.exists(LOG_FILE_TC)) {
+  existing_log <- read.csv(LOG_FILE_TC, stringsAsFactors = FALSE)
  
   if ("timestamp" %in% names(existing_log) && nrow(existing_log) > 0) {
     existing_log$timestamp <- as.POSIXct(existing_log$timestamp, 
@@ -329,7 +329,7 @@ if (file.exists(log_file_tc)) {
 qc_log_complete <- bind_rows(existing_log, qc_log_piezometer)
 
 # safe the results as .csv
-write.csv(qc_log_complete, log_file_tc, row.names = FALSE)
+write.csv(qc_log_complete, LOG_FILE_TC, row.names = FALSE)
 
 # Ausgabe
 cat("✓ QC Log gespeichert:", nrow(qc_log_piezometer), "neue Einträge\n")

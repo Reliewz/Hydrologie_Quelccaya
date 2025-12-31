@@ -15,7 +15,7 @@ message("Column names have been assigned beforehand in Power Quiery===")
 cat("\n=== STEP 1: Load data ===\n")
 
 # Import Excel file
-data_raw <- read_excel(input_file, sheet = sheet_name, guess_max = 100000) # guess_max allows for column identification to character in the maintenance columns.
+data_raw <- read_excel(INPUT_PIEZOMETER, sheet = SHEET_NAME, guess_max = 100000) # guess_max allows for column identification to character in the maintenance columns.
 
 # Initial inspection
 cat("Dimensions:", nrow(data_raw), "rows x", ncol(data_raw), "columns\n")

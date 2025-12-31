@@ -71,29 +71,29 @@ if (is.null(flag_value)) {
   stop("flag_value must be specified (e.g., 'DELETE', 'REVIEW', 'SUSPECT', 'VERIFIED')")
 }
 
-# Check if QC_LEVELS is defined in global environment
-if (!exists("QC_LEVELS")) {
+# Check if ALLOWED_QC_LEVELS is defined in global environment
+if (!exists("ALLOWED_QC_LEVELS")) {
   stop(
-      "QC_LEVELS must be defined in the global environment.\n",
-      "Example: QC_LEVELS <- c('temporal_consistency', 'physical_plausibility')"
+      "ALLOWED_QC_LEVELS must be defined in the global environment.\n",
+      "Example: ALLOWED_QC_LEVELS <- c('temporal_consistency', 'physical_plausibility')"
     )
   }
   
-# Additional validation: QC_LEVELS should not be NULL or empty
-  if (is.null(QC_LEVELS) || length(QC_LEVELS) == 0) {
-    stop("QC_LEVELS exists but is empty. Please define valid QC level names.")
+# Additional validation: ALLOWED_QC_LEVELS should not be NULL or empty
+  if (is.null(ALLOWED_QC_LEVELS) || length(ALLOWED_QC_LEVELS) == 0) {
+    stop("ALLOWED_QC_LEVELS exists but is empty. Please define valid QC level names.")
   }
   
 # User must assign a QC level
   if (is.null(qc_level)) {
     stop(
       "qc_level must be specified.\n",
-      "Allowed values: ", paste(QC_LEVELS, collapse = ", ")
+      "Allowed values: ", paste(ALLOWED_QC_LEVELS, collapse = ", ")
     )
   }
   
-# input validation of qc-levels from QC_LEVELS
-qc_level <- match.arg(qc_level, choices = QC_LEVELS)  
+# input validation of qc-levels from ALLOWED_QC_LEVELS
+qc_level <- match.arg(qc_level, choices = ALLOWED_QC_LEVELS)  
 # input validation of choice of conflict mode. match.arg allows only the table of strings set in the function.
 conflict_mode <- match.arg(conflict_mode)
 

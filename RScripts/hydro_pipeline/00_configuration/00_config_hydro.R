@@ -5,21 +5,39 @@
 # Author: Kai Albert Zwießler
 # Date: 2025.12.24
 #=================================================================================================================
+# ==============================================================================
+# HYDRO QC PIPELINE - CONFIGURATION
+# ==============================================================================
+
+#------------------------------------------------------------------------------
+# FILE PATHS
+# -----------------------------------------------------------------------------
+
+  # Input data
+  INPUT_PIEZOMETER <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
+  INPUT_WATERLEVEL <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx"
+  
+  # Output directories
+  dir_logs <- "results/hydro_pipeline/logs"
+  dir_checkpoints <- "results/hydro_pipeline/pipeline_debugging"
+  dir_plots <- "results/hydro_pipeline/plots"
+  dir_temporal_results <- "results/temporal"
+  dir_tables <- "results/hydro_pipeline/tables"
 
 # ====== LOAD & STANDARDIZE WORKFLOWs CONFIGURATION ======
-# ==========  ==========
-#Dataframe
-input_file <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/piezometer_data/PZ_merged/PZ_merged/All_PZ_merged.xlsx"
-#alternative paths: 
-# WLS: D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx
-#Parameters
-sheet_name <- "Rinput"
+# ------------------------------------------------------------------------------
+# IMPORT SETTINGS
+# ------------------------------------------------------------------------------ 
+
+  SHEET_NAME <- "Rinput"
+  TIMEZONE_DATA <- "America/Lima"
+  TIMEZONE_PROCESS <- "Europe/Berlin"
 # ===================================
 
-# ====== QUALITY-CONTROL WORKFLOWs CONFIGURATION ======
+# ====== QUALITY-CONTROL WORK FLOWs CONFIGURATION ======
 # Global parameters
-sensor_units <- list(Abs_pres = "kPa", Temp = "°C")
-sensor_information_pz <- list(
+SENSOR_UNITS <- list(Abs_pres = "kPa", Temp = "°C")
+SENSOR_SN_PIEZOMETER <- list(
   PZ01_SN = "21826509",
   PZ02_SN = "21826502",
   PZ03_SN = "21826497",
@@ -34,37 +52,54 @@ sensor_information_pz <- list(
   PZ12_SN = "21826503")
 
 # WLS
-sensor_information_wls <- list(
+SENSOR_SN_WLS <- list(
   WLS_L_SN = "21826493",
   WLS_O_SN = "21826515")
 
-# = TEMPORAL CONSISTENCY =
+# ------------------------------------------------------------------------------
+# QC PARAMETERS
+# ------------------------------------------------------------------------------
 
-# Process Parameters temporal consistency
-date_column <- "Date"        # Column name for timestamp
+# Temporal Consistency
+MIN_INTERVAL_MINUTES <- 15
+MAX_GAP_HOURS <- 24
+date_column <- "Date"        # Column name for time stamp
 id_column <- "ID"         # Column for identification (e.g. PZ01_01m PZ01_02, PZ02_01 (...))
 sensor_group_column <- "sensor_group" # One level above id_column for identification (e.g. PZ01, PZ02 (...))
 output_column <- "time_diff" # Column for calculated output
 timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency
 measurement_columns <- c("Abs_pres", "Temp")
 maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
+TC_FLAGS_COLUMN <- "temporal_consistency"
+RECORD_TOLERANCE <- 1
+
+# Physical Plausibility
+ABS_PRES_MIN <- 0
+ABS_PRES_MAX <- 200  # kPa
+TEMP_MIN <- -10
+TEMP_MAX <- 40       # °C
+PP_FLAGS_COLUMN <- "physical plausibility"
+
+# Duplicates
+RECORD_TOLERANCE <- 1
+DUPLICATE_CHECK_COLS <- c("Date", "ID")
+
 # apply qc flags workflow
-QC_LEVELS <- c(
+ALLOWED_QC_LEVELS <- c(
   "temporal_consistency",
   "physical_plausibility"
 )
 merge_column <- "RECORD"
-# Workflow Parameters:
-record_tolerance <- 1
-timezone_data <- "America/Lima"
-timezone_process <- "Europe/Berlin"
-# Outputs
-log_file_tc <- "results/logs/qc_log_piezo_temporal_consistency.csv"
-log_file_duplicates <- "results/logs/qc_log_piezo_duplicates.csv"
-# = DUPLICATES
 
-# = PHYSICAL PLAUSIBILITY
 
+# ------------------------------------------------------------------------------
+# LOG FILE PATHS 
+# ------------------------------------------------------------------------------
+
+LOG_TEMPORAL <- file.path(DIR_LOGS, "qc_log_temporal_consistency.csv")
+LOG_PHYSICAL <- file.path(DIR_LOGS, "qc_log_physical_plausibility.csv")
+LOG_DUPLICATES <- file.path(DIR_LOGS, "qc_log_duplicates.csv")
+LOG_SUMMARY <- file.path(DIR_LOGS, "qc_summary_report.csv")
 
 
 
