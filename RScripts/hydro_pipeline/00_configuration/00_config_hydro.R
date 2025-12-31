@@ -18,11 +18,11 @@
   INPUT_WATERLEVEL <- "D:/RProjekte/Hydrologie_Quelccaya/Datenquellen/Hydrological_data/waterlevel_data/WLS_merged.xlsx"
   
   # Output directories
-  dir_logs <- "results/hydro_pipeline/logs"
-  dir_checkpoints <- "results/hydro_pipeline/pipeline_debugging"
-  dir_plots <- "results/hydro_pipeline/plots"
-  dir_temporal_results <- "results/temporal"
-  dir_tables <- "results/hydro_pipeline/tables"
+  DIR_LOGS <- "results/hydro_pipeline/logs"
+  DIR_CHECKPOINTS <- "results/hydro_pipeline/pipeline_debugging"
+  DIR_PLOTS <- "results/hydro_pipeline/plots"
+  DIR_TEMPORAL_RESULTS <- "results/temporal"
+  DIR_TABLES <- "results/hydro_pipeline/tables"
 
 # ====== LOAD & STANDARDIZE WORKFLOWs CONFIGURATION ======
 # ------------------------------------------------------------------------------

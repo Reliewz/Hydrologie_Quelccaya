@@ -42,7 +42,7 @@ cat("✓ Loaded", nrow(data_standardized), "records\n")
 
 # Optional: Save checkpoint
 if (KEEP_INTERMEDIATE) {
-  saveRDS(data_standardized, file.path(dir_checkpoints, "01_data_standardized.rds"))
+  saveRDS(data_standardized, file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
 }
 
 # 2. Load Functions for Temporal Consistency workflow
@@ -99,12 +99,6 @@ if (!exists("data_qc_duplicates")) {
 # ------------------------------------------------------------------------------
 
 # data_flagged
-
-
-
-
-
-
 
 
 cat("\n╔════════════════════════════════════════════════════════════╗\n")

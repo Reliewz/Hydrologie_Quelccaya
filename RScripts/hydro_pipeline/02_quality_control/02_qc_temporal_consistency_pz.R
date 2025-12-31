@@ -253,7 +253,7 @@ data_standardized_flagged <- apply_qc_flags(
 # PURPOSE: === Cleansing of "DELETE" Flags and re-run the sum_timediff function. ====
 # Transfering the flagged records to a experimental data frame where the upcoming analysis of temporal consistency will be carried out
 flag_info <- data_standardized_flagged %>%
-  select(ID, RECORD, Flags)
+  select(ID, RECORD, !!sym(TC_FLAGS_COLUMN))
 
 # STEP 1: Add flag information to experimental data set
 interval_check <- interval_check %>% 
@@ -263,7 +263,7 @@ interval_check <- interval_check %>%
 # STEP 2: Documentation of flagging workflow
 # Isolating DELETED rows to prepare documentation with function_log_qc_flags.
 deleted_rows <- interval_check %>% 
-  filter(Flags == "DELETE")
+  filter(!!sym(TC_FLAGS_COLUMN) == "DELETE")
 
 # ==============================================================================
 # Section 2b: QC-INTERPRETATION
@@ -286,12 +286,12 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer <- log_qc_flags(
 
 # Keep all rows that are not "DELETE" also keep NA values.
 interval_check <- interval_check %>%
-  filter(Flags != "DELETE" | is.na(Flags))
+  filter(!!sym(TC_FLAGS_COLUMN) != "DELETE" | is.na(!!sym(TC_FLAGS_COLUMN)))
 
 # ====STEP 3: Filter all rows marked as "REVIEW" =====
 # Documentation "REVIEW" flags since there is no information content in the measurement value section
 review_rows <- interval_check %>% 
-  filter(Flags == "REVIEW")
+  filter(!!sym(TC_FLAGS_COLUMN) == "REVIEW")
 
 # ===== Review Flags documentation =====
 # Documentation of QC Flags using function log_qc_flags
@@ -314,8 +314,8 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 
 # ===Documentation Append to Log file ===
 # Load existing log file if available. This ensures that old entrys will not be overwritten when this script gets sourced.
-if (file.exists(LOG_FILE_TC)) {
-  existing_log <- read.csv(LOG_FILE_TC, stringsAsFactors = FALSE)
+if (file.exists(LOG_TEMPORAL)) {
+  existing_log <- read.csv(!!sym(LOG_TEMPORAL), stringsAsFactors = FALSE)
  
   if ("timestamp" %in% names(existing_log) && nrow(existing_log) > 0) {
     existing_log$timestamp <- as.POSIXct(existing_log$timestamp, 
@@ -329,7 +329,7 @@ if (file.exists(LOG_FILE_TC)) {
 qc_log_complete <- bind_rows(existing_log, qc_log_piezometer)
 
 # safe the results as .csv
-write.csv(qc_log_complete, LOG_FILE_TC, row.names = FALSE)
+write.csv(qc_log_complete, LOG_TEMPORAL, row.names = FALSE)
 
 # Ausgabe
 cat("✓ QC Log gespeichert:", nrow(qc_log_piezometer), "neue Einträge\n")
@@ -340,7 +340,7 @@ cat("✓ Gesamt im Master-Log:", nrow(qc_log_complete), "Einträge\n")
 # ===== CONTINUATION WITH TEMPORAL CONSISTENCY CHECKS =====
 # Prepairing experimental dataframe for further analysis... Filter "DELETE" and "REVIEW"
 interval_check <- interval_check %>%
-  filter(!(Flags %in% c("DELETE", "REVIEW")) | is.na(Flags))
+  filter(!(!!sym(TC_FLAGS_COLUMN) %in% c("DELETE", "REVIEW")) | is.na(!!sym(TC_FLAGS_COLUMN)))
 
 # ==============================================================================
 # Section 2c: QC-INTERPRETATION
