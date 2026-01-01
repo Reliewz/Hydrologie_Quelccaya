@@ -40,7 +40,7 @@ log_qc_flags <- function(
   device,
   action = c("initial_assignment", "reclassification", "manual_documentation"),
   from_flag = NULL,
-  to_flag,
+  to_flag = NULL,
   reason,
   tz = "Europe/Berlin") {
 
