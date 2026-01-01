@@ -8,7 +8,7 @@
 #=================================================================================================================
 
 # ==============================================================================
-# PIEZOMETER, HYDROLOGICAL PIPELINE - MASTER SCRIPT - QUALITY CONTROL
+# PIEZOMETER, HYDROLOGICAL PIPELINE - MASTER SCRIPT - 02 QUALITY CONTROL
 # ==============================================================================
 # Clear workspace at start
 rm(list = ls())
@@ -45,7 +45,9 @@ if (KEEP_INTERMEDIATE) {
   saveRDS(data_standardized, file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
 }
 
+# ------------------------------------------------------------------------------
 # 2. Load Functions for Temporal Consistency workflow
+# ------------------------------------------------------------------------------
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
@@ -54,10 +56,10 @@ source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_flags.R")
 
 # ------------------------------------------------------------------------------
-# 3. QC - Level 1 - Temporal consistency
+# 3a. QC - Level 1.1 - Temporal consistency in date column
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "temporal_consistency"
-CURRENT_QC_LEVEL <- "2.1 - temporal consistency"
+CURRENT_QC_LEVEL <- "1.1 - temporal consistency"
 
 # Source QC script
 source("RScripts/hydro_pipeline/02_quality_control/02_qc_temporal_consistency_pz.R")
@@ -73,7 +75,22 @@ if (!exists("data_tc_flagged")) {
   cat("✓ Flagged", n_flagged, "records (", pct_flagged, "%)\n")
   }
 
+# ------------------------------------------------------------------------------
+# 3b. QC - Level 1.2 - Temporal consistency - step test (range test)
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "temporal_consistency"
+CURRENT_QC_LEVEL <- "1.2 - temporal consistency"
+# ------------------------------------------------------------------------------
+# 3c. QC - Level 1.3 - Temporal consistency - persistence test (duplicate test)
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "temporal_consistency"
+CURRENT_QC_LEVEL <- "1.3 - temporal consistency"
 
+# ------------------------------------------------------------------------------
+# 3d. QC - Level 1.4 - Temporal consistency - spatial outliers
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "temporal_consistency"
+CURRENT_QC_LEVEL <- "1.4 - temporal consistency"
 
 # ------------------------------------------------------------------------------
 # 4. QC - PHYSICAL PLAUSIBILITY
