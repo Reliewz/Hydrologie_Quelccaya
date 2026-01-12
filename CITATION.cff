@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "Semi-Automatic, Generic Quality Control Pipeline for Hydrometeorological Data"
+message: "If you use this software in academic work, please cite it as below."
+type: software
+
+authors:
+  - family-names: Zwießler
+    given-names: Kai
+    affiliation: Independent Researcher
+    orcid: https://orcid.org/0009-0005-0756-1067
+
+version: 0.1.0-dev
+date-released: 2026-01-11
+license: Apache-2.0
+
+repository-code: https://github.com/Reliewz/Hydrologie_Quelccaya.git
+
+keywords:
+  - hydrology
+  - quality control
+  - data pipeline
+  - meteorological data
+  - semi-automatic

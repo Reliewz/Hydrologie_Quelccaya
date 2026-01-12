@@ -18,7 +18,7 @@
 #' # ========== CONFIGURATION ==========
 #' @param df the dataframe where the qc flags are supposed to be applied to
 #' @param flag_value a parameter where the user has to assign a flag value f.e. "REVIEW", "DELETE" (...)
-#' @param qc_level cprovides the information in which qc_level the flags will be applied. - QC_level will be used as column name.
+#' @param qc_level provides the information in which qc_level the flags will be applied. - QC_level will be used as column name.
 #' @param merge_col the column who serves as a link between the data frame and flag_info to perform joins, to merge the information.
 #' @param df_flag_info second data frame which contains the flag information that later will be joined with df
 #' @param id_col (optional) if the data set contains more than one measurement device. This column adds a group_by logic to apply the logic to one device before going to the next

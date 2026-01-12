@@ -394,7 +394,6 @@ temporal_issues_rows_flagfiltered <- check_temporal_inconsistencies(
   timediff_col = timediff_column
 )
 print(temporal_issues_rows_flagfiltered)
-print(temporal_issues_rows_flagfiltered$below15, n = Inf, width = Inf)
 
 
 # ==============================================================================
@@ -408,19 +407,7 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 ))
 
 
-
-# STEP 5: Verification if all maintenance related columns have been removed completely
-temporal_issues_rows <- temporal_issues_rows %>%
-  as.data.frame(temporal_issues_rows) %>%
-  select(all_of(maintenance_info_columns)) %>%
-  is.na(all_of(maintenance_info_columns))
-
-
-# ==============================================================================
-# Section 3c: QC-ACTION
-# ==============================================================================
-
-
+# Rename flagged data frame
 # new flagging...
 ## transferring all changes from interval_check to data_standardized_flagged
 
@@ -430,4 +417,4 @@ temporal_issues_rows <- temporal_issues_rows %>%
 # - qc_stats_[workflow_name] (for reporting)
 
 # ====EXPORT VARIALBE =====
-safe.rds(data_qc_temporal <- interval_check)
+

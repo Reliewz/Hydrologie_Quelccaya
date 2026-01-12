@@ -73,14 +73,14 @@ maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected
 TC_FLAGS_COLUMN <- "temporal_consistency"
 RECORD_TOLERANCE <- 1
 
-# Physical Plausibility
+# Range Test - Physical Plausibility
 ABS_PRES_MIN <- 0
 ABS_PRES_MAX <- 200  # kPa
 TEMP_MIN <- -10
 TEMP_MAX <- 40       # °C
 PP_FLAGS_COLUMN <- "physical plausibility"
 
-# Duplicates
+# Persistency Test - Duplicates
 RECORD_TOLERANCE <- 1
 DUPLICATE_CHECK_COLS <- c("Date", "ID")
 
