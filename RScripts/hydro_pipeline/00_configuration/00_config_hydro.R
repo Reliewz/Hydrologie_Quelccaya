@@ -63,6 +63,7 @@ SENSOR_SN_WLS <- list(
 # Temporal Consistency
 MIN_INTERVAL_MINUTES <- 15
 MAX_GAP_HOURS <- 24
+
 date_column <- "Date"        # Column name for time stamp
 id_column <- "ID"         # Column for identification (e.g. PZ01_01m PZ01_02, PZ02_01 (...))
 sensor_group_column <- "sensor_group" # One level above id_column for identification (e.g. PZ01, PZ02 (...))
@@ -74,22 +75,26 @@ TC_FLAGS_COLUMN <- "temporal_consistency"
 RECORD_TOLERANCE <- 1
 
 # Range Test - Physical Plausibility
-ABS_PRES_MIN <- 0
+ABS_PRES_MIN <- 0    # kPa
 ABS_PRES_MAX <- 200  # kPa
-TEMP_MIN <- -10
+TEMP_MIN <- -10      # °C
 TEMP_MAX <- 40       # °C
-PP_FLAGS_COLUMN <- "physical plausibility"
+RT_FLAGS_COLUMN <- "range_test"
 
-# Persistency Test - Duplicates
+# Persistence Test - Duplicates
 RECORD_TOLERANCE <- 1
-DUPLICATE_CHECK_COLS <- c("Date", "ID")
+RECORD_TIME_TOLERANCE <- 60 # minutes
+DUPLICATE_CHECK_COLS <- c("Date", "ID", "Abs_pres", "Temp")
+PT_FLAGS_COLUMN <- "persistence_test"
 
 # apply qc flags workflow
 ALLOWED_QC_LEVELS <- c(
   "temporal_consistency",
-  "physical_plausibility"
+  "range_test",
+  "persistence_test"
 )
 merge_column <- "RECORD"
+merge_block_logic_column <- "final_block_id"
 
 
 # ------------------------------------------------------------------------------
@@ -100,6 +105,10 @@ LOG_TEMPORAL <- file.path(DIR_LOGS, "qc_log_temporal_consistency.csv")
 LOG_PHYSICAL <- file.path(DIR_LOGS, "qc_log_physical_plausibility.csv")
 LOG_DUPLICATES <- file.path(DIR_LOGS, "qc_log_duplicates.csv")
 LOG_SUMMARY <- file.path(DIR_LOGS, "qc_summary_report.csv")
+
+# ------------------------------------------------------------------------------
+# Output intermediate variables
+# ------------------------------------------------------------------------------
 
 
 

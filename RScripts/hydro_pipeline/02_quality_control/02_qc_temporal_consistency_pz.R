@@ -63,7 +63,7 @@ interval_summary <- sum_timediff(
   td_col = timediff_column
 )
 cat("\n=== Interval Summary by Piezometer group ===\n")
-print(interval_summary, n = Inf)
+print(interval_summary)
 
 # ========= 4c Visual determination of rows with temporal inconsistencies with function_interval_determination.R ========
 # categories and thresholds are determined internally in the function-logic.
@@ -91,7 +91,7 @@ rows_with_na %>%
 
 # Display all rows with NA
 cat("\n=== All rows with missing values ===\n")
-print(rows_with_na, n = 40)
+print(rows_with_na, n = 10)
 
 # ========== STEP 6: IDENTIFY NA SEQUENCES WITH "Protokolliert" ==========
 cat("\n=== STEP 4c: Identify maintenance-related NA sequences ===\n")
@@ -213,7 +213,7 @@ cat("Creating a data frame that contains the actions that contains the flags fro
 # Create full copy of the raw data set to create a flagged version
 data_standardized_flagged <- data_standardized
 
-# Preparing the object flag_info to transfer "RECORD" column
+# Preparing the object flag_info to transfer "RECORD" column (row logic) from final_block_id (block logic)
 flag_info <- na_with_blocks %>%
   select(ID, RECORD, final_block_id)
 
@@ -222,6 +222,7 @@ data_standardized_flagged <- data_standardized_flagged %>%
   left_join(flag_info,
             by = c("ID", "RECORD"))
 
+print(data_standardized_flagged)
 # ==============================================================================
 # Section 3a: QC-ACTION
 # ==============================================================================
@@ -234,7 +235,7 @@ data_standardized_flagged <- apply_qc_flags(
   df_flag_info = delete_blocks,
   qc_level = "temporal_consistency",
   flag_value = "DELETE",
-  merge_col = "final_block_id",
+  merge_col = merge_block_logic_column,
   id_col = id_column
 )
 
@@ -246,13 +247,12 @@ data_standardized_flagged <- apply_qc_flags(
   df_flag_info = review_blocks,
   qc_level = "temporal_consistency",
   flag_value = "REVIEW",
-    merge_col = "final_block_id",
+    merge_col = merge_block_logic_column,
   id_col = id_column
 )
 
-# ==== MAINTENANCE RELATED ANALYSIS ====
-# PURPOSE: === Cleansing of "DELETE" Flags and re-run the sum_timediff function. ====
-# Transfering the flagged records to a experimental data frame where the upcoming analysis of temporal consistency will be carried out
+
+# Transferring the flagged records to a experimental data frame where the upcoming analysis of temporal consistency will be carried out
 flag_info <- data_standardized_flagged %>%
   select(ID, RECORD, !!sym(TC_FLAGS_COLUMN))
 
@@ -278,14 +278,14 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer <- log_qc_flags(
   action = "initial_assignment",
   device = "Piezometer",
   to_flag = 'DELETE',
-  reason = "The isolated segment adds no additional information content to analysis, because of NA values in the measurement columns. Protocolled maintenance or data collection events caused the sensor to lose it´s connection. For further analysis this rows will be excluded."
+  reason = "The isolated segment adds no additional information content to analysis, because of NA values in the measurement columns. Protocolled maintenance or data collection events caused the sensor to lose its connection. For further analysis this rows will be excluded."
 ))
 
 # ====STEP 3: Filter all rows marked as "REVIEW" =====
 # Documentation "REVIEW" flags since there is no information content in the measurement value section
 review_rows <- interval_check %>% 
   filter(!!sym(TC_FLAGS_COLUMN) == "REVIEW")
-
+print(review_rows, n = Inf)
 # ===== Review Flags documentation =====
 # Documentation of QC Flags using function log_qc_flags
 qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
@@ -306,6 +306,7 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
   to_flag = 'DELETE',
   reason = "The isolated 'REVIEW' segment also add no additional information content to analysis, because of NA values in the measurement columns. The reason was a protocolled re-booting mechanism, also after maintenance or data collection events. For further analysis this rows can be excluded."
 ))
+
 
 # ==============================================================================
 # Section 3b: QC-ACTION
@@ -340,7 +341,7 @@ cat("✓ Gesamt im Master-Log:", nrow(qc_log_complete), "Einträge\n")
 # ==============================================================================
 # Section 2c: QC-INTERPRETATION
 # ==============================================================================
-# Did the removement of the flagged rows caused the timediff jumps or are this real QC artefacts
+# Did the deletion of the flagged rows cause any timediff jumps.
 # STEP 4 Summary and rows extraction workflow after "DELETE" and "REVIEW" removed.
 
 interval_summary <- sum_timediff(
@@ -362,8 +363,9 @@ temporal_issues_rows <- check_temporal_inconsistencies(
 print(temporal_issues_rows$between15_60, n = Inf, width = Inf)
 print(temporal_issues_rows$below15, n = Inf, width = Inf)
 
-
-# Comparisson with deleted NA rows with flags
+# ==== MAINTENANCE RELATED ANALYSIS ====
+# PURPOSE: === Cleansing of "DELETE" Flags and re-run the sum_timediff function. ====
+# Comparison with deleted NA rows with flags
 # Preparing experimental data frame for further analysis... Filter "DELETE" and "REVIEW"
 interval_check_flagfiltered <- interval_check %>%
   filter(!(!!sym(TC_FLAGS_COLUMN) %in% c("DELETE", "REVIEW")) | is.na(!!sym(TC_FLAGS_COLUMN)))
@@ -403,7 +405,7 @@ print(temporal_issues_rows_flagfiltered)
 qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
   action = "manual_documentation",
   device = "Piezometer",
-  reason = "End: By removing the the maintenance caused NA Column temporal inconsistencies in the Data column have been solved."
+  reason = "End of temporal inconsistency test: By removing the the maintenance caused NA Column temporal inconsistencies in the Data column have been solved."
 ))
 
 
@@ -417,4 +419,3 @@ qc_log_piezometer <- bind_rows(qc_log_piezometer, log_qc_flags(
 # - qc_stats_[workflow_name] (for reporting)
 
 # ====EXPORT VARIALBE =====
-

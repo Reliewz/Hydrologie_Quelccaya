@@ -31,6 +31,9 @@ output_column <- "time_diff" # Column for calculated output
 timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency 
 measurement_columns_qk <- c("AirTC", "RH", "Precip_Tot", "WS", "WS_Max", "WD", "DewP")
 measurement_columns_qc <- c("AirTC", "RH", "Precip_Tot", "Tot24", "WS", "WD", "WS_Max", "SlrW", "Slrw_Max", "Slrw_Avg", "SnDep")
+measurement_columns_sq <- c("AirTC", "Precip_Tot", "RH", "WS", "WD")
+measurement_columns_cb <- c("AirTC", "Precip_Tot", "RH", "WS", "WD")
+measurement_columns_qp <- c("AirTC", "Precip_Tot", "RH", "WS", "WD")
 # Metadata parameters
 sensor_units <- list(AirTC = "°C", RH = "%", Precip_Tot = "mm", WS = "m/s", WS_Max = "m/s", WD = "°", Dewp = "°C")
 Sensor_information <- list(
@@ -39,10 +42,6 @@ Sensor_information <- list(
   Wind_HOBO_S-WCF-M003_SN = "21742435")
 
 
-# Process Parameters temporal consistency
-date_column <- "Date"        # Column name for timestamp
-id_column <- "ID"         # Column for device identification
-maintenance_info_columns <- c()
 # apply qc flags workflow
 QC_LEVELS <- c(
   "temporal_consistency",

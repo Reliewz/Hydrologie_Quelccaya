@@ -2,7 +2,7 @@
 # Scriptname: 01_load_and_standardize.R
 # Goal(s): 
 # Change Date format to POSIXct
-# Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC_ scripts.
+# Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC scripts.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
 # Input Dataset: 

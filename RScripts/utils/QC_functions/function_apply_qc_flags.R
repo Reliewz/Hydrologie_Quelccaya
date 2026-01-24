@@ -75,7 +75,7 @@ if (is.null(flag_value)) {
 if (!exists("ALLOWED_QC_LEVELS")) {
   stop(
       "ALLOWED_QC_LEVELS must be defined in the global environment.\n",
-      "Example: ALLOWED_QC_LEVELS <- c('temporal_consistency', 'physical_plausibility')"
+      "Example: ALLOWED_QC_LEVELS <- c('temporal_consistency', 'range_test', 'persistence_test')"
     )
   }
   
