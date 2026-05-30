@@ -14,7 +14,21 @@ message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
 cat("\n=== STEP 1: Load data ===\n")
 
-# Import Excel file
+# .csv folder import 
+data_raw <- load_hobo_csv(date_col = DATE_COLUMN,
+              timezone = TIMEZONE_DATA,
+              folder_path = FOLDER_IMPORT_PATH,
+              keep_files = FILE_SELECTION,
+              )
+# Rename columns
+data_raw <- rename_columns(df = data_raw, 
+                           rename_map = COLUMN_RENAME_MAP
+                           )
+
+
+
+
+
 data_raw <- read_excel(INPUT_PIEZOMETER, sheet = SHEET_NAME, guess_max = 100000) # guess_max allows for column identification to character in the maintenance columns.
 
 # Initial inspection
@@ -30,7 +44,7 @@ cat("\n=== STEP 2: Standardize date format to ISO 8601 ===\n")
 cat("Original date format (first entry):", data_raw[[date_column]][1], "\n")
 cat("Original date class:", class(data_raw[[date_column]]), "\n")
 
-# Convert different date formats like US/EU (..) to ISO 8601 YYYY.MM.DD hh:mm:ss
+# Convert different date formats like US/EU (..) and ISO 8601 YYYY.MM.DD hh:mm:ss to POSIXct date-time object
 data_raw <- data_raw %>%
   mutate(
     Date = parse_date_time(
