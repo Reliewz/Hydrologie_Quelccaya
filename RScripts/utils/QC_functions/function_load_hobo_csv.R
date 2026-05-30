@@ -5,7 +5,7 @@
   # Folder import function for .csv data (Default: pressure sensor HOBO U20L
   # Csv import, skip function to skip stored metadata
   # imports all .csv files stored in a folder
-  # A new column called "Date" is generated, where the type is converted to PostiXct format.
+  # A new column called "Date" is generated, where the type is converted to POSIXct format and automatically to ISO 8601 YYYY.MM.DD hh:mm:ss.
   # the function informs via message about date format for validation
 # Author: Kai Albert Zwießler
 # Outputs:
@@ -57,8 +57,6 @@ datapaths_named <- setNames(
 
   
 # validation step if assigned keep_files and folder files match 1:1
-
-
   if (!is.null(keep_files)){
     not_found <- keep_files[!keep_files %in% names(datapaths_named)]
     if (length(not_found) > 0) {

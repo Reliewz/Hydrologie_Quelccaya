@@ -50,7 +50,7 @@ rename_columns <- function(df, rename_map = NULL){
 
   # Rename columns
   df <- df %>%
-    dplyr::rename(all_of(rename_map))
+    dplyr::rename(all_of(setNames(names(rename_map), rename_map)))
   
   
   

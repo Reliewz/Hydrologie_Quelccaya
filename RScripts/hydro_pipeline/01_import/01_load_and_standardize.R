@@ -14,16 +14,56 @@ message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
 cat("\n=== STEP 1: Load data ===\n")
 
-# .csv folder import 
-data_raw <- load_hobo_csv(date_col = DATE_COLUMN,
-              timezone = TIMEZONE_DATA,
-              folder_path = FOLDER_IMPORT_PATH,
-              keep_files = FILE_SELECTION,
-              )
+# .csv folder import WLS outlet, ID column generation, rename_column function
+# ========== OUTLET WATER LEVEL SENSOR ==========
+data_raw_wls_o <- {
+  df <- load_hobo_csv(
+    date_col    = DATE_COLUMN,
+    timezone    = TIMEZONE_DATA,
+    folder_path = FOLDER_IMPORT_PATH_WLS_O,
+    keep_files  = FILE_SELECTION
+  )
+  # removing of device ID for standardized columns names
+  names(df) <- gsub("\\.\\.LGR.*", "", names(df))
+  # Column rename and ID column generation
+  df %>%
+    rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
+    mutate(ID = "WLS_O")
+}
+
+# ========== PIEZOMETER ==========
+# Piezometer .csv folder import
+data_raw_pz <- purrr::map_dfr(
+  PIEZOMETER_IMPORTS,
+  \(x) {
+    df <- load_hobo_csv(
+      folder_path = x$folder,
+      date_col    = DATE_COLUMN,
+      timezone    = TIMEZONE_DATA
+    )
+    # removing of device ID for standardized columns names
+    names(df) <- gsub("\\.\\.LGR.*", "", names(df))
+    # Column rename and ID column generation
+    df %>%
+      rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
+      mutate(ID = x$id)
+  }
+)
+
 # Rename columns
-data_raw <- rename_columns(df = data_raw, 
-                           rename_map = COLUMN_RENAME_MAP
-                           )
+data_raw_pz <- rename_columns(df = data_raw_pz, 
+                               rename_map = COLUMN_RENAME_MAP
+)
+
+
+
+# Preliminary column type verification
+cat("Verification step === Are all columns assigned the correct type?===")
+print(str(data_raw))
+
+# Adding a ID column
+data_raw <- data_raw %>%
+  mutate(ID = ID_COLUMN)
 
 
 
