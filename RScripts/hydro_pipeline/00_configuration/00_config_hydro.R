@@ -1,7 +1,7 @@
 #=================================================================================================================
 # Scriptname: 00_config_hydro.R
 # Goal(s): 
-  # Provides hydrological scripts and workflows with its specific configuration
+  # Provides the required parameters for the hydrological data
 # Author: Kai Albert Zwießler
 # Date: 2025.12.24
 #=================================================================================================================
@@ -10,15 +10,102 @@
 # ==============================================================================
 
 #------------------------------------------------------------------------------
-# FILE PATHS
+# Import Section
 # -----------------------------------------------------------------------------
+HYDRO_SENSOR_IMPORTS <- list(
+  WLS_O = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_outlet\\outlet_input_data",
+               keep_files = c("21826515_QK_salida_25_02_2025.csv", "21826515_QK_salida_19_11_25.csv",
+                              "21826515_QK_salida_24_03_26.csv"), id = "WLS_O"),
+  WLS_L = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_lagoon\\lagoon_input_data",
+               keep_files = c("21826493_QK_lag_24_02_25.csv", "21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv"), id = "WLS_L"),
+  PZ1  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ01",
+              keep_files = NULL, id = "PZ01"),
+  PZ2  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ02", 
+              keep_files = NULL, id = "PZ02"),
+  PZ3  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ03", 
+              keep_files = NULL, id = "PZ03"),
+  PZ4  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ04", 
+              keep_files = NULL, id = "PZ04"),
+  PZ5  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ05", 
+              keep_files = NULL, id = "PZ05"),
+  PZ6  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ06", 
+              keep_files = NULL, id = "PZ06"),
+  PZ7  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ07", 
+              keep_files = NULL, id = "PZ07"),
+  PZ8  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ08", 
+              keep_files = NULL, id = "PZ08"),
+  PZ9  = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ09", 
+              keep_files = NULL, id = "PZ09"),
+  PZ10 = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ10", 
+              keep_files = NULL, id = "PZ10"),
+  PZ11 = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ11", 
+              keep_files = NULL, id = "PZ11"),
+  PZ12 = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ12", 
+              keep_files = NULL, id = "PZ12")
+)
+
+# Equal Import-Parameters for all sensors
+DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
+TIMEZONE_DATA <- "America/Lima"
+TIMEZONE_PROCESS <- "Europe/Berlin"
+
+# Column names hydrological sensors for rename_columns() old column = new column
+COLUMN_RENAME_MAP <- c(
+  "Anz."               = "Record",
+  "Abs.Druck..kPa"     = "Abs_pres",
+  "Temp....C"          = "Temp",
+  "Koppler.abgetrennt" = "Connection_off",
+  "Koppler.verbunden"  = "Connection_on",
+  "Host.verbunden"     = "Host_connected",
+  "Dateiende"          = "Data_end"
+)
+
 
 
 #------------------------------------------------------------------------------
-# Import Section
+# QC Parametrization
 # -----------------------------------------------------------------------------
+HYDRO_QC_CONFIG <- list(
+  completeness_test = list(
+    WLS_O = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
+    PZ01  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10)
+  ),
+  
+  timing_gap_test = list(
+    WLS_O = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
+    PZ01  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10)
+  ),
+  
+  range_test = list(
+    WLS_O = list(water_level = c(min = 0.0, max = 4.5)),
+    PZ01  = list(water_level = c(min = 0.0, max = 3.0))
+  ),
+  
+  spike_test = list(
+    WLS_O = list(water_level = 0.5),
+    PZ01  = list(water_level = 0.3)
+  ),
+  
+  persistence_test = list(
+    WLS_O = list(window = 6),
+    PZ01  = list(window = 6)
+  ),
+  
+  internal_consistency_test = list(
+    WLS_O = list(Expression X>X>X),
+    PZ01  = list(...elt())
+  )
+)
 
-# Column names
+
+
+
+
+
+
+
+
+# Column names station Qori-Kalis
 COLUMN_RENAME_MAP <- c(
   "Anz."               = "Record",
   "Abs.Druck..kPa"     = "Abs_pres",
@@ -35,32 +122,16 @@ ID_PIEZOMETER <- "ID"
 
 # Folder Import data
 
-# WLS outlet
-FOLDER_IMPORT_PATH_WLS_O <- "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_outlet\\outlet_input_data"
-FILE_SELECTION_WLS_O <- c("21826515_QK_salida_25_02_2025.csv", "21826515_QK_salida_19_11_25.csv", "21826515_QK_salida_24_03_26.csv")
 
-# WLS Lagoon
-FOLDER_IMPORT_PATH_WLS_L <- "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_lagoon\\lagoon_input_data"
-FILE_SELECTION_WLS_L <- c("21826493_QK_lag_24_02_25.csv", "21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv")
 
 
 # ========== PIEZOMETER IMPORT CONFIGURATION ==========
 
 PIEZOMETER_IMPORTS <- list(
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ01", id = "PZ01"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ02", id = "PZ02"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ03", id = "PZ03"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ04", id = "PZ04"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ05", id = "PZ05"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ06", id = "PZ06"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ07", id = "PZ07"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ08", id = "PZ08"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ09", id = "PZ09"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ10", id = "PZ10"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ11", id = "PZ11"),
-  list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ12", id = "PZ12")
-)
   
+#------------------------------------------------------------------------------
+# Parameter
+# -----------------------------------------------------------------------------
   
   
   
@@ -77,8 +148,6 @@ PIEZOMETER_IMPORTS <- list(
 # ------------------------------------------------------------------------------ 
 
   SHEET_NAME <- "Rinput"
-  TIMEZONE_DATA <- "America/Lima"
-  TIMEZONE_PROCESS <- "Europe/Berlin"
 # ===================================
 
 # ====== QUALITY-CONTROL WORK FLOWs CONFIGURATION ======
@@ -111,7 +180,7 @@ SENSOR_SN_WLS <- list(
 MIN_INTERVAL_MINUTES <- 15
 MAX_GAP_HOURS <- 24
 
-DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
+
 
 
 # variables old (substitude)

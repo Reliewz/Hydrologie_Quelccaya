@@ -14,68 +14,36 @@ message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
 cat("\n=== STEP 1: Load data ===\n")
 
-# .csv folder import WLS outlet, ID column generation, rename_column function
-# ========== OUTLET WATER LEVEL SENSOR ==========
-data_raw_wls_o <- {
-  df <- load_hobo_csv(
-    date_col    = DATE_COLUMN,
-    timezone    = TIMEZONE_DATA,
-    folder_path = FOLDER_IMPORT_PATH_WLS_O,
-    keep_files  = FILE_SELECTION_WLS_O
-  )
-  # removing of device ID for standardized columns names
-  names(df) <- gsub("\\.\\.LGR.*", "", names(df))
-  # Column rename and ID column generation
-  df %>%
-    rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
-    mutate(ID = "WLS_O")
-}
-
-# ========== LAGOON WATER LEVEL SENSOR ==========
-data_raw_wls_l <- {
-  df <- load_hobo_csv(
-    date_col    = DATE_COLUMN,
-    timezone    = TIMEZONE_DATA,
-    folder_path = FOLDER_IMPORT_PATH_WLS_L,
-    keep_files  = FILE_SELECTION_WLS_L
-  )
-  # removing of device ID for standardized columns names
-  names(df) <- gsub("\\.\\.LGR.*", "", names(df))
-  # Column rename and ID column generation
-  df %>%
-    rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
-    mutate(ID = "WLS_L")
-}
-
-
-# ========== PIEZOMETER ==========
-# Piezometer .csv folder import
-data_raw_pz <- purrr::map_dfr(
-  PIEZOMETER_IMPORTS,
-  \(x) {
+# .csv folder import WLS outlet, WLS lagoon, Piezometers 1 - 12  ID column generation, rename_column function
+# ========== Import function ==========
+data_raw_hydro <- purrr::map_dfr(
+  names(HYDRO_SENSOR_IMPORTS), \(sensor_id) {  # using sensor_id as a placeholder 
+    # cfg ist jetzt z.B.: list(folder="D:\\...", keep_files=NULL, id="PZ01")
+    cfg <- HYDRO_SENSOR_IMPORTS[[sensor_id]] # cfg is renamed for every processing step and deleted afterwards
+    
+    # Import with sensor specific parameters from hydro_config.
     df <- load_hobo_csv(
-      folder_path = x$folder,
-      date_col    = DATE_COLUMN,
-      timezone    = TIMEZONE_DATA
+      folder_path = cfg$folder,      # cfg$folder = folder element from the list
+      date_col    = DATE_COLUMN,     # directly taken from config counts for all sensors
+      timezone    = TIMEZONE_DATA,   # directly taken from config counts for all sensors
+      keep_files  = cfg$keep_files   # Vectors for WLS all data for PZ
     )
-    # removing of device ID for standardized columns names
+    
+    # Removing device-id from columns for input standardization (required for map_dfr)
     names(df) <- gsub("\\.\\.LGR.*", "", names(df))
-    # Column rename and ID column generation
+    
+    # Add ID column using the ID defined in the configuration
     df %>%
-      rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
-      mutate(ID = x$id)
+      rename_columns(rename_map = COLUMN_RENAME_MAP) %>% # rename columns according to rename_map, defined in the configuration file
+      mutate(ID = cfg$id)
   }
 )
 
+
 # Preliminary column type verification
 cat("Verification step === Are all columns assigned the correct type?===")
-print(str(data_raw_o))
-print(str(data_raw_l))
-print(str(data_raw_pz))
+print(str(data_raw_hydro))
 
-# Adding a ID column
-data_raw <- data_raw %>%
-  mutate(ID = ID_COLUMN)
 
 
 
