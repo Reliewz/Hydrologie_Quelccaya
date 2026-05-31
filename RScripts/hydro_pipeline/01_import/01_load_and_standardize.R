@@ -21,7 +21,7 @@ data_raw_wls_o <- {
     date_col    = DATE_COLUMN,
     timezone    = TIMEZONE_DATA,
     folder_path = FOLDER_IMPORT_PATH_WLS_O,
-    keep_files  = FILE_SELECTION
+    keep_files  = FILE_SELECTION_WLS_O
   )
   # removing of device ID for standardized columns names
   names(df) <- gsub("\\.\\.LGR.*", "", names(df))
@@ -30,6 +30,23 @@ data_raw_wls_o <- {
     rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
     mutate(ID = "WLS_O")
 }
+
+# ========== LAGOON WATER LEVEL SENSOR ==========
+data_raw_wls_l <- {
+  df <- load_hobo_csv(
+    date_col    = DATE_COLUMN,
+    timezone    = TIMEZONE_DATA,
+    folder_path = FOLDER_IMPORT_PATH_WLS_L,
+    keep_files  = FILE_SELECTION_WLS_L
+  )
+  # removing of device ID for standardized columns names
+  names(df) <- gsub("\\.\\.LGR.*", "", names(df))
+  # Column rename and ID column generation
+  df %>%
+    rename_columns(rename_map = COLUMN_RENAME_MAP) %>%
+    mutate(ID = "WLS_L")
+}
+
 
 # ========== PIEZOMETER ==========
 # Piezometer .csv folder import
@@ -50,16 +67,11 @@ data_raw_pz <- purrr::map_dfr(
   }
 )
 
-# Rename columns
-data_raw_pz <- rename_columns(df = data_raw_pz, 
-                               rename_map = COLUMN_RENAME_MAP
-)
-
-
-
 # Preliminary column type verification
 cat("Verification step === Are all columns assigned the correct type?===")
-print(str(data_raw))
+print(str(data_raw_o))
+print(str(data_raw_l))
+print(str(data_raw_pz))
 
 # Adding a ID column
 data_raw <- data_raw %>%

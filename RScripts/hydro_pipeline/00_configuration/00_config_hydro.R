@@ -35,9 +35,14 @@ ID_PIEZOMETER <- "ID"
 
 # Folder Import data
 
-#WLS outlet
+# WLS outlet
 FOLDER_IMPORT_PATH_WLS_O <- "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_outlet\\outlet_input_data"
 FILE_SELECTION_WLS_O <- c("21826515_QK_salida_25_02_2025.csv", "21826515_QK_salida_19_11_25.csv", "21826515_QK_salida_24_03_26.csv")
+
+# WLS Lagoon
+FOLDER_IMPORT_PATH_WLS_L <- "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_lagoon\\lagoon_input_data"
+FILE_SELECTION_WLS_L <- c("21826493_QK_lag_24_02_25.csv", "21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv")
+
 
 # ========== PIEZOMETER IMPORT CONFIGURATION ==========
 
