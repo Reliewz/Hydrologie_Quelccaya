@@ -73,7 +73,7 @@ if (length(datapaths_named) == 0) stop("No files remaining after applying keep_f
 data_raw <- purrr::map_dfr(
   .x = datapaths_named,
   # \(x) to apply the read.csv function to every file selected or to every file in the folder.
-  .f = \(x) read.csv(x, skip = skip),
+  .f = \(x) read.csv(x, skip = skip, colClasses = "character"),
   .id = "Source.Code"
 )
  
@@ -89,7 +89,7 @@ data_raw <- data_raw %>%
     )
   )
  
-# Sort mechanism for Date column
+# Sort mechanism according to Date column
 data_raw <- data_raw %>%
   arrange(Date)
 
