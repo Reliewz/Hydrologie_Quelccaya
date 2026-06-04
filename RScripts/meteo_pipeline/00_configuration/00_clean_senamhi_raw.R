@@ -13,7 +13,7 @@
 # Output: 
   # standardized .csv data for each met. station of SENAMHI
 
-# Preliminary Import config
+# Preliminary workflow Import config
 SENAMHI_SENSOR_IMPORTS <- list(
     STATION_QP = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data",
                     keep_files = c("2024.09_QUISOQUEPINA.csv", "2024.10_QUISOQUEPINA.csv", "2024.11_QUISOQUEPINA.csv", 
