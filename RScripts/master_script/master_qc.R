@@ -46,14 +46,20 @@ if (KEEP_INTERMEDIATE) {
 }
 
 # ------------------------------------------------------------------------------
-# 2. Load Functions for workflows
+# 2. Load Functions for Temporal Consistency workflow
 # ------------------------------------------------------------------------------
+#Import functions
+source("RScripts/utils/qc_functions/function_load_hobo_csv.R")
+source("RScripts/utils/qc_functions/function_load_senamhi_csv.R")
+source("RScripts/utils/qc_functions/function_rename_columns.R")
+
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_flags.R")
+
 
 # ------------------------------------------------------------------------------
 # 3. Basic QC - Level 1 - Completeness Test
@@ -80,7 +86,7 @@ if (!exists("data_tc_flagged")) {
   pct_flagged <- round(n_flagged / nrow(data_tc_flagged) * 100, 2)
   
   cat("✓ Flagged", n_flagged, "records (", pct_flagged, "%)\n")
-  }
+}
 
 # ------------------------------------------------------------------------------
 # 3b. QC - Level 1.1 - Tolerance Test - range test
