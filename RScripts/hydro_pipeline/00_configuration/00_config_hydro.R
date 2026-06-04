@@ -10,7 +10,7 @@
 # ==============================================================================
 
 #------------------------------------------------------------------------------
-# Import Section
+# IMPORT Section
 # -----------------------------------------------------------------------------
 HYDRO_SENSOR_IMPORTS <- list(
   WLS_O = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_outlet\\outlet_input_data",
@@ -42,6 +42,8 @@ HYDRO_SENSOR_IMPORTS <- list(
               keep_files = NULL, id = "PZ11"),
   PZ12 = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ12", 
               keep_files = NULL, id = "PZ12")
+  BAROM = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\barometer_data\\baro_input_data", 
+               keep_files = NULL, id = "BAROM")
 )
 
 # Equal Import-Parameters for all sensors
@@ -77,11 +79,11 @@ HYDRO_QC_CONFIG <- list(
   ),
   
   range_test = list(
-    WLS_O = list(water_level = c(min = 0.0, max = 4.5)),
-    PZ01  = list(water_level = c(min = 0.0, max = 3.0))
+    HYDRO_DEVICES_THRESHOLD = list(temp_threshold = c(min = 0, max = 40), PRES_THRESHOLD = c(min = 69, max = 207)),
+    PZ01  = list(water_level = c(min = 0, max = 3.0))
   ),
   
-  spike_test = list(
+  step_test = list(
     WLS_O = list(water_level = 0.5),
     PZ01  = list(water_level = 0.3)
   ),
@@ -99,60 +101,25 @@ HYDRO_QC_CONFIG <- list(
 
 
 
-
-
-
-
-
-
-# Column names station Qori-Kalis
-COLUMN_RENAME_MAP <- c(
-  "Anz."               = "Record",
-  "Abs.Druck..kPa"     = "Abs_pres",
-  "Temp....C"          = "Temp",
-  "Koppler.abgetrennt" = "Connection_off",
-  "Koppler.verbunden"  = "Connection_on",
-  "Host.verbunden"     = "Host_connected",
-  "Dateiende"          = "Data_end"
-)
-
-
-# ID column assignment
-ID_PIEZOMETER <- "ID"
-
-# Folder Import data
-
-
-
-
-# ========== PIEZOMETER IMPORT CONFIGURATION ==========
-
-PIEZOMETER_IMPORTS <- list(
-  
 #------------------------------------------------------------------------------
-# Parameter
+# QC Flagging & Documentation
 # -----------------------------------------------------------------------------
-  
-  
-  
-  # Output directories
-  DIR_LOGS <- "results/hydro_pipeline/logs"
-  DIR_CHECKPOINTS <- "results/hydro_pipeline/pipeline_debugging"
-  DIR_PLOTS <- "results/hydro_pipeline/plots"
-  DIR_TEMPORAL_RESULTS <- "results/temporal"
-  DIR_TABLES <- "results/hydro_pipeline/tables"
-
-# ====== LOAD & STANDARDIZE WORKFLOWs CONFIGURATION ======
-# ------------------------------------------------------------------------------
-# IMPORT SETTINGS
-# ------------------------------------------------------------------------------ 
-
-  SHEET_NAME <- "Rinput"
-# ===================================
-
-# ====== QUALITY-CONTROL WORK FLOWs CONFIGURATION ======
-# Global parameters
+# QC flags workflow Parameter
+QC_FLAG_CONFIG <- list(
+ALLOWED_QC_LEVELS = c("completeness_test", "timing_gap_test",
+  "range_test", "step_test", "persistence_test", "internal_consistency",
+  ),
+LOGS = 
+)
+# Metadata
 SENSOR_UNITS <- list(Abs_pres = "kPa", Temp = "°C")
+
+# WLS Serial Number
+SENSOR_SN_WLS <- list(
+  WLS_O_SN = "21826515",
+  WLS_L_SN = "21826493"
+  
+)
 SENSOR_SN_PIEZOMETER <- list(
   PZ01_SN = "21826509",
   PZ02_SN = "21826502",
@@ -165,12 +132,36 @@ SENSOR_SN_PIEZOMETER <- list(
   PZ09_SN = "21826594",
   PZ10_SN = "21826516",
   PZ11_SN = "21826500",
-  PZ12_SN = "21826503")
+  PZ12_SN = "21826503"
+  )
 
-# WLS
-SENSOR_SN_WLS <- list(
-  WLS_L_SN = "21826493",
-  WLS_O_SN = "21826515")
+
+#------------------------------------------------------------------------------
+# EXPORT Section
+# -----------------------------------------------------------------------------
+HYDRO_OUTPUT_DIRECTORIES <- list(
+  DIR_LOGS = "results/hydro_pipeline/logs", DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
+  DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
+)
+
+
+  
+#------------------------------------------------------------------------------
+# Parameter
+# -----------------------------------------------------------------------------
+  
+  
+  
+
+# ====== LOAD & STANDARDIZE WORKFLOWs CONFIGURATION ======
+# ------------------------------------------------------------------------------
+# IMPORT SETTINGS
+# ------------------------------------------------------------------------------ 
+
+  SHEET_NAME <- "Rinput"
+# ===================================
+
+
 
 # ------------------------------------------------------------------------------
 # QC PARAMETERS
@@ -226,13 +217,7 @@ LOGICAL_CONDITION <- ""
 # Apply QC Flags function colum name
 IC_FLAGS_COLUMN <- "internal_consistency"
 
-# apply qc flags workflow
-ALLOWED_QC_LEVELS <- c(
-  "range_test",
-  "tc_step_test",
-  "tc_persistence_test",
-  "internal_consistency",
-)
+
 
 merge_column <- "RECORD"
 merge_block_logic_column <- "final_block_id"

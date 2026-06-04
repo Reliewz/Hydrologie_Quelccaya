@@ -1,6 +1,15 @@
-# Semi-Automatic, Generic Quality Control Pipeline for Hydrometeorological Data
+# Semi-Automatic, Generic, Modular Quality Control Pipeline for Hydrometeorological Data
 
-A modular R-based quality control pipeline designed for processing and validating hydrometeorological time series data. The pipeline automates common QC tasks while providing transparent outputs for user validation at each step. For in depth information also see (utils/QC_functions) to access the ROXYGEN 2 Documentation of each individual function. 
+The Pipeline was developed to implement basic, station-internal QC tests in a structured and reproducible manner.
+The semi-automatic pipeline Approach has been Chosen,
+was developed to implement basic, station-internal QC in a structured and reproducible manner. 
+
+A modular R-based quality control pipeline designed for processing and validating hydrometeorological time series data. 
+
+
+The Pipeline operates in a semi- automatic Framework, s common QC tasks while providing transparent outputs for user validation at each step.
+
+ For in depth information also see (utils/QC_functions) to access the ROXYGEN 2 Documentation of each individual function. 
 
 ## Pipeline Architecture
 

@@ -2,8 +2,8 @@
 # Scriptname: utils/function_time.R
 # Function name: calc_time_diff()
 # Goal(s): 
-  # Generating a function that calculates the time difference in minutes from one timestep to another the result will be safed into a seperate column. The Goal is to ensure temporal consistency.
-  # Temporal Consistency test
+  # Generating a function that calculates the time difference in minutes from one time step to another the result will be saved into a separate column. The Goal is to ensure temporal continuity and avoid temporal gaps.
+  # Temporal Gap test
 # Author: Kai Albert Zwießler
 # Date: 2025.11.18
 # Outputs: 
@@ -18,22 +18,22 @@
 #' Generic forpiezometer, WLS, meteorological stations.
 #' # ========== CONFIGURATION ==========
 #' @param df data.frame
-#' @param id_col string: Name der ID-Spalte
-#' @param date_col string: Name der Zeit-Spalte (default "Date")
-#' @param out_col string: Name der Ausgabespalte (default "time_diff")
-#' @param units string: units für difftime (default "mins")
-#' @return tibble mit zusätzlicher Spalte out_col
+#' @param id_col string: Name of the ID-column (Default "ID")
+#' @param date_col string: Name of the date-column (default "Date")
+#' @param out_col string: Name of the output-column (default "time_diff")
+#' @param units string: units for difftime (default "mins")
+#' @return tibble with an additional output column, containing the colucalted results
 #' @export
 
 
-calc_time_diff <- function(df, id_col, date_col = "Date", out_col = "time_diff",
+calc_time_diff <- function(df, id_col = "ID", date_col = "Date", out_col = "time_diff",
                            units = "mins") {
 # Good practice example: If no column names of the loaded input_file contains the stringed "id_column" then the function immediately stops and prints an error message.
 
   if (!id_col %in% names(df)) stop(sprintf("id_col '%s' not found in input_file, df.", id_col))
   if (!date_col %in% names(df)) stop(sprintf("date_col '%s' not found in input_file, df.", date_col))
  
-# Convertion of strings with characters, containing column information, to symbols. The conversion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. Dplyr internal logic.
+# Conversion of strings with characters, containing column information, to symbols. The conversion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. Dplyr internal logic.
  cat("=== Strings to symbols ===")  
   id_column <- rlang::sym(id_col)
   date_column <- rlang::sym(date_col)

@@ -48,7 +48,7 @@ rename_columns <- function(df, rename_map = NULL){
     stop(sprintf("The original column names: %s must match the old column names defined in rename_map.", paste(not_found, collapse = ", ")))
     }  
 
-  # Rename columns
+  # Rename columns reverse for natural customization
   df <- df %>%
     dplyr::rename(all_of(setNames(names(rename_map), rename_map)))
   

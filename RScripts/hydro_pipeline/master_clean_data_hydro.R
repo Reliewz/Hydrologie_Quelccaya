@@ -46,7 +46,7 @@ if (KEEP_INTERMEDIATE) {
 }
 
 # ------------------------------------------------------------------------------
-# 2. Load Functions for Temporal Consistency workflow
+# 2. Load Functions for workflows
 # ------------------------------------------------------------------------------
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
@@ -56,10 +56,17 @@ source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_flags.R")
 
 # ------------------------------------------------------------------------------
-# 3a. QC - Level 1.1 - Temporal consistency in date column
+# 3. Basic QC - Level 1 - Completeness Test
 # ------------------------------------------------------------------------------
-PIPELINE_STEP <- "temporal_consistency"
-CURRENT_QC_LEVEL <- "1.1 - temporal consistency"
+PIPELINE_STEP <- "completeness test"
+CURRENT_QC_LEVEL <- "completeness_test"
+
+
+# ------------------------------------------------------------------------------
+# 3a. Basic QC - Level 1.1 - Temporal continuity Gap test date column
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "1.0 temporal continuity"
+CURRENT_QC_LEVEL <- "temporal_continuity"
 
 # Source QC script
 source("RScripts/hydro_pipeline/02_quality_control/02_qc_temporal_consistency_pz.R")
@@ -76,27 +83,29 @@ if (!exists("data_tc_flagged")) {
   }
 
 # ------------------------------------------------------------------------------
-# 3b. QC - Level 1.2 - Temporal consistency - step test (range test)
+# 3b. QC - Level 1.1 - Tolerance Test - range test
 # ------------------------------------------------------------------------------
-PIPELINE_STEP <- "temporal_consistency"
-CURRENT_QC_LEVEL <- "1.2 - temporal consistency"
-# ------------------------------------------------------------------------------
-# 3c. QC - Level 1.3 - Temporal consistency - persistence test (duplicate test)
-# ------------------------------------------------------------------------------
-PIPELINE_STEP <- "temporal_consistency"
-CURRENT_QC_LEVEL <- "1.3 - temporal consistency"
+PIPELINE_STEP <- "1.1 temporal_consistency"
+CURRENT_QC_LEVEL <- "range_test"
 
 # ------------------------------------------------------------------------------
-# 3d. QC - Level 1.4 - Temporal consistency - spatial outliers
+# 3c. QC - Level 1.2 - Temporal consistency - step test
 # ------------------------------------------------------------------------------
-PIPELINE_STEP <- "temporal_consistency"
-CURRENT_QC_LEVEL <- "1.4 - temporal consistency"
+PIPELINE_STEP <- "1.2 temporal_consistency"
+CURRENT_QC_LEVEL <- "step_test"
+# ------------------------------------------------------------------------------
+# 3d. QC - Level 1.3 - Temporal consistency - persistence test
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "1.3 temporal_consistency"
+CURRENT_QC_LEVEL <- "persistence_test"
 
 # ------------------------------------------------------------------------------
-# 4. QC - PHYSICAL PLAUSIBILITY
+# 3e. QC - Level 1.4 - Internal Consistency
 # ------------------------------------------------------------------------------
-PIPELINE_STEP <- "physical_plausbility"
-CURRENT_QC_LEVEL <- "2.2 - physical_plausibility"
+PIPELINE_STEP <- "1.4 internal consistency"
+CURRENT_QC_LEVEL <- "internal_consistency"
+
+
 
 cat("\n=== Step 4: QC physical plausibility ===\n")
 # Verify expected outputs
