@@ -14,6 +14,59 @@ message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
 cat("\n=== STEP 1: Load data ===\n")
 
+# .csv folder import meteorological station Qori-Kalis, ID column generation
+# ========== All Meteorological Stations ==========
+data_raw_meteo <- purrr::map_dfr(
+  # Take all overarching names from the list inside the config file
+  names(METEO_SENSOR_IMPORTS), \(station_id) {
+  # Write all contents of the list in its regular order into a temporary cfg object
+    cfg <- METEO_SENSOR_IMPORTS[[station_id]]
+    # Execute the function to load the .csv data before connecting them with map_dfr.
+    # df is required, as in the paranthesis {} data_raw_meteo does not exist yet. a dataframe needs therefore be generated insight the paranthesis.
+   df <- readr::read_csv(
+     file.path(cfg$folder, cfg$keep_files)
+   )
+  }
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+data_raw_qk <- {
+  df <- load_hobo_csv(
+    date_col    = DATE_COLUMN,
+    timezone    = TIMEZONE_DATA,
+    folder_path = FOLDER_IMPORT_PATH_QK,
+    keep_files  = FILE_SELECTION_QK
+  )
+  # removing of device ID for standardized columns names
+  names(df) <- gsub("\\.\\.LGR.*", "", names(df))
+  # Column rename and ID column generation
+  df %>%
+    rename_columns(rename_map = COLUMN_RENAME_MAP_QK) %>%
+    mutate(ID = "MS_QK")
+}
+
+
+
 # Import Excel file
 data_raw <- read_excel(input_file, sheet = sheet_name, guess_max = 100000) # guess_max allows for column identification to character in the maintenance columns.
 
