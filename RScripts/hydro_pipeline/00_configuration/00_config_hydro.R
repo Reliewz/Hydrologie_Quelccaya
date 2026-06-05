@@ -41,11 +41,11 @@ HYDRO_SENSOR_IMPORTS <- list(
   PZ11 = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ11", 
               keep_files = NULL, id = "PZ11"),
   PZ12 = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ12", 
-              keep_files = NULL, id = "PZ12")
+              keep_files = NULL, id = "PZ12"),
   BAROM = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\barometer_data\\baro_input_data", 
-               keep_files = NULL, id = "BAROM")
+               keep_files = c("21826507_QK_baro_06_08_24.csv", "21826507_QK_baro_12_11_24.csv", "21826507_QK_baro_24_02_25.csv",
+                              "21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv"), id = "BAROM")
 )
-
 # Equal Import-Parameters for all sensors
 DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
 TIMEZONE_DATA <- "America/Lima"
@@ -61,6 +61,13 @@ COLUMN_RENAME_MAP <- c(
   "Host.verbunden"     = "Host_connected",
   "Dateiende"          = "Data_end"
 )
+
+
+#------------------------------------------------------------------------------
+# QC Preparation Steps
+# -----------------------------------------------------------------------------
+# Identification of maintenance and data collection events
+MEASUREMENT_COLUMNS <- c("Abs_pres", "Temp")
 
 
 
@@ -134,6 +141,7 @@ SENSOR_SN_PIEZOMETER <- list(
   PZ11_SN = "21826500",
   PZ12_SN = "21826503"
   )
+SENSOR_SN_BARO <- "21826507"
 
 
 #------------------------------------------------------------------------------
