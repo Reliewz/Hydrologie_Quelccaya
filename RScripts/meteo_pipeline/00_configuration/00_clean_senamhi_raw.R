@@ -213,7 +213,7 @@ write.csv(
   data_qp_joined,
   file = file.path(
     SENAMHI_XLSX_IMPORTS$STATION_QP$export,
-    "QP_input.csv"
+    "00_QP_input.csv"
   ),
   row.names = FALSE # row.names = FALSE to export without adding a RECORD column (row numbers)
 )
@@ -221,7 +221,7 @@ write.csv(
   data_sc_joined,
   file = file.path(
     SENAMHI_XLSX_IMPORTS$STATION_SC$export,
-    "SC_input.csv"
+    "00_SC_input.csv"
   ),
   row.names = FALSE
 )
@@ -229,7 +229,7 @@ write.csv(
   data_cb_joined,
   file = file.path(
     SENAMHI_XLSX_IMPORTS$STATION_CB$export,
-    "CB_input.csv"
+    "00_CB_input.csv"
   ),
   row.names = FALSE
 )
