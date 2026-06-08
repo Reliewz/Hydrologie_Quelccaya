@@ -29,19 +29,30 @@ DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv convers
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
 
-
+TRANSLATION_MAP_QK <- c(
+  "N.º" = "Anz.",
+  "Fecha Tiempo, GMT-05:00" = "Datum Zeit, GMT-05:00",
+  "Temp, °C" = "Temp., °C",
+  "HR, %" = "RH, %",
+  "Lluvia, mm" = "Regen, mm",
+  "Velocidad del viento, m/s" = "Windgeschwindigkeit, m/s",
+  "Velocidad de Ráfagas, m/s" = "Böengeschwindigkeit, m/s",
+  "Dirección del viento, ø" = "Windrichtung, ø",
+  "Pt rocío, °C" = "TauPkt, °C",
+  "Total: Lluvia, mm" = "Total: Regen, mm"
+)
 
 COLUMN_RENAME_MAP_QK <- c(
-  "Anz."                     = "Record",
-  "Datum.Zeit..GMT.05.00"    = "Date_raw",
-  "Temp....C"                = "AirTC",
-  "RH..."                    = "RH",
-  "Regen..mm"                = "Precip",
-  "Windgeschwindigkeit..m.s" = "WS",
-  "Böengeschwindigkeit..m.s" = "Wind_gust",
-  "Windrichtung..ø"          = "WD",
-  "TauPkt...C"               = "Dew_point"
-)
+  "Anz." = "Record",
+  "Datum Zeit, GMT-05:00" = "Date_raw",
+  "Temp., °C" = "AirTC",
+  "RH, %" = "RH",
+  "Regen, mm" = "Precip",
+  "Windgeschwindigkeit, m/s" = "WS",
+  "Böengeschwindigkeit, m/s" = "Wind_gust",
+  "Windrichtung, ø" = "WD",
+  "TauPkt, °C" = "Dew_point"
+  )
 
 
 #------------------------------------------------------------------------------

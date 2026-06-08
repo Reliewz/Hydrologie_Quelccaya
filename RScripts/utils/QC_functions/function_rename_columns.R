@@ -4,7 +4,7 @@
 # Goal(s):
 #   Renames columns of a data frame or tibble based on a named character
 #   vector. The mapping is defined in the configuration file, keeping
-#   the function generic and reusable across different datasets.
+#   the function generic and reusable across different data sets.
 # Author: Kai Albert Zwießler
 # Date: 2026.05.30
 # Input:  df            - data frame or tibble
