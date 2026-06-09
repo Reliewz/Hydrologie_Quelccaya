@@ -55,7 +55,7 @@ source("RScripts/utils/QC_functions/function_translate_headers_qk.R")
 source("RScripts/utils/qc_functions/function_load_hobo_csv.R")
 source("RScripts/utils/qc_functions/function_load_senamhi_csv.R")
 source("RScripts/utils/qc_functions/function_rename_columns.R")
-
+source("RScripts/utils/qc_functions/function_ensure_required_columns_qk.R")
 
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
