@@ -11,10 +11,9 @@
 # -----------------------------------------------------------------------------
 METEO_SENSOR_IMPORTS <- list(
   STATION_QK = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QORIKALIS\\meteo_input_data",
-               keep_files = c(
-                 "2_QORIKALIS_20_12_2023.csv", "3_QORIKALIS_30_04_24.csv", "4_QORIKALIS_04_06_24.csv", "5_QORIKALIS_06_08_2024.csv",
-                 "6_QORIKALIS_12_11_2024.csv", "7_QORIKALIS_24_02_2025.csv", "8_QORIKALIS_22_06_2025.csv",
-                 "9_QORIKALIS_07_07_2025.csv", "10_QORIKALIS_18_08_2025.csv"), id = "QK"),
+                    keep_files = c("2_QORIKALIS_20_12_2023.csv", "3_QORIKALIS_30_04_24.csv", "4_QORIKALIS_04_06_24.csv", "5_QORIKALIS_06_08_2024.csv",
+                      "6_QORIKALIS_12_11_2024.csv", "7_QORIKALIS_24_02_2025.csv", "8_QORIKALIS_22_06_2025.csv", "9_QORIKALIS_07_07_2025.csv", "10_QORIKALIS_18_08_2025.csv"),
+                    id = "QK", DATE_COLUMN = "Date_raw", DROP_IMPORT_COLUMNS_QK = c("Total: Regen, mm", "Total: Lluvia, mm"), DROP_COLUMNS_FINAL = c("Record", "Date_raw")),
   STATION_QQ = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data\\joined_dataset",
                     keep_files = NULL, id = "QQ"),
   STATION_QP = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data",
@@ -24,10 +23,20 @@ METEO_SENSOR_IMPORTS <- list(
   STATION_CB = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\meteo_input_data\\joined_dataset",
                     keep_files = NULL, id = "CB")
 )
-
-DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion QK
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
+
+COLUMN_RENAME_MAP_QK <- c(
+  "Anz." = "Record",
+  "Datum Zeit, GMT-05:00" = "Date_raw",
+  "Temp., °C" = "AirTC",
+  "RH, %" = "RH",
+  "Regen, mm" = "Precip",
+  "Windgeschwindigkeit, m/s" = "WS",
+  "Böengeschwindigkeit, m/s" = "Wind_gust",
+  "Windrichtung, ø" = "WD",
+  "TauPkt, °C" = "Dew_point"
+)
 
 TRANSLATION_MAP_QK <- c(
   "N.º" = "Anz.",
@@ -41,18 +50,6 @@ TRANSLATION_MAP_QK <- c(
   "Pt rocío, °C" = "TauPkt, °C",
   "Total: Lluvia, mm" = "Total: Regen, mm"
 )
-
-COLUMN_RENAME_MAP_QK <- c(
-  "Anz." = "Record",
-  "Datum Zeit, GMT-05:00" = "Date_raw",
-  "Temp., °C" = "AirTC",
-  "RH, %" = "RH",
-  "Regen, mm" = "Precip",
-  "Windgeschwindigkeit, m/s" = "WS",
-  "Böengeschwindigkeit, m/s" = "Wind_gust",
-  "Windrichtung, ø" = "WD",
-  "TauPkt, °C" = "Dew_point"
-  )
 
 
 #------------------------------------------------------------------------------

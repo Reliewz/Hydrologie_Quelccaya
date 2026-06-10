@@ -2,7 +2,7 @@
 # Scriptname: 01_load_and_standardize.R
 # Goal(s): 
 # Change Date format to POSIXct
-# Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC_ scripts.
+# Preparation of analysis of temporal consistency for each data set the in depth- analysis will be taken place in the respective QC_ scripts.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
 # Input Dataset: 
@@ -13,6 +13,8 @@
 message("Column names have been assigned beforehand in Power Quiery===")
 # ========== STEP 1: LOAD DATA ==========
 cat("\n=== STEP 1: Load data ===\n")
+
+names(df) <- clean_headlines_qk(names(df))
 
 # .csv folder import meteorological station Qori-Kalis, ID column generation
 # ========== All Meteorological Stations ==========
@@ -62,7 +64,7 @@ data_raw_qk <- {
   # Column rename and ID column generation
   df %>%
     rename_columns(rename_map = COLUMN_RENAME_MAP_QK) %>%
-    mutate(ID = "MS_QK")
+    mutate(ID = )
 }
 
 
