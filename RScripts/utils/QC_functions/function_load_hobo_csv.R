@@ -15,7 +15,7 @@
 
 #' # ========== CONFIGURATION ==========
 #' @param folder_path the file path where all the data of this sensor is stored
-#' @param keep_files Character vector of filenames to import. If NULL, all .csv files in folder_path are imported.
+#' @param keep_files Character vector of file names to import. If NULL, all .csv files in folder_path are imported.
 #' @param date_col the original name of the date column, later should be renamed
 #' @param timezone timezone in which the sensor data is recorded
 #' @param skip amount of the skipped rows when importing. Default = 1 as this works for the HOBO U20L and can be adjusted depending on amount of rows containing metadata before the actual headlines begin. 
