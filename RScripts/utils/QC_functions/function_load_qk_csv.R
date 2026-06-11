@@ -135,10 +135,10 @@ load_qk_csv <- function(cfg, timezone) {
   # Parse datetime
   data_list <- purrr::map(
     data_list,
-    \(df) parse_date_time(
+    \(df) parse_datetime_column(
       df,
       date_column = cfg$DATE_COLUMN,
-      timezone = timezone
+      timezone = TIMEZONE_DATA
     )
   )
   
