@@ -31,8 +31,10 @@ data_raw_meteo <- purrr::map_dfr(
   }
 )
 
-
-
+# Load QK data frame
+data_qk <- load_qk_csv(METEO_SENSOR_IMPORTS$STATION_QK,
+                       timezone = TIMEZONE_DATA
+                       )
 
 
 

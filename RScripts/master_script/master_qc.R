@@ -58,6 +58,7 @@ source("RScripts/utils/qc_functions/function_rename_columns.R")
 source("RScripts/utils/qc_functions/function_ensure_required_columns_qk.R")
 source("RScripts/utils/qc_functions/function_parse_datetime_column.R")
 source("RScripts/utils/qc_functions/function_drop_columns.R")
+source("RScripts/utils/qc_functions/function_load_qk_csv.R")
 
 source("RScripts/utils/qc_functions/function_time.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
