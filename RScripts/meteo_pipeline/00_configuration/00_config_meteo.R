@@ -26,6 +26,7 @@ METEO_SENSOR_IMPORTS <- list(
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
 
+# Rename map, used for ensure_required_columns function and rename_columns function
 COLUMN_RENAME_MAP_QK <- c(
   "Anz." = "Record",
   "Datum Zeit, GMT-05:00" = "Date_raw",
