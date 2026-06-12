@@ -13,79 +13,16 @@
 # Output: 
   # standardized .csv data for each met. station of SENAMHI
 
-# Preliminary workflow Import config
-SENAMHI_SENSOR_IMPORTS <- list(
-    STATION_QP = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data",
-                    keep_files = c("2024.09_QUISOQUEPINA.csv", "2024.10_QUISOQUEPINA.csv", "2024.11_QUISOQUEPINA.csv", 
-                                   "2024.12_QUISOQUEPINA.csv", "2025.01_QUISOQUEPINA.csv", "2025.02_QUISOQUEPINA.csv",
-                                   "2025.03_QUISOQUEPINA.csv", "2025.04_QUISOQUEPINA.csv", "2025.05_QUISOQUEPINA.csv",
-                                   "2025.06_QUISOQUEPINA.csv", "2025.07_QUISOQUEPINA.csv", "2025.08_QUISOQUEPINA.csv",
-                                   "2025.09_QUISOQUEPINA.csv", "2025.10_QUISOQUEPINA.csv",
-                                   "2025.11_QUISOQUEPINA.csv"), id = "QP"),
-  STATION_CB = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\meteo_input_data",
-                    keep_files = c("2024.09_CARABAYA.csv", "2024.10_CARABAYA.csv", "2024.11_CARABAYA.csv", "2024.12_CARABAYA.csv",
-                    "2025.01_CARABAYA.csv", "2025.02_CARABAYA.csv", "2025.03_CARABAYA.csv", "2025.04_CARABAYA.csv", "2025.05_CARABAYA.csv",
-                    "2025.06_CARABAYA.csv", "2025.07_CARABAYA.csv", "2025.08_CARABAYA.csv", "2025.09_CARABAYA.csv", "2025.10_CARABAYA.csv",
-                    "2025.11_CARABAYA.csv"), id = "CB"),
-  STATION_SC = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\meteo_input_data",
-                    keep_files = c("2024.09_SIBINACHOCHA.csv", "2024.10_SIBINACHOCHA.csv", "2024.11_SIBINACHOCHA.csv", 
-                                   "2024.12_SIBINACHOCHA.csv", "2025.01_SIBINACHOCHA.csv", "2025.02_SIBINACHOCHA.csv", 
-                                   "2025.03_SIBINACHOCHA.csv", "2025.04_SIBINACHOCHA.csv", "2025.05_SIBINACHOCHA.csv",
-                                   "2025.06_SIBINACHOCHA.csv", "2025.07_SIBINACHOCHA.csv", "2025.08_SIBINACHOCHA.csv", 
-                                   "2025.09_SIBINACHOCHA.csv", "2025.10_SIBINACHOCHA.csv","2025.11_SIBINACHOCHA.csv"), 
-                    id = "SC")
-)
-
-SENAMHI_XLSX_IMPORTS <- list(
-  STATION_QP = list(
-    file = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\QUISOQUEPINA_edited\\Power_Quiery_edit\\QUISOQUEPINA_joined.xlsx",
-    sheet_name = "Rinput",
-    export = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data\\joined_dataset",
-    id   = "QP"
-  ),
-  
-  STATION_CB = list(
-    file = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\CARABAYA_edited\\Power_Quiery_edit\\CARABAYA_joined.xlsx",
-    sheet_name = "Rinput",
-    export = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\meteo_input_data\\joined_dataset",
-    id   = "CB"
-  ),
-  
-  STATION_SC = list(
-    file = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\SIBINACHOCHA_edited\\Power_Quiery_edit\\SIBINACHOCHA_joined.xlsx",
-    sheet_name = "Rinput",
-    export = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\meteo_input_data\\joined_dataset",
-    id   = "SC"
-  )
-)
-
-DATE_COLUMN <- "Date_raw" # Original Column name
-TIMEZONE_DATA <- "America/Lima"
-TIMEZONE_PROCESS <- "Europe/Berlin"
-
-COLUMN_RENAME_MAP_SENAMHI <- c(
-  "AÑO...MES...DÍA"         = "Date_raw",
-  "HORA"                    = "Time_raw",
-  "TEMPERATURA...C."        = "AirTC",
-  "PRECIPITACIÓN..mm.hora." = "Precip",
-  "HUMEDAD...."             = "RH",
-  "DIRECCION.DEL.VIENTO...."= "WD",
-  "VELOCIDAD.DEL.VIENTO..m.s." = "WS"
-)
-COLUMN_RENAME_MAP_SENAMHI_XLSX <- c(
-  "Precip_Tot" = "Precip"
-)
-
 # Data import individual files .csv and .xlsx
 # Using build function for data import
 data_qp <- load_senamhi_csv(
-  folder_path = SENAMHI_SENSOR_IMPORTS$STATION_QP$folder,
+  folder_path = METEO_SENSOR_IMPORTS$STATION_QP$folder,
 )
 data_sc <- load_senamhi_csv(
-  folder_path = SENAMHI_SENSOR_IMPORTS$STATION_SC$folder,
+  folder_path = METEO_SENSOR_IMPORTS$STATION_SC$folder,
 )
 data_cb <- load_senamhi_csv(
-  folder_path = SENAMHI_SENSOR_IMPORTS$STATION_CB$folder,
+  folder_path = METEO_SENSOR_IMPORTS$STATION_CB$folder,
 )
 # Import .xlsx
 data_xlsx_qp <- read_excel(SENAMHI_XLSX_IMPORTS$STATION_QP$file, sheet = SENAMHI_XLSX_IMPORTS$STATION_QP$sheet_name)
@@ -188,11 +125,11 @@ data_cb_joined <- data_cb_joined %>%
 
 # Add ID column
 data_qp_joined <- data_qp_joined %>%
-  mutate(ID = SENAMHI_SENSOR_IMPORTS$STATION_QP$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_QP$id)
 data_sc_joined <- data_sc_joined %>%
-  mutate(ID = SENAMHI_SENSOR_IMPORTS$STATION_SC$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_SC$id)
 data_cb_joined <- data_cb_joined %>%
-  mutate(ID = SENAMHI_SENSOR_IMPORTS$STATION_CB$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_CB$id)
 
 # Make date format explicit to prevent missing time records for midnight.
 data_qp_joined <- data_qp_joined %>%

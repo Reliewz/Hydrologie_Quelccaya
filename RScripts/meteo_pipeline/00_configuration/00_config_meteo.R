@@ -14,15 +14,53 @@ METEO_SENSOR_IMPORTS <- list(
                     keep_files = c("2_QORIKALIS_20_12_2023.csv", "3_QORIKALIS_30_04_24.csv", "4_QORIKALIS_04_06_24.csv", "5_QORIKALIS_06_08_2024.csv",
                       "6_QORIKALIS_12_11_2024.csv", "7_QORIKALIS_24_02_2025.csv", "8_QORIKALIS_22_06_2025.csv", "9_QORIKALIS_07_07_2025.csv", "10_QORIKALIS_18_08_2025.csv"),
                     id = "QK", DATE_COLUMN = "Date_raw", DROP_IMPORT_COLUMNS_QK = c("Total: Regen, mm", "Total: Lluvia, mm"), DROP_COLUMNS_FINAL = c("Record", "Date_raw")),
-  STATION_QQ = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data\\joined_dataset",
+  STATION_QQ = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUELCCAYA\\meteo_input_data",
                     keep_files = NULL, id = "QQ"),
   STATION_QP = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data",
-                    keep_files = NULL, id = "QP"),
-  STATION_SC = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\meteo_input_data\\joined_dataset",
-                    keep_files = NULL, id = "SC"),
-  STATION_CB = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\meteo_input_data\\joined_dataset",
-                    keep_files = NULL, id = "CB")
+                    keep_files = c("2024.09_QUISOQUEPINA.csv", "2024.10_QUISOQUEPINA.csv", "2024.11_QUISOQUEPINA.csv", 
+                                   "2024.12_QUISOQUEPINA.csv", "2025.01_QUISOQUEPINA.csv", "2025.02_QUISOQUEPINA.csv",
+                                   "2025.03_QUISOQUEPINA.csv", "2025.04_QUISOQUEPINA.csv", "2025.05_QUISOQUEPINA.csv",
+                                   "2025.06_QUISOQUEPINA.csv", "2025.07_QUISOQUEPINA.csv", "2025.08_QUISOQUEPINA.csv",
+                                   "2025.09_QUISOQUEPINA.csv", "2025.10_QUISOQUEPINA.csv",
+                                   "2025.11_QUISOQUEPINA.csv"), id = "QP"),
+  STATION_CB = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\meteo_input_data",
+                    keep_files = c("2024.09_CARABAYA.csv", "2024.10_CARABAYA.csv", "2024.11_CARABAYA.csv", "2024.12_CARABAYA.csv",
+                                   "2025.01_CARABAYA.csv", "2025.02_CARABAYA.csv", "2025.03_CARABAYA.csv", "2025.04_CARABAYA.csv", "2025.05_CARABAYA.csv",
+                                   "2025.06_CARABAYA.csv", "2025.07_CARABAYA.csv", "2025.08_CARABAYA.csv", "2025.09_CARABAYA.csv", "2025.10_CARABAYA.csv",
+                                   "2025.11_CARABAYA.csv"), id = "CB"),
+  STATION_SC = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\meteo_input_data",
+                    keep_files = c("2024.09_SIBINACHOCHA.csv", "2024.10_SIBINACHOCHA.csv", "2024.11_SIBINACHOCHA.csv", 
+                                   "2024.12_SIBINACHOCHA.csv", "2025.01_SIBINACHOCHA.csv", "2025.02_SIBINACHOCHA.csv", 
+                                   "2025.03_SIBINACHOCHA.csv", "2025.04_SIBINACHOCHA.csv", "2025.05_SIBINACHOCHA.csv",
+                                   "2025.06_SIBINACHOCHA.csv", "2025.07_SIBINACHOCHA.csv", "2025.08_SIBINACHOCHA.csv", 
+                                   "2025.09_SIBINACHOCHA.csv", "2025.10_SIBINACHOCHA.csv","2025.11_SIBINACHOCHA.csv"), 
+                    id = "SC")
 )
+# SENAMHI XLSX Import paths
+SENAMHI_XLSX_IMPORTS <- list(
+  STATION_QP = list(
+    file = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\QUISOQUEPINA_edited\\Power_Quiery_edit\\QUISOQUEPINA_joined.xlsx",
+    sheet_name = "Rinput",
+    export = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data\\joined_dataset",
+    id   = "QP"
+  ),
+  
+  STATION_CB = list(
+    file = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\CARABAYA_edited\\Power_Quiery_edit\\CARABAYA_joined.xlsx",
+    sheet_name = "Rinput",
+    export = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_CARABAYA_O\\meteo_input_data\\joined_dataset",
+    id   = "CB"
+  ),
+  
+  STATION_SC = list(
+    file = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\SIBINACHOCHA_edited\\Power_Quiery_edit\\SIBINACHOCHA_joined.xlsx",
+    sheet_name = "Rinput",
+    export = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_SIBINACHOCHA_W\\meteo_input_data\\joined_dataset",
+    id   = "SC"
+  )
+)
+
+
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
 
@@ -36,7 +74,9 @@ COLUMN_RENAME_MAP_QK <- c(
   "Windgeschwindigkeit, m/s" = "WS",
   "Böengeschwindigkeit, m/s" = "Wind_gust",
   "Windrichtung, ø" = "WD",
-  "TauPkt, °C" = "Dew_point"
+  "TauPkt, °C" = "Dew_point",
+  # Source Code listed for ensure_required_columns
+  "Source.Code" = "Source.Code"
 )
 
 TRANSLATION_MAP_QK <- c(
@@ -52,6 +92,18 @@ TRANSLATION_MAP_QK <- c(
   "Total: Lluvia, mm" = "Total: Regen, mm"
 )
 
+COLUMN_RENAME_MAP_SENAMHI <- c(
+  "AÑO...MES...DÍA"         = "Date_raw",
+  "HORA"                    = "Time_raw",
+  "TEMPERATURA...C."        = "AirTC",
+  "PRECIPITACIÓN..mm.hora." = "Precip",
+  "HUMEDAD...."             = "RH",
+  "DIRECCION.DEL.VIENTO...."= "WD",
+  "VELOCIDAD.DEL.VIENTO..m.s." = "WS"
+)
+COLUMN_RENAME_MAP_SENAMHI_XLSX <- c(
+  "Precip_Tot" = "Precip"
+)
 
 #------------------------------------------------------------------------------
 # QC Parametrization
