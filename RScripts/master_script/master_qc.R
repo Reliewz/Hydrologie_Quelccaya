@@ -21,6 +21,33 @@ rm(list = ls())
 cat("=== Loading Configuration ===\n")
 source("RScripts/hydro_pipeline/00_configuration/00_setup_packages.R")
 source("RScripts/hydro_pipeline/00_configuration/00_config_hydro.R")
+
+# ------------------------------------------------------------------------------
+# Load Functions
+# ------------------------------------------------------------------------------
+#Import functions
+
+source("RScripts/utils/QC_functions/function_clean_header_qk.R")
+source("RScripts/utils/QC_functions/function_translate_headers_qk.R")
+source("RScripts/utils/qc_functions/function_load_hobo_csv.R")
+source("RScripts/utils/qc_functions/function_load_senamhi_csv.R")
+source("RScripts/utils/qc_functions/function_rename_columns.R")
+source("RScripts/utils/qc_functions/function_ensure_required_columns_qk.R")
+source("RScripts/utils/qc_functions/function_parse_datetime_column.R")
+source("RScripts/utils/qc_functions/function_drop_columns.R")
+source("RScripts/utils/qc_functions/function_load_qk_csv.R")
+
+source("RScripts/utils/qc_functions/function_time.R")
+source("RScripts/utils/qc_functions/function_timediff_sum.R")
+source("RScripts/utils/qc_functions/function_interval_determination.R")
+source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
+source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
+source("RScripts/utils/qc_functions/function_log_qc_flags.R")
+
+
+# ------------------------------------------------------------------------------
+# Load Station Data
+# ------------------------------------------------------------------------------
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
 
@@ -48,27 +75,7 @@ if (KEEP_INTERMEDIATE) {
   saveRDS(data_standardized, file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
 }
 
-# ------------------------------------------------------------------------------
-# 2. Load Functions for Temporal Consistency workflow
-# ------------------------------------------------------------------------------
-#Import functions
 
-source("RScripts/utils/QC_functions/function_clean_header_qk.R")
-source("RScripts/utils/QC_functions/function_translate_headers_qk.R")
-source("RScripts/utils/qc_functions/function_load_hobo_csv.R")
-source("RScripts/utils/qc_functions/function_load_senamhi_csv.R")
-source("RScripts/utils/qc_functions/function_rename_columns.R")
-source("RScripts/utils/qc_functions/function_ensure_required_columns_qk.R")
-source("RScripts/utils/qc_functions/function_parse_datetime_column.R")
-source("RScripts/utils/qc_functions/function_drop_columns.R")
-source("RScripts/utils/qc_functions/function_load_qk_csv.R")
-
-source("RScripts/utils/qc_functions/function_time.R")
-source("RScripts/utils/qc_functions/function_timediff_sum.R")
-source("RScripts/utils/qc_functions/function_interval_determination.R")
-source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
-source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
-source("RScripts/utils/qc_functions/function_log_qc_flags.R")
 
 
 # ------------------------------------------------------------------------------

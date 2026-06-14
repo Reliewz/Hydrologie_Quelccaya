@@ -131,45 +131,7 @@ data_sc_joined <- data_sc_joined %>%
 data_cb_joined <- data_cb_joined %>%
   mutate(ID = METEO_SENSOR_IMPORTS$STATION_CB$id)
 
-# Make date format explicit to prevent missing time records for midnight.
-data_qp_joined <- data_qp_joined %>%
-  mutate(
-    Date = format(Date, "%Y-%m-%d %H:%M:%S")
-  )
-data_sc_joined <- data_sc_joined %>%
-  mutate(
-    Date = format(Date, "%Y-%m-%d %H:%M:%S")
-  )
-data_cb_joined <- data_cb_joined %>%
-  mutate(
-    Date = format(Date, "%Y-%m-%d %H:%M:%S")
-  )
 
-# Export data sets
-write.csv(
-  data_qp_joined,
-  file = file.path(
-    SENAMHI_XLSX_IMPORTS$STATION_QP$export,
-    "00_QP_input.csv"
-  ),
-  row.names = FALSE # row.names = FALSE to export without adding a RECORD column (row numbers)
-)
-write.csv(
-  data_sc_joined,
-  file = file.path(
-    SENAMHI_XLSX_IMPORTS$STATION_SC$export,
-    "00_SC_input.csv"
-  ),
-  row.names = FALSE
-)
-write.csv(
-  data_cb_joined,
-  file = file.path(
-    SENAMHI_XLSX_IMPORTS$STATION_CB$export,
-    "00_CB_input.csv"
-  ),
-  row.names = FALSE
-)
 
 # remove intermediate variables
 rm(data_cb)
@@ -178,3 +140,4 @@ rm(data_sc)
 rm(data_xlsx_cb)
 rm(data_xlsx_qp)
 rm(data_xlsx_sc)
+rm(SENAMHI_XLSX_IMPORTS)
