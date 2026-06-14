@@ -62,6 +62,40 @@ COLUMN_RENAME_MAP <- c(
   "Dateiende"          = "Data_end"
 )
 
+# Generate global missing codes among every data set
+NA_CODES <- c(
+  "NA",
+  "",
+  " ",
+  "S/D",
+  "N/A"
+)
+
+# Harmonization of column order and column types.
+HYDRO_COLUMN_ORDER_TYPES <- list(
+  Date           = "datetime",
+  ID             = "character",
+  Abs_pres       = "numeric",
+  Temp           = "numeric",
+  Connection_off = "character",
+  Connection_on  = "character",
+  Host_connected = "character",
+  Data_end       = "character",
+  Source.Code    = "character"
+)
+
+# Measurement Column determination
+HYDRO_MEASURMENT_COLUMNS <- c(
+  "Abs_pres",
+  "Temp"
+)
+
+HYDRO_INFO_COLUMNS <- c(
+  "Connection_off",
+  "Connection_on",
+  "Host_connected",
+  "Data_end"
+)
 
 #------------------------------------------------------------------------------
 # QC Preparation Steps

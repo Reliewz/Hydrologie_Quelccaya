@@ -1,5 +1,5 @@
 #======================================================================
-# Scriptname: utils/function_time.R
+# Scriptname: utils/calc_time_diff.R
 # Function name: calc_time_diff()
 # Goal(s): 
   # Generating a function that calculates the time difference in minutes from one time step to another the result will be saved into a separate column. The Goal is to ensure temporal continuity and avoid temporal gaps.
