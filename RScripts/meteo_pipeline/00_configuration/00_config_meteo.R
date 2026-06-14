@@ -15,7 +15,7 @@ METEO_SENSOR_IMPORTS <- list(
                       "6_QORIKALIS_12_11_2024.csv", "7_QORIKALIS_24_02_2025.csv", "8_QORIKALIS_22_06_2025.csv", "9_QORIKALIS_07_07_2025.csv", "10_QORIKALIS_18_08_2025.csv"),
                     id = "QK", DATE_COLUMN = "Date_raw", DROP_IMPORT_COLUMNS_QK = c("Total: Regen, mm", "Total: Lluvia, mm"), DROP_COLUMNS_FINAL = c("Record", "Date_raw")),
   STATION_QQ = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUELCCAYA\\meteo_input_data",
-                    keep_files = NULL, id = "QQ"),
+                    keep_files = NULL, id = "QQ", DATE_COLUMN = "Date", DROP_COLUMNs_FINAL = c("SlrW", "SlrW_Max", "SlrW_Avg", "SnDep", "RECORD", "Tot24")),
   STATION_QP = list(folder = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUISOQUEPINA_N\\meteo_input_data",
                     keep_files = c("2024.09_QUISOQUEPINA.csv", "2024.10_QUISOQUEPINA.csv", "2024.11_QUISOQUEPINA.csv", 
                                    "2024.12_QUISOQUEPINA.csv", "2025.01_QUISOQUEPINA.csv", "2025.02_QUISOQUEPINA.csv",
@@ -92,6 +92,14 @@ TRANSLATION_MAP_QK <- c(
   "Total: Lluvia, mm" = "Total: Regen, mm"
 )
 
+#Station Quelccaya
+COLUMN_RENAME_MAP_QQ <- c(
+  "Precip_Tot"         = "Precip",
+  "WS_Max"             = "Wind_gust"
+)
+
+
+
 COLUMN_RENAME_MAP_SENAMHI <- c(
   "AÑO...MES...DÍA"         = "Date_raw",
   "HORA"                    = "Time_raw",
@@ -104,6 +112,8 @@ COLUMN_RENAME_MAP_SENAMHI <- c(
 COLUMN_RENAME_MAP_SENAMHI_XLSX <- c(
   "Precip_Tot" = "Precip"
 )
+
+
 
 #------------------------------------------------------------------------------
 # QC Parametrization

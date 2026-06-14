@@ -21,6 +21,9 @@ rm(list = ls())
 cat("=== Loading Configuration ===\n")
 source("RScripts/hydro_pipeline/00_configuration/00_setup_packages.R")
 source("RScripts/hydro_pipeline/00_configuration/00_config_hydro.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
+
 
 # Define pipeline control variables
 PIPELINE_STEP <- "load_and_standardize"  # Track current step

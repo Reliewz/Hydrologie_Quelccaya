@@ -170,3 +170,11 @@ write.csv(
   ),
   row.names = FALSE
 )
+
+# remove intermediate variables
+rm(data_cb)
+rm(data_qp)
+rm(data_sc)
+rm(data_xlsx_cb)
+rm(data_xlsx_qp)
+rm(data_xlsx_sc)
