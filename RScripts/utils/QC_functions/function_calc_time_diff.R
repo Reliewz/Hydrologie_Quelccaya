@@ -18,26 +18,26 @@
 #' Generic forpiezometer, WLS, meteorological stations.
 #' # ========== CONFIGURATION ==========
 #' @param df data.frame
-#' @param id_col string: Name of the ID-column (Default "ID")
-#' @param date_col string: Name of the date-column (default "Date")
-#' @param out_col string: Name of the output-column (default "time_diff")
+#' @param id_column string: Name of the ID-column (Default "ID")
+#' @param date_column string: Name of the date-column (default "Date")
+#' @param output_column string: Name of the output-column (default "time_diff")
 #' @param units string: units for difftime (default "mins")
 #' @return tibble with an additional output column, containing the colucalted results
 #' @export
 
 
-calc_time_diff <- function(df, id_col = "ID", date_col = "Date", out_col = "time_diff",
+calc_time_diff <- function(df, id_column = "ID", date_column = "Date", output_column = "time_diff",
                            units = "mins") {
 # Good practice example: If no column names of the loaded input_file contains the stringed "id_column" then the function immediately stops and prints an error message.
 
-  if (!id_col %in% names(df)) stop(sprintf("id_col '%s' not found in input_file, df.", id_col))
-  if (!date_col %in% names(df)) stop(sprintf("date_col '%s' not found in input_file, df.", date_col))
+  if (!id_column %in% names(df)) stop(sprintf("id_column '%s' not found in input_file, df.", id_column))
+  if (!date_column %in% names(df)) stop(sprintf("date_column '%s' not found in input_file, df.", date_column))
  
 # Conversion of strings with characters, containing column information, to symbols. The conversion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. Dplyr internal logic.
  cat("=== Strings to symbols ===")  
-  id_column <- rlang::sym(id_col)
-  date_column <- rlang::sym(date_col)
-  output_column  <- rlang::sym(out_col)
+  id_column <- rlang::sym(id_column)
+  date_column <- rlang::sym(date_column)
+  output_column  <- rlang::sym(output_column)
 
 # Generating output_column "time_diff"
   
