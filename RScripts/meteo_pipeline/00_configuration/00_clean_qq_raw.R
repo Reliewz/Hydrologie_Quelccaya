@@ -25,7 +25,7 @@ datapaths_named <- setNames(datapaths, basename(datapaths))
 data_qq <- map_dfr(
   datapaths_named,
   ~ read_excel(.x),
-  .id = "source.Code"
+  .id = "Source.Code"
 )
 
 # Column-type synchronization to prevent errors in the bind_rows workflow

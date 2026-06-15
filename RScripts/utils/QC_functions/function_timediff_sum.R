@@ -28,15 +28,18 @@ sum_timediff <- function(df,
                           date_column = "Date",
                           timediff_column) {
 
-  id_column   <- rlang::sym(id_column)
-  date_column <- rlang::sym(date_column)
-  timediff_column   <- rlang::sym(timediff_column)
-
+  
   # Basic input checks
   if (!is.data.frame(df)) stop("`df` must be a data.frame or tibble.")
   if (!id_column %in% names(df)) stop(paste0("ID column '", id_column, "' not found in df."))
   if (!date_column %in% names(df)) stop(paste0("Date column '", date_column, "' not found in df."))
   if (!timediff_column %in% names(df)) stop(paste0("time-diff column '", timediff_column, "' not found in df."))   
+  
+  # Symbol convertion
+  id_column   <- rlang::sym(id_column)
+  date_column <- rlang::sym(date_column)
+  timediff_column   <- rlang::sym(timediff_column)
+
   
 interval_summary <- df %>%
   arrange(!!id_column, !!date_column) %>%
@@ -56,5 +59,4 @@ interval_summary <- df %>%
   )
 
   return(interval_summary)    
-    
 }

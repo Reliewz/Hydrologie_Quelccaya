@@ -113,6 +113,40 @@ COLUMN_RENAME_MAP_SENAMHI_XLSX <- c(
   "Precip_Tot" = "Precip"
 )
 
+# Generate global missing codes among every data set
+NA_CODES <- c(
+  "NA",
+  "",
+  " ",
+  "S/D",
+  "N/A"
+)
+
+# Harmonization of column order and column types.
+COLUMN_ORDER_TYPES_METEO <- list(
+  Date        = "datetime",
+  ID          = "character",
+  AirTC       = "numeric",
+  RH          = "numeric",
+  Precip      = "numeric",
+  WS          = "numeric",
+  Wind_gust   = "numeric",
+  WD          = "numeric",
+  Dew_point   = "numeric",
+  Source.Code = "character"
+)
+
+# Measurement Column determination
+METEO_MEASURMENT_COLUMNS <- c(
+  "AirTC",
+  "RH",
+  "Precip",
+  "WS",
+  "Wind_gust",
+  "WD",
+  "Dew_point"
+)
+
 
 
 #------------------------------------------------------------------------------

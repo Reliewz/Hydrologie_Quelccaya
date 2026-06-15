@@ -11,7 +11,7 @@
 #======================================================================
 
 #' @param df data frame or tibble
-#' @param column_selection #' @param column_selection character vector containing column names that
+#' @param column_selection character vector containing column names that
 #' should be removed from the data frame. Typically defined in the configuration file.
 #' @return data frame or tibble with the selected columns removed.
 #' @export

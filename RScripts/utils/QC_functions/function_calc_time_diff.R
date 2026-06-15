@@ -34,7 +34,7 @@ calc_time_diff <- function(df, id_column = "ID", date_column = "Date", output_co
   if (!date_column %in% names(df)) stop(sprintf("date_column '%s' not found in input_file, df.", date_column))
  
 # Conversion of strings with characters, containing column information, to symbols. The conversion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. Dplyr internal logic.
- cat("=== Strings to symbols ===")  
+  
   id_column <- rlang::sym(id_column)
   date_column <- rlang::sym(date_column)
   output_column  <- rlang::sym(output_column)
