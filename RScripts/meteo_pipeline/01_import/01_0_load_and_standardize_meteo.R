@@ -36,12 +36,34 @@ data_qk <- load_qk_csv(METEO_SENSOR_IMPORTS$STATION_QK,
                        timezone = TIMEZONE_DATA
                        )
 
+data_list <- list(
+  data_qk        = data_qk,
+  data_qq        = data_qq,
+  data_qp = data_qp_joined,
+  data_sc = data_sc_joined,
+  data_cb = data_cb_joined
+)
 
 
+# Generate a tibble with all meteorological data
+data_meteo <- bind_rows(data_list)
+
+# Check temporal structure of data set
+data_meteo <- calc_time_diff(
+  data_meteo,
+  id_column = "Source.Code",
+  date_column = "Date"
+)
+
+timediff_summary <- sum_timediff(
+  data_meteo,
+  id_column = "Source.Code",
+  date_column = "Date",
+  timediff_column = "time_diff"
+)
 
 
-
-
+# NA_code harmonization (missing values declaration)
 
 
 
