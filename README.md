@@ -45,9 +45,10 @@ Fully automatic and specialized import workflows are currently available for:
 Implemented temporal continuity tools include:
 
 * Time-step calculation
-* Gap detection
 * Interval summarization
 * Identification of temporal inconsistencies
+* Gap detection and completion
+* Aggregation to hourly, daily time steps
 
 These functions support the detection of missing observations, unexpected sampling intervals and temporal gaps.
 
