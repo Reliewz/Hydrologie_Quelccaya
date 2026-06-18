@@ -137,7 +137,7 @@ COLUMN_ORDER_TYPES_METEO <- list(
 )
 
 # Measurement Column determination
-METEO_MEASURMENT_COLUMNS <- c(
+METEO_MEASUREMENT_COLUMNS <- c(
   "AirTC",
   "RH",
   "Precip",
@@ -147,7 +147,32 @@ METEO_MEASURMENT_COLUMNS <- c(
   "Dew_point"
 )
 
+#------------------------------------------------------------------------------
+# Documentation of flagging and decision making
+# -----------------------------------------------------------------------------
 
+# apply qc flags executed tests
+ALLOWED_QC_TESTS <- c(
+  "range_test",
+  "step_test",
+  "persistence_test",
+  "internal_consistency",
+  "summarization_test"
+)
+# List where records inside the pipeline will be stored for final master_log bind_row execution
+qc_logs <- list()
+
+#------------------------------------------------------------------------------
+# EXPORT Section
+# -----------------------------------------------------------------------------
+METEO_OUTPUT_FILES <- list(
+  HARMONIZATION_LOG = "results/meteo_pipeline/logs/harmonization_log.csv", QC_LOG = "results/meteo_pipeline/logs/qc_log.csv",
+  QC_SUMMARY = "results/meteo_pipeline/logs/qc_summary.csv")
+
+METEO_OUTPUT_DIRECTORIES <- list(
+  DIR_RESULTS = "results/meteo_pipeline", DIR_LOGS = "results/meteo_pipeline/logs",
+  DIR_CHECKPOINTS = "results/meteo_pipeline/pipeline_debugging",
+  DIR_PLOTS = "results/meteo_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/meteo_pipeline/tables")
 
 #------------------------------------------------------------------------------
 # QC Parametrization
@@ -199,13 +224,7 @@ SENSOR_SN_QK <- list(
 
 
 
-#------------------------------------------------------------------------------
-# EXPORT Section
-# -----------------------------------------------------------------------------
-METEO_OUTPUT_DIRECTORIES <- list(
-  DIR_LOGS = "results/meteo_pipeline/logs", DIR_CHECKPOINTS = "results/meteo_pipeline/pipeline_debugging",
-  DIR_PLOTS = "results/meteo_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/meteo_pipeline/tables"
-)
+
 
 
 #Dataframe
@@ -240,11 +259,7 @@ measurement_columns_qp <- c("AirTC", "Precip_Tot", "RH", "WS", "WD")
 
 
 
-# apply qc flags workflow
-QC_LEVELS <- c(
-  "temporal_consistency",
-  "physical_plausibility"
-)
+
 merge_column <- "RECORD"
 # Workflow Parameters:
 record_tolerance <- 1

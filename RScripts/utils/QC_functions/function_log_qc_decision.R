@@ -1,6 +1,6 @@
 #======================================================================
-# Script name: utils/QC_functions/function_log_qc_flags.R
-# Function name: log_qc_flags()
+# Script name: utils/QC_functions/function_log_qc_decision.R
+# Function name: log_qc_decision()
 # Goal(s): 
   # With this parsimonious function the user creates documentation of assignments and reclassifications of QC flags.
   # User is obligated to enter a flag value in case of Reclassification or initial_assignments.
@@ -10,19 +10,21 @@
 # Date: 2025.12.16
 
 
-#' function name: log_qc_flags()
+#' function name: log_qc_decision()
 #' The function provides a framework for reproducible documentation of changes according to flags in the quality control phase.
 #' 
 #' # ========== CONFIGURATION ==========
 #' @param df Optional: Data frame, tibble or object that contains the affected rows.
 #' If provided, summary information (e.g. number of affected rows) is derived automatically.
 #' If NULL, the QC step is documented without direct relation to data input.
+#' @param process_step documentation requirement. The user has to enter the working step in which the generated documentation log is generated. 
+#' Examples include "range_test", "data_harmonization" or "expert_review".
 #' @param device enables to user to differentiate between devices which are related to the documented flags.
-#' @param action Description of the QC action that is documented.
+#' @param action Description of the action determining which documentation workflow will be executed.
 #'  \describe{
 #'      \item {initial_assignment}{Primary assignment of a QC flag based on a data frame}
 #'      \item {reclassification}{Reclassification of an existing QC-flag-value, into a new flag category.}
-#'      \item {manual_documentation}{Documentation of a QC decision without direct data frame input this can occure in (e.g. peer review, expert evaluation or visual inspections) without resulting in a change of flags.}}
+#'      \item {manual_documentation}{Documentation of a QC decision without direct data frame input this can occure in (e.g. peer review, expert evaluation, visual inspections or process steps not associated with flagging workflows).}}
 #' @param from_flag Contains the previous flag declaration. Only required for reclassification purposes. Default: NULL (used for initial assignments and manual documentation)
 #' @param to_flag Contains the flag declaration after a reclassification or a first assignment.
 #' Must be NULL when action = "manual_documentation" is chosen.
@@ -35,26 +37,50 @@
 
 
 
-log_qc_flags <- function(
+log_qc_decision <- function(
   df = NULL,
+  process_step = NULL,
   device,
-  action = c("initial_assignment", "reclassification", "manual_documentation"),
+  action,
   from_flag = NULL,
   to_flag = NULL,
   reason,
   tz = "Europe/Berlin") {
 
 # === STEP 1 ===
-# Input validation for declared action
-action <- match.arg(action) #match.arg matches a character against a table of values.
+
+# General validation
+# allowed actions and customized message
+allowed_actions <- c(
+  "initial_assignment",
+  "reclassification",
+  "manual_documentation"
+)
+
+if (length(action) != 1 || !action %in% allowed_actions) {
+  stop(
+    "Invalid action specified.\n",
+    "Allowed values for the action parameter are:\n",
+    paste(allowed_actions, collapse = ", ")
+  )
+}
+
+  # pipeline stage documentation context
+if (is.null(process_step)) {
+  stop(
+    "process_step must be specified.\n",
+    "This parameter documents the process step in which the QC decision occurred."
+  )
+}
   
-  # Input validation in context to declared action
+# Input validation in context to declared action
   # initial_assignment
   if (action  == "initial_assignment"){
     # Case, no data frame is assigned.
     if (is.null(df) ){
       stop("A data frame needs to be assigned for action = 'initial assignment'.")
     }
+    
     # case, from_flag has an entry
     if (!is.null(from_flag)){
       stop("For action = 'initial_assignment' the value from flag must contain no value.")
@@ -65,14 +91,14 @@ action <- match.arg(action) #match.arg matches a character against a table of va
     }
     # case, when reason is not assigned any value
     if (is.null(reason)){
-      stop("Documentation error: Good practice examples in QC workflows suggest a specification for the flag assignment. Please enter an explaination in the 'reason' parameter.")
+      stop("Documentation error: Good practice examples in QC workflows suggest a specification for the flag assignment. Please enter an explanation to the 'reason' parameter.")
     }
     }
   
   # Input validation in context to declared action
   # reclassification
   if (action  == "reclassification"){
-    # Case, no data frame is assigned.
+        # Case, no data frame is assigned.
     if (is.null(df) ){
       stop("A data frame needs to be assigned for action = 'reclassification'.")
     }
@@ -86,7 +112,7 @@ action <- match.arg(action) #match.arg matches a character against a table of va
     }
     # case, when reason is not assigned any value
     if (is.null(reason)){
-      stop("Documentation error: Good practice examples in QC workflows suggest a explaination, when a reclassification in the QC Step  occurs.\n Please enter an explaination in the 'reason' parameter.")
+      stop("Documentation error: Good practice examples in QC workflows suggest a explaination, when a reclassification in the QC Step  occurs.\n Please enter an explanation to the 'reason' parameter.")
     }
   }
   
@@ -109,7 +135,7 @@ action <- match.arg(action) #match.arg matches a character against a table of va
     }
     # case, when reason is not assigned any value
     if (is.null(reason)){
-      stop("Documentation error: Good practice examples in QC workflows suggest a specification for every QC Step. Please enter an explaination in the 'reason' parameter.")
+      stop("Documentation error: Good practice examples in QC workflows suggest a specification for every QC Step. Please enter an explanation describing the design-decision taken to the 'reason' parameter.")
     }
   }
 
@@ -119,7 +145,11 @@ action <- match.arg(action) #match.arg matches a character against a table of va
 # establish the framework for a tibble where the information will be stored
 
 # time stamp retrieval
-timestamp <- as.POSIXct(Sys.time(), tz = tz)
+timestamp <- format(
+  Sys.time(),
+  "%Y-%m-%d %H:%M:%S",
+  tz = tz
+)
 
 if (action %in% c("initial_assignment", "reclassification")){
 # nrow retrieval
@@ -128,6 +158,7 @@ nrows_value <- nrow(df)
 qc_log <- tibble::tibble(
   timestamp = timestamp,
   action = action,
+  process_step = process_step,
   device = device,
   from_flag = from_flag,
   to_flag = to_flag,
@@ -137,6 +168,7 @@ qc_log <- tibble::tibble(
   qc_log <- tibble::tibble(
     timestamp = timestamp,
     action = action,
+    process_step = process_step,
     device = device,
     from_flag = from_flag,
     to_flag = to_flag,
@@ -144,4 +176,6 @@ qc_log <- tibble::tibble(
     nrows = NA_integer_
   )
   }
+
+return(qc_log)
 }

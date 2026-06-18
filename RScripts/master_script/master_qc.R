@@ -42,7 +42,7 @@ source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
-source("RScripts/utils/qc_functions/function_log_qc_flags.R")
+source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
 
 # ------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configurati
 
 
 # Define pipeline control variables
-PIPELINE_STEP <- "load_and_standardize"  # Track current step
+CURRENT_PIPELINE_STAGE  <- "load_and_standardize"  # Track current step
 KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 CURRENT_QC_LEVEL <- NULL
 # ------------------------------------------------------------------------------
@@ -82,14 +82,14 @@ if (KEEP_INTERMEDIATE) {
 # 3. Basic QC - Level 1 - Completeness Test
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "completeness test"
-CURRENT_QC_LEVEL <- "completeness_test"
+CURRENT_PIPELINE_STAGE  <- "completeness_test"
 
 
 # ------------------------------------------------------------------------------
 # 3a. Basic QC - Level 1.1 - Temporal continuity Gap test date column
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "1.0 temporal continuity"
-CURRENT_QC_LEVEL <- "temporal_continuity"
+CURRENT_PIPELINE_STAGE <- "temporal_continuity"
 
 # Source QC script
 source("RScripts/hydro_pipeline/02_quality_control/02_qc_temporal_consistency_pz.R")
@@ -109,18 +109,18 @@ if (!exists("data_tc_flagged")) {
 # 3b. QC - Level 1.1 - Tolerance Test - range test
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "1.1 temporal_consistency"
-CURRENT_QC_LEVEL <- "range_test"
+CURRENT_PIPELINE_STAGE <- "range_test"
 
 # ------------------------------------------------------------------------------
 # 3c. QC - Level 1.2 - Temporal consistency - step test
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "1.2 temporal_consistency"
-CURRENT_QC_LEVEL <- "step_test"
+CURRENT_PIPELINE_STAGE <- "step_test"
 # ------------------------------------------------------------------------------
 # 3d. QC - Level 1.3 - Temporal consistency - persistence test
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "1.3 temporal_consistency"
-CURRENT_QC_LEVEL <- "persistence_test"
+CURRENT_PIPELINE_STAGE <- "persistence_test"
 
 # ------------------------------------------------------------------------------
 # 3e. QC - Level 1.4 - Internal Consistency
