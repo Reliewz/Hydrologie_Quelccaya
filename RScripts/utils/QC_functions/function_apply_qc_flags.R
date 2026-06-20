@@ -26,7 +26,7 @@
 #' Note: When a id_column is supplied, matching is performed using the combination of id_column and merge_column.This ensures 
 #' that the flags are applied to the correct sensor.
 #' @param df_flag_info second data frame which contains the flag information that later will be joined with df
-#' @param id_col (optional) Identifier column for datasets containing multiple measurement devices.
+#' @param id_col (optional) Identifier column for data sets containing multiple measurement devices.
 #' When supplied, records are matched using the combination of id_col and merge_col.
 #' If sort = TRUE, sorting is performed by id_col and merge_col.
 #' @param sort Logical. If "TRUE", data will be sorted before flag application.

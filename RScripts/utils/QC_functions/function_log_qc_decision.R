@@ -19,6 +19,7 @@
 #' If NULL, the QC step is documented without direct relation to data input.
 #' @param process_step documentation requirement. The user has to enter the working step in which the generated documentation log is generated. 
 #' Examples include "range_test", "data_harmonization" or "expert_review".
+#' @param operator The person who executed the quality control procedure
 #' @param device enables to user to differentiate between devices which are related to the documented flags.
 #' @param action Description of the action determining which documentation workflow will be executed.
 #'  \describe{
@@ -28,6 +29,7 @@
 #' @param from_flag Contains the previous flag declaration. Only required for reclassification purposes. Default: NULL (used for initial assignments and manual documentation)
 #' @param to_flag Contains the flag declaration after a reclassification or a first assignment.
 #' Must be NULL when action = "manual_documentation" is chosen.
+#' @param qc_threshold the selected threshold(s) for the QC tests.
 #' @param tz Timezone used for time stamp generation (IANA format, e.g. "Europe/Berlin" on default)
 #' @param reason Provides contextual background information to understand the reasoning behind the process step
 #' @return Returns a one-row tibble documenting a single QC decision. 
@@ -40,10 +42,12 @@
 log_qc_decision <- function(
   df = NULL,
   process_step = NULL,
+  operator,
   device,
   action,
   from_flag = NULL,
   to_flag = NULL,
+  qc_threshold = NULL,
   reason,
   tz = "Europe/Berlin") {
 
@@ -93,6 +97,10 @@ if (is.null(process_step)) {
     if (is.null(reason)){
       stop("Documentation error: Good practice examples in QC workflows suggest a specification for the flag assignment. Please enter an explanation to the 'reason' parameter.")
     }
+    if (is.null(qc_threshold)){
+      stop("Documentation error: Quality control tests have to be documented with the threshold value. Please enter the threshold value for the executed test to the 'qc_threshold' parameter.")
+    }
+    
     }
   
   # Input validation in context to declared action
@@ -113,6 +121,9 @@ if (is.null(process_step)) {
     # case, when reason is not assigned any value
     if (is.null(reason)){
       stop("Documentation error: Good practice examples in QC workflows suggest a explaination, when a reclassification in the QC Step  occurs.\n Please enter an explanation to the 'reason' parameter.")
+    }
+    if (is.null(qc_threshold)){
+      stop("Documentation error: Quality control tests have to be documented with the threshold value. Please enter the threshold value for the executed test to the 'qc_threshold' parameter. This is especially important if the threshold value was the reason for the reclassification of flags.")
     }
   }
   
@@ -137,6 +148,9 @@ if (is.null(process_step)) {
     if (is.null(reason)){
       stop("Documentation error: Good practice examples in QC workflows suggest a specification for every QC Step. Please enter an explanation describing the design-decision taken to the 'reason' parameter.")
     }
+    if (is.null(qc_threshold)){
+      warning("Note that no threshold value is provided in this documentation step. If the threshold value is from contextual importance for the current documentation step a documentation of the 'qc_threshold' parameter is highly suggested.")
+    }
   }
 
 
@@ -159,9 +173,11 @@ qc_log <- tibble::tibble(
   timestamp = timestamp,
   action = action,
   process_step = process_step,
+  operator = operator,
   device = device,
   from_flag = from_flag,
   to_flag = to_flag,
+  qc_threshold = qc_threshold,
   reason = reason,
   nrows = nrows_value
 )} else {
@@ -169,9 +185,11 @@ qc_log <- tibble::tibble(
     timestamp = timestamp,
     action = action,
     process_step = process_step,
+    operator = operator,
     device = device,
     from_flag = from_flag,
     to_flag = to_flag,
+    qc_threshold = qc_threshold,
     reason = reason,
     nrows = NA_integer_
   )
