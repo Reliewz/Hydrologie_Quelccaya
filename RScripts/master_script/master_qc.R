@@ -75,7 +75,8 @@ if (KEEP_INTERMEDIATE) {
   saveRDS(data_standardized, file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
 }
 
-
+# Temporal harmonization and documentation steps
+source("RScripts/meteo_pipeline/01_import/01_2_temporal_harmonization_meteo.R")
 
 
 # ------------------------------------------------------------------------------
