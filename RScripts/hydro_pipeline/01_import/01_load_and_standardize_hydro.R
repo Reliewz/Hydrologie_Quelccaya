@@ -16,7 +16,7 @@ cat("\n=== STEP 1: Load data ===\n")
 
 # .csv folder import WLS outlet, WLS lagoon, Piezometers 1 - 12  ID column generation, rename_column function
 # ========== Import function ==========
-data_raw_hydro <- purrr::map_dfr(
+data_hydro <- purrr::map_dfr(
   names(HYDRO_SENSOR_IMPORTS), \(sensor_id) {  # using sensor_id as a placeholder 
     # cfg ist jetzt z.B.: list(folder="D:\\...", keep_files=NULL, id="PZ01")
     cfg <- HYDRO_SENSOR_IMPORTS[[sensor_id]] # cfg is renamed for every processing step and deleted afterwards
@@ -24,7 +24,7 @@ data_raw_hydro <- purrr::map_dfr(
     # Import with sensor specific parameters from hydro_config.
     df <- load_hobo_csv(
       folder_path = cfg$folder,      # cfg$folder = folder element from the list
-      date_col    = DATE_COLUMN,     # directly taken from config counts for all sensors
+      date_col    = HYDRO_DATE_COLUMN,     # directly taken from config counts for all sensors
       timezone    = TIMEZONE_DATA,   # directly taken from config counts for all sensors
       keep_files  = cfg$keep_files   # Vectors for WLS all data for PZ
     )
@@ -34,15 +34,24 @@ data_raw_hydro <- purrr::map_dfr(
     
     # Add ID column using the ID defined in the configuration
     df %>%
-      rename_columns(rename_map = COLUMN_RENAME_MAP) %>% # rename columns according to rename_map, defined in the configuration file
+      rename_columns(rename_map = HYDRO_COLUMN_RENAME_MAP) %>% # rename columns according to rename_map, defined in the configuration file
       mutate(ID = cfg$id)
   }
 )
 
+# NA code harmonization
+data_hydro <- harmonize_NA_codes(
+  df = data_hydro,
+  measurement_columns = HYDRO_MEASUREMENT_COLUMNS,
+  NA_codes = HYDRO_MISSING_CODES
+)
+
+
+
 
 # Preliminary column type verification
 cat("Verification step === Are all columns assigned the correct type?===")
-print(str(data_raw_hydro))
+print(str(data_hydro))
 
 
 

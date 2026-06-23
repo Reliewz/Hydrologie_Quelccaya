@@ -48,22 +48,15 @@ data_list <- list(
 # Generate a tibble with all meteorological data
 data_meteo <- bind_rows(data_list)
 
-# Check temporal structure of data set
-data_meteo <- calc_time_diff(
-  data_meteo,
-  id_column = "Source.Code",
-  date_column = "Date"
-)
-
-timediff_summary <- sum_timediff(
-  data_meteo,
-  id_column = "Source.Code",
-  date_column = "Date",
-  timediff_column = "time_diff"
-)
-
-
 # NA_code harmonization (missing values declaration)
+data_meteo <- harmonize_NA_codes(
+  df = data_meteo,
+  measurement_columns = METEO_MEASUREMENT_COLUMNS,
+  NA_codes = METEO_MISSING_CODES
+)
+
+
+# Column type harmonization
 
 
 
@@ -75,21 +68,6 @@ timediff_summary <- sum_timediff(
 
 
 
-
-data_raw_qk <- {
-  df <- load_hobo_csv(
-    date_col    = DATE_COLUMN,
-    timezone    = TIMEZONE_DATA,
-    folder_path = FOLDER_IMPORT_PATH_QK,
-    keep_files  = FILE_SELECTION_QK
-  )
-  # removing of device ID for standardized columns names
-  names(df) <- gsub("\\.\\.LGR.*", "", names(df))
-  # Column rename and ID column generation
-  df %>%
-    rename_columns(rename_map = COLUMN_RENAME_MAP_QK) %>%
-    mutate(ID = )
-}
 
 
 

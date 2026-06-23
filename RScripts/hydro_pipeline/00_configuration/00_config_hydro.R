@@ -47,12 +47,12 @@ HYDRO_SENSOR_IMPORTS <- list(
                               "21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv"), id = "BAROM")
 )
 # Equal Import-Parameters for all sensors
-DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
+HYDRO_DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
 
 # Column names hydrological sensors for rename_columns() old column = new column
-COLUMN_RENAME_MAP <- c(
+HYDRO_COLUMN_RENAME_MAP <- c(
   "Anz."               = "Record",
   "Abs.Druck..kPa"     = "Abs_pres",
   "Temp....C"          = "Temp",
@@ -63,13 +63,15 @@ COLUMN_RENAME_MAP <- c(
 )
 
 # Generate global missing codes among every data set
-NA_CODES <- c(
-  "NA",
-  "",
-  " ",
-  "S/D",
-  "N/A"
-)
+HYDRO_MISSING_CODES <- c(
+    "",
+    " ",
+    "S/D",
+    "-999",
+    "-888.88",
+    "-888.9",
+    "N/A"
+  )
 
 # Harmonization of column order and column types.
 HYDRO_COLUMN_ORDER_TYPES <- list(
@@ -85,7 +87,7 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
 )
 
 # Measurement Column determination
-HYDRO_MEASURMENT_COLUMNS <- c(
+HYDRO_MEASUREMENT_COLUMNS <- c(
   "Abs_pres",
   "Temp"
 )
@@ -101,7 +103,7 @@ HYDRO_INFO_COLUMNS <- c(
 # QC Preparation Steps
 # -----------------------------------------------------------------------------
 # Identification of maintenance and data collection events
-MEASUREMENT_COLUMNS <- c("Abs_pres", "Temp")
+
 
 
 

@@ -114,11 +114,13 @@ COLUMN_RENAME_MAP_SENAMHI_XLSX <- c(
 )
 
 # Generate global missing codes among every data set
-NA_CODES <- c(
-  "NA",
+METEO_MISSING_CODES <- c(
   "",
   " ",
   "S/D",
+  "-999",
+  "-888.88",
+  "-888.9",
   "N/A"
 )
 
@@ -146,6 +148,18 @@ METEO_MEASUREMENT_COLUMNS <- c(
   "WD",
   "Dew_point"
 )
+
+METEO_AGGREGATION_FUNCTIONS <- list(
+  AirTC      = "mean",
+  RH         = "mean",
+  Precip     = "sum",
+  WS         = "mean",
+  Wind_gust  = "max",
+  WD         = "vector_mean",
+  Dew_point  = "mean"
+)
+
+
 
 #------------------------------------------------------------------------------
 # Documentation of flagging and decision making
