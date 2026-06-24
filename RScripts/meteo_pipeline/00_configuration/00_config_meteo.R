@@ -125,8 +125,8 @@ METEO_MISSING_CODES <- c(
 )
 
 # Harmonization of column order and column types.
-COLUMN_ORDER_TYPES_METEO <- list(
-  Date        = "datetime",
+METEO_COLUMN_ORDER_TYPES <- list(
+  Date        = "POSIXct",
   ID          = "character",
   AirTC       = "numeric",
   RH          = "numeric",

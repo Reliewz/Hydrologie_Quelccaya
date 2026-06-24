@@ -48,6 +48,7 @@ HYDRO_SENSOR_IMPORTS <- list(
 )
 # Equal Import-Parameters for all sensors
 HYDRO_DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
+HYDRO_DROP_COLUMNS_FINAL <- c("Datum.Zeit..GMT.05.00", "Record")
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
 
@@ -75,7 +76,7 @@ HYDRO_MISSING_CODES <- c(
 
 # Harmonization of column order and column types.
 HYDRO_COLUMN_ORDER_TYPES <- list(
-  Date           = "datetime",
+  Date           = "POSIXct",
   ID             = "character",
   Abs_pres       = "numeric",
   Temp           = "numeric",
@@ -83,6 +84,7 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
   Connection_on  = "character",
   Host_connected = "character",
   Data_end       = "character",
+  Angehalten     = "character",
   Source.Code    = "character"
 )
 
@@ -96,7 +98,8 @@ HYDRO_INFO_COLUMNS <- c(
   "Connection_off",
   "Connection_on",
   "Host_connected",
-  "Data_end"
+  "Data_end",
+  "Stop"
 )
 
 #------------------------------------------------------------------------------

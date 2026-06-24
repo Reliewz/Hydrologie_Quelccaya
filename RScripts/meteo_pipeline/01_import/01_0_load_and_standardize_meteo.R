@@ -1,8 +1,12 @@
 #======================================================================
 # Scriptname: 01_load_and_standardize.R
 # Goal(s): 
-# Change Date format to POSIXct
-# Preparation of analysis of temporal consistency for each data set the in depth- analysis will be taken place in the respective QC_ scripts.
+  # Execution of import meteorological station Qori-Kalis with load_qk_csv including all preprocessing steps
+  # create a data list of all meteorological stations
+  # unite all meteorological stations into one data frame
+  # Missing code harmonization
+  # documentation of missing code step including the number of missing codes converted
+  # Preparation of analysis of temporal consistency for each data set the in depth- analysis will be taken place in the respective QC_ scripts.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
 # Input Dataset: 
@@ -35,7 +39,7 @@ data_raw_meteo <- purrr::map_dfr(
 data_qk <- load_qk_csv(METEO_SENSOR_IMPORTS$STATION_QK,
                        timezone = TIMEZONE_DATA
                        )
-
+# data list for bind_rows
 data_list <- list(
   data_qk        = data_qk,
   data_qq        = data_qq,
@@ -55,9 +59,26 @@ data_meteo <- harmonize_NA_codes(
   NA_codes = METEO_MISSING_CODES
 )
 
+# documentation
+qc_logs[[length(qc_logs)+1]] <- log_qc_decision(
+  process_step = "METEO Missing code harmonization",
+  action = "manual_documentation",
+  operator = "Kai Zwießler",
+  device = "Meteorological stations",
+  reason = paste(
+    "Textual and numeric missing value codes",
+    "(S/D, -888.88, -888.9) were converted to NA",
+    "prior to quality control procedures.",
+    "With a total number of 38888 conversions"
+  )
+)
 
 # Column type harmonization
-
+data_meteo <- convert_column_types(
+  df = data_meteo,
+  column_definition = METEO_COLUMN_ORDER_TYPES,
+  timezone = TIMEZONE_DATA
+)
 
 
 

@@ -1,8 +1,13 @@
 #======================================================================
 # Scriptname: 01_load_and_standardize.R
 # Goal(s): 
-# Change Date format to POSIXct
-# Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC scripts.
+  # Folder import of hydrological sensor data and change Date format to POSIXct with load_hobo_csv
+  # unite all hydrological sensors in one data frame
+  # rename columns
+  # add ID columns and Source.Code
+  # drop unwanted columns
+  # harmonize missing (NA) codes
+  # Preperation of Analysis of temporal consistency for each dataset the in depth- analysis will be taken place in the respective QC scripts.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.14
 # Input Dataset: 
@@ -39,19 +44,39 @@ data_hydro <- purrr::map_dfr(
   }
 )
 
+# drop columns
+data_hydro <- drop_columns(
+  df = data_hydro,
+  column_selection = HYDRO_DROP_COLUMNS_FINAL)
+
 # NA code harmonization
 data_hydro <- harmonize_NA_codes(
   df = data_hydro,
   measurement_columns = HYDRO_MEASUREMENT_COLUMNS,
   NA_codes = HYDRO_MISSING_CODES
 )
+# documentation
+qc_logs[[length(qc_logs)+1]] <- log_qc_decision(
+  process_step = "HYDRO Missing code harmonization",
+  action = "manual_documentation",
+  operator = "Kai Zwießler",
+  device = "Hydrological sensors",
+  reason = paste(
+    "Textual and numeric missing value codes",
+    "(S/D, -888.88, -888.9) were converted to NA",
+    "prior to quality control procedures.",
+    "With a total number of 596 conversions"
+  )
+)
+
+# Column type harmonization
+data_hydro <- convert_column_types(
+  df = data_hydro,
+  column_definition = HYDRO_COLUMN_ORDER_TYPES,
+  timezone = TIMEZONE_DATA
+)
 
 
-
-
-# Preliminary column type verification
-cat("Verification step === Are all columns assigned the correct type?===")
-print(str(data_hydro))
 
 
 
