@@ -102,6 +102,12 @@ HYDRO_INFO_COLUMNS <- c(
   "Stop"
 )
 
+# temporal aggregation 15 -> 60 minutes f.e.
+HYDRO_AGGREGATION_FUNCTIONS <- list(
+  Abs_pres   = "mean",
+  Temp       = "mean"
+)
+
 #------------------------------------------------------------------------------
 # QC Preparation Steps
 # -----------------------------------------------------------------------------

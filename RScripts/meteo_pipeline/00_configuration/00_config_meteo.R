@@ -149,6 +149,7 @@ METEO_MEASUREMENT_COLUMNS <- c(
   "Dew_point"
 )
 
+# temporal aggregation 15 -> 60 minutes f.e.
 METEO_AGGREGATION_FUNCTIONS <- list(
   AirTC      = "mean",
   RH         = "mean",
