@@ -59,7 +59,7 @@ data_meteo <- harmonize_NA_codes(
   NA_codes = METEO_MISSING_CODES
 )
 
-# documentation
+# documentation date 26.06.2026
 qc_logs[[length(qc_logs)+1]] <- log_qc_decision(
   process_step = "METEO Missing code harmonization",
   action = "manual_documentation",

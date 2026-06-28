@@ -6,8 +6,8 @@
   # Warn if configured columns are not present in the data frame.
 # Author: Kai Albert Zwießler
 # Outputs:
-  # data frame with adjusted column count
-  # informs about columns that are assigned in the configuration but are not present in the data frame. This helps to detect changes in format or erroneously removed columns
+  # data frame without selected columns
+  # informs via message() about columns that are assigned in the configuration but are not present in the data frame. This helps to detect changes in format or erroneously removed columns
 #======================================================================
 
 #' @param df data frame or tibble
@@ -31,7 +31,7 @@ drop_columns <- function(df, column_selection = NULL) {
   )
   
   if(length(missing_drop_cols) > 0){
-    warning(
+    message(
       "Configured columns not found in data frame: ",
       paste(missing_drop_cols, collapse = ", ")
     )

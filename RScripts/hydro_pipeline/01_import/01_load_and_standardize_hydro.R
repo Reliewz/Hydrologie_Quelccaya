@@ -52,7 +52,7 @@ data_hydro <- drop_columns(
 # NA code harmonization
 data_hydro <- harmonize_NA_codes(
   df = data_hydro,
-  measurement_columns = HYDRO_MEASUREMENT_COLUMNS,
+  measurement_columns = HYDRO_MASTER_DF$HYDRO_MEASUREMENT_COLUMNS,
   NA_codes = HYDRO_MISSING_CODES
 )
 # documentation
@@ -75,7 +75,6 @@ data_hydro <- convert_column_types(
   column_definition = HYDRO_COLUMN_ORDER_TYPES,
   timezone = TIMEZONE_DATA
 )
-
 
 
 

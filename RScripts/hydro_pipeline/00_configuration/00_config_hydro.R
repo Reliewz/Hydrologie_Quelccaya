@@ -88,25 +88,13 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
   Source.Code    = "character"
 )
 
-# Measurement Column determination
-HYDRO_MEASUREMENT_COLUMNS <- c(
-  "Abs_pres",
-  "Temp"
+# Master DF
+HYDRO_MASTER_DF <- list(
+  DATE_COLUMN = "Date", HYDRO_MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), HYDRO_INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
+  HYDRO_TEMPORAL_AGGREGATION_FUNCTIONS = c(Abs_pres = "mean", Temp = "mean"), SOURCE_ID = "Source.Code"
 )
 
-HYDRO_INFO_COLUMNS <- c(
-  "Connection_off",
-  "Connection_on",
-  "Host_connected",
-  "Data_end",
-  "Stop"
-)
 
-# temporal aggregation 15 -> 60 minutes f.e.
-HYDRO_AGGREGATION_FUNCTIONS <- list(
-  Abs_pres   = "mean",
-  Temp       = "mean"
-)
 
 #------------------------------------------------------------------------------
 # QC Preparation Steps

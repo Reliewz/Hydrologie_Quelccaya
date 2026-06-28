@@ -60,9 +60,14 @@ SENAMHI_XLSX_IMPORTS <- list(
   )
 )
 
-
+# Master data frame
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
+METEO_MASTER_DF <- list(
+  SOURCE_ID = "Source.Code"
+)
+
+
 
 # Rename map, used for ensure_required_columns function and rename_columns function
 COLUMN_RENAME_MAP_QK <- c(
@@ -156,8 +161,20 @@ METEO_AGGREGATION_FUNCTIONS <- list(
   Precip     = "sum",
   WS         = "mean",
   Wind_gust  = "max",
-  WD         = "vector_mean",
+  WD         = "vector_mean_wd", # the string matches the exact function name function_vector_mean_wd
   Dew_point  = "mean"
+)
+
+METEO_MASTER_DF <- list(
+  METEO_AGGREGATION_FUNCTIONS = list(
+    AirTC      = "mean",
+    RH         = "mean",
+    Precip     = "sum",
+    WS         = "mean",
+    Wind_gust  = "max",
+    WD         = "vector_mean_wd", # the string matches the exact function name function_vector_mean_wd
+    Dew_point  = "mean"
+  ), DATE_COLUMN = "Date", SOURCE_COLUMN = "Source.Code", SOURCE_ID = "10_QORIKALIS_18_08_2025.csv", MIN_COVERAGE = 0.5
 )
 
 
