@@ -1,5 +1,5 @@
 #======================================================================
-# Script name: 01_03_temporal_harmonization_meteo.R
+# Script name: 01_02_temporal_harmonization_meteo.R
 # Goal(s): 
   # Elimination of duplicate records, based on decision making in temporal structure analysis and documentation of the decision making.
   # Aggregation of time stamps to 60 min intervals
