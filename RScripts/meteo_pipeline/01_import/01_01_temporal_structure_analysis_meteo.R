@@ -1,8 +1,9 @@
 #======================================================================
-# Scriptname: 01_1_temporal_structure_analysis_meteo.R
+# Script name: 01_01_temporal_structure_analysis_meteo.R
 # Goal(s): 
   # Analysis of the time steps of each individual input data using Source.Code diferenciation
   # Preparation to aggregate the data to hourly values.
+  # Detection of different NA codes used in the meteorological data sets 
 # Author: Kai Albert Zwießler
 # Date: 2026.06.15
 # Input Dataset:
@@ -232,9 +233,27 @@ WD_after <- data_meteo_2 %>%
 print(WD_before)
 tail(WD_after)
 results$data %>%
-  dplyr::filter(Date == as.POSIXct("2025-07-07 14:00:00", tz = "UTC"))
+  dplyr::filter(Date == as.POSIXct("2025-07-07 14:00", tz = TIMEZONE_DATA))
 
 
 results$data %>%
-  dplyr::filter(Source.Code == "10_QORIKALIS_18_08_2025.csv") %>%
-  head(10)
+  dplyr::select(Source.Code == "10_QORIKALIS_18_08_2025.csv") %>%
+  head(2) %>%
+  tail(2)
+
+
+# ------------------------------------------------------------------------------
+# NA code analysis
+# ------------------------------------------------------------------------------
+# Identify common NA codes METEO
+for(col in METEO_MEASUREMENT_COLUMNS){
+  
+  cat("\n", col, "\n")
+  
+  print(
+    data_meteo %>%
+      filter(.data[[col]] %in% c("", "-999", "N/A",  "S/D")) %>% #.data to check in the data frame and to transform the character string with the column names
+      # to a select-able column inside the data frame. Same as symbol conversion.
+      count(.data[[col]])
+  )
+}

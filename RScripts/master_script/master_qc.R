@@ -1,7 +1,7 @@
 #=================================================================================================================
-# Script name: master_clean_data_hydro.R
+# Script name: master_qc.R
 # Goal(s):
-  # Orchestrating the individual Scripts, configs and function to generate clean data from all hydrological  measurement devices.
+  # Orchestrating the individual Scripts, configs and functions to generate clean data from all hydrological or meteorological measurement devices.
 # Author: Kai Albert Zwießler
 # Date: 2025.12.24
 
@@ -15,18 +15,19 @@ rm(list = ls())
 
 #### SOURCES ####
 
+CURRENT_PIPELINE_STAGE  <- "configuration"  # Track current step
+KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 # ------------------------------------------------------------------------------
 # 0. CONFIGURATION
 # ------------------------------------------------------------------------------
 cat("=== Loading Configuration ===\n")
 source("RScripts/hydro_pipeline/00_configuration/00_setup_packages.R")
+
 source("RScripts/hydro_pipeline/00_configuration/00_config_hydro.R")
 
 # ------------------------------------------------------------------------------
 # Load Functions
 # ------------------------------------------------------------------------------
-#Import functions
-
 source("RScripts/utils/QC_functions/function_clean_header_qk.R")
 source("RScripts/utils/QC_functions/function_translate_headers_qk.R")
 source("RScripts/utils/qc_functions/function_load_hobo_csv.R")
@@ -48,9 +49,8 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
-
 # ------------------------------------------------------------------------------
-# Load Station Data
+# Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
 # ------------------------------------------------------------------------------
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
@@ -64,14 +64,19 @@ CURRENT_QC_LEVEL <- NULL
 # 1. LOAD & STANDARDIZE
 # ------------------------------------------------------------------------------
 cat("\n=== Step 1: Load and Standardize ===\n")
-source("RScripts/hydro_pipeline/01_import/01_load_and_standardize.R")
+# Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
+# Load Qori-Kalis meteorological station and standardize meteorological master data frame
+source("RScripts/hydro_pipeline/01_import/01_00_load_and_standardize_meteo.R")
 
-# Verify expected outputs exist
-if (!exists("data_standardized")) {
+source("RScripts/hydro_pipeline/01_import/01_00_load_and_standardize_hydro.R")
+
+# Verify expected outputs were generated
+if (!exists("data_meteo_standardized" | "data_hydro_standardized")) {
   stop("ERROR: data_standardized not created in step 1")
 } else {
 PIPELINE_STEP <- "after_load"
-cat("✓ Loaded", nrow(data_standardized), "records\n")
 }
 
 # Optional: Save checkpoint
@@ -79,9 +84,19 @@ if (KEEP_INTERMEDIATE) {
   saveRDS(data_standardized, file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
 }
 
+# ------------------------------------------------------------------------------
+# 2. TEMPORAL HARMONIZATION AND DOCUMENTATION
+# ------------------------------------------------------------------------------
 # Temporal harmonization and documentation steps
-source("RScripts/meteo_pipeline/01_import/01_2_temporal_harmonization_meteo.R")
+source("RScripts/meteo_pipeline/01_import/01_03_temporal_harmonization_meteo.R")
+source("RScripts/meteo_pipeline/01_import/01_03_temporal_harmonization_hydro.R")
 
+# Verify expected outputs were generated
+if (!exists("data_meteo_harmonized" | "data_hydro_harmonized")) {
+  stop("ERROR: data_harmonized not created in step 2")
+} else {
+  PIPELINE_STEP <- "after_harmonization"
+}
 
 # ------------------------------------------------------------------------------
 # 3. Basic QC - Level 1 - Completeness Test
