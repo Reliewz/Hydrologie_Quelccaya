@@ -90,11 +90,24 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
 
 # Master DF
 HYDRO_MASTER_DF <- list(
-  DATE_COLUMN = "Date", HYDRO_MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), HYDRO_INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
+  DATE_COLUMN = "Date", 
+  HYDRO_MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), HYDRO_INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
   HYDRO_TEMPORAL_AGGREGATION_FUNCTIONS = c(Abs_pres = "mean", Temp = "mean"), SOURCE_ID = "Source.Code"
 )
 
 
+#------------------------------------------------------------------------------
+# EXPORT Section
+# -----------------------------------------------------------------------------
+HYDRO_OUTPUT_FILES <- list(
+  HARMONIZATION_LOG = "results/hydro_pipeline/logs/harmonization_log.csv", QC_LOG = "results/hydro_pipeline/logs/qc_log.csv",
+  QC_SUMMARY = "results/hydro_pipeline/logs/qc_summary.csv")
+
+HYDRO_OUTPUT_DIRECTORIES <- list(
+  DIR_RESULTS = "results/hydro_pipeline",
+  DIR_LOGS = "results/hydro_pipeline/logs", DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
+  DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
+)
 
 #------------------------------------------------------------------------------
 # QC Preparation Steps
@@ -177,13 +190,7 @@ SENSOR_SN_PIEZOMETER <- list(
 SENSOR_SN_BARO <- "21826507"
 
 
-#------------------------------------------------------------------------------
-# EXPORT Section
-# -----------------------------------------------------------------------------
-HYDRO_OUTPUT_DIRECTORIES <- list(
-  DIR_LOGS = "results/hydro_pipeline/logs", DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
-  DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
-)
+
 
 
   

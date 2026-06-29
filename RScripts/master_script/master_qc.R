@@ -8,23 +8,30 @@
 #=================================================================================================================
 
 # ==============================================================================
-# PIEZOMETER, HYDROLOGICAL PIPELINE - MASTER SCRIPT - 02 QUALITY CONTROL
+#  MASTER SCRIPT
 # ==============================================================================
 # Clear workspace at start
 rm(list = ls())
 
+PIPELINE_MODE <- c("METEO", "HYDRO")[menu(
+  choices = c("METEO", "HYDRO"),
+  title   = "Select pipeline to execute:"
+)]
+
+cat(sprintf("Running pipeline: %s\n", PIPELINE_MODE))
+
 #### SOURCES ####
 
+# Define pipeline control variables
 CURRENT_PIPELINE_STAGE  <- "configuration"  # Track current step
 KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
+
 # ------------------------------------------------------------------------------
 # 0. CONFIGURATION
 # ------------------------------------------------------------------------------
 cat("=== Loading Configuration ===\n")
+# Loading packages
 source("RScripts/hydro_pipeline/00_configuration/00_setup_packages.R")
-
-source("RScripts/hydro_pipeline/00_configuration/00_config_hydro.R")
-
 # ------------------------------------------------------------------------------
 # Load Functions
 # ------------------------------------------------------------------------------
@@ -49,11 +56,13 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
-# ------------------------------------------------------------------------------
-# Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
-# ------------------------------------------------------------------------------
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
+if (PIPELINE_MODE == "METEO"){
+source("RScripts/hydro_pipeline/00_configuration/00_config_meteo.R") 
+}
+
+if (PIPELINE_MODE == "HYDRO"){
+source("RScripts/hydro_pipeline/00_configuration/00_config_hydro.R")
+}
 
 
 # Define pipeline control variables
@@ -64,38 +73,58 @@ CURRENT_QC_LEVEL <- NULL
 # 1. LOAD & STANDARDIZE
 # ------------------------------------------------------------------------------
 cat("\n=== Step 1: Load and Standardize ===\n")
+
+if (PIPELINE_MODE == "METEO"){
 # Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
 # Load Qori-Kalis meteorological station and standardize meteorological master data frame
 source("RScripts/hydro_pipeline/01_import/01_00_load_and_standardize_meteo.R")
+}
 
+if (PIPELINE_MODE == "HYDRO"){
 source("RScripts/hydro_pipeline/01_import/01_00_load_and_standardize_hydro.R")
+}
 
 # Verify expected outputs were generated
-if (!exists("data_meteo_standardized" | "data_hydro_standardized")) {
-  stop("ERROR: data_standardized not created in step 1")
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo_standardized" else "data_hydro_standardized"
+
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 1", expected_obj))
 } else {
-PIPELINE_STEP <- "after_load"
+  PIPELINE_STEP <- "after_load"
 }
 
 # Optional: Save checkpoint
 if (KEEP_INTERMEDIATE) {
-  saveRDS(data_standardized, file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_standardized.rds"))
 }
 
 # ------------------------------------------------------------------------------
 # 2. TEMPORAL HARMONIZATION AND DOCUMENTATION
 # ------------------------------------------------------------------------------
+
+if (PIPELINE_MODE == "METEO"){
 # Temporal harmonization and documentation steps
 source("RScripts/meteo_pipeline/01_import/01_03_temporal_harmonization_meteo.R")
+}
+
+if (PIPELINE_MODE == "HYDRO"){
 source("RScripts/meteo_pipeline/01_import/01_03_temporal_harmonization_hydro.R")
+}
 
 # Verify expected outputs were generated
-if (!exists("data_meteo_harmonized" | "data_hydro_harmonized")) {
-  stop("ERROR: data_harmonized not created in step 2")
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo_standardized" else "data_hydro_standardized"
+
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 2", expected_obj))
 } else {
   PIPELINE_STEP <- "after_harmonization"
+}
+
+# Optional: Save checkpoint
+if (KEEP_INTERMEDIATE) {
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_harmonized.rds"))
 }
 
 # ------------------------------------------------------------------------------
@@ -103,8 +132,8 @@ if (!exists("data_meteo_harmonized" | "data_hydro_harmonized")) {
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "completeness test"
 CURRENT_PIPELINE_STAGE  <- "completeness_test"
-
-
+if (PIPELINE_MODE == "METEO"){}
+if (PIPELINE_MODE == "HYDRO"){}
 # ------------------------------------------------------------------------------
 # 3a. Basic QC - Level 1.1 - Temporal continuity Gap test date column
 # ------------------------------------------------------------------------------
