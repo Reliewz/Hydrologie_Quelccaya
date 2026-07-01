@@ -147,10 +147,9 @@ HYDRO_QC_CONFIG <- list(
   ),
   
   internal_consistency_test = list(
-    WLS_O = list(Expression X>X>X),
+    WLS_O = Expression,
     PZ01  = list(...elt())
-  )
-)
+  ))
 
 
 
@@ -188,101 +187,6 @@ SENSOR_SN_PIEZOMETER <- list(
   PZ12_SN = "21826503"
   )
 SENSOR_SN_BARO <- "21826507"
-
-
-
-
-
-  
-#------------------------------------------------------------------------------
-# Parameter
-# -----------------------------------------------------------------------------
-  
-  
-  
-
-# ====== LOAD & STANDARDIZE WORKFLOWs CONFIGURATION ======
-# ------------------------------------------------------------------------------
-# IMPORT SETTINGS
-# ------------------------------------------------------------------------------ 
-
-  SHEET_NAME <- "Rinput"
-# ===================================
-
-
-
-# ------------------------------------------------------------------------------
-# QC PARAMETERS
-# ------------------------------------------------------------------------------
-
-# Temporal Continuity - Timing/Gap test 
-MIN_INTERVAL_MINUTES <- 15
-MAX_GAP_HOURS <- 24
-
-
-
-
-# variables old (substitude)
-date_column <- "Date"        # Column name for time stamp
-id_column <- "ID"         # Column for identification (e.g. PZ01_01m PZ01_02, PZ02_01 (...))
-sensor_group_column <- "sensor_group" # One level above id_column for identification (e.g. PZ01, PZ02 (...))
-output_column <- "time_diff" # Column for calculated output
-timediff_column <- "time_diff" # Column for further analysis in the field of temporal consistency
-measurement_columns <- c("Abs_pres", "Temp")
-maintenance_info_columns <- c("Connection_off", "Connection_on", "Host_connected", "Data_end")
-
-
-
-
-
-SUM_FLAGS_COLUMN <- "sum_test"
-
-RECORD_TOLERANCE <- 1
-
-# Tolerance Test - Range Test
-ABS_PRES_MIN <- 0    # kPa
-ABS_PRES_MAX <- 200  # kPa
-TEMP_MIN <- -10      # °C
-TEMP_MAX <- 40       # °C
-# Apply QC Flags function colum name
-RT_FLAGS_COLUMN <- "range_test"
-
-
-# Temporal consistency - Step Test
-# Apply QC Flags function colum name
-ST_FLAGS_COLUMN1 <- "step_test"
-
-
-# Temporal Consistency - Persistence Test
-RECORD_TOLERANCE <- 1
-RECORD_TIME_TOLERANCE <- 60 # minutes
-DUPLICATE_CHECK_COLS <- c("Date", "ID", "Abs_pres", "Temp")
-# Apply QC Flags function colum name
-PT_FLAGS_COLUMN <- "persistence_test"
-
-# Internal Consistency Test
-LOGICAL_CONDITION <- ""
-# Apply QC Flags function colum name
-IC_FLAGS_COLUMN <- "internal_consistency"
-
-
-
-merge_column <- "RECORD"
-merge_block_logic_column <- "final_block_id"
-
-
-# ------------------------------------------------------------------------------
-# LOG FILE PATHS 
-# ------------------------------------------------------------------------------
-
-LOG_TEMPORAL <- file.path(DIR_LOGS, "qc_log_temporal_consistency.csv")
-LOG_PHYSICAL <- file.path(DIR_LOGS, "qc_log_physical_plausibility.csv")
-LOG_DUPLICATES <- file.path(DIR_LOGS, "qc_log_duplicates.csv")
-LOG_SUMMARY <- file.path(DIR_LOGS, "qc_summary_report.csv")
-
-# ------------------------------------------------------------------------------
-# Output intermediate variables
-# ------------------------------------------------------------------------------
 
 
 

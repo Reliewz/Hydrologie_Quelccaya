@@ -30,8 +30,8 @@ KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 # 0. CONFIGURATION
 # ------------------------------------------------------------------------------
 cat("=== Loading Configuration ===\n")
-# Loading packages
-source("RScripts/hydro_pipeline/00_configuration/00_setup_packages.R")
+# Loading packages for both pipelines
+source("RScripts/hydro_pipeline/00_configuration_hydro/00_setup_packages.R")
 # ------------------------------------------------------------------------------
 # Load Functions
 # ------------------------------------------------------------------------------
@@ -57,11 +57,11 @@ source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
 if (PIPELINE_MODE == "METEO"){
-source("RScripts/hydro_pipeline/00_configuration/00_config_meteo.R") 
+source("RScripts/meteo_pipeline/00_configuration_meteo/00_config_meteo.R") 
 }
 
 if (PIPELINE_MODE == "HYDRO"){
-source("RScripts/hydro_pipeline/00_configuration/00_config_hydro.R")
+source("RScripts/hydro_pipeline/00_configuration_hydro/00_config_hydro.R")
 }
 
 
@@ -76,10 +76,10 @@ cat("\n=== Step 1: Load and Standardize ===\n")
 
 if (PIPELINE_MODE == "METEO"){
 # Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_qq_raw.R")
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration/00_clean_senamhi_raw.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration_meteo/00_clean_qq_raw.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration_meteo/00_clean_senamhi_raw.R")
 # Load Qori-Kalis meteorological station and standardize meteorological master data frame
-source("RScripts/hydro_pipeline/01_import/01_00_load_and_standardize_meteo.R")
+source("RScripts/meteo_pipeline/01_import/01_00_load_and_standardize_meteo.R")
 }
 
 if (PIPELINE_MODE == "HYDRO"){
