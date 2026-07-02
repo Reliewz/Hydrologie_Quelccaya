@@ -106,11 +106,11 @@ if (KEEP_INTERMEDIATE) {
 
 if (PIPELINE_MODE == "METEO"){
 # Temporal harmonization and documentation steps
-source("RScripts/meteo_pipeline/01_import/01_02_temporal_harmonization_meteo.R")
+source("RScripts/meteo_pipeline/01_import/01_02_temporal_harmonization_meteo15.R")
 }
 
 if (PIPELINE_MODE == "HYDRO"){
-source("RScripts/meteo_pipeline/01_import/01_02_temporal_harmonization_hydro.R")
+source("RScripts/meteo_pipeline/01_import/01_02_temporal_harmonization_hydro15.R")
 }
 
 # Verify expected outputs were generated
