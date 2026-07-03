@@ -146,10 +146,10 @@ aggregate_15min_to_hourly <- function(
   }
     
   if (!is.character(source_column)) {
-    stop("`source_column` must be a character string or NULL.")
+    stop("`source_column` must be a character string")
   }
   if (length(source_column) != 1) {
-    stop("`source_column` must be a single character string. Please ")
+    stop("`source_column` must be a single character string. ")
   }
   if (!source_column %in% names(df)) {
     stop(paste0("`source_column` '", source_column, "' not found in `df`."))

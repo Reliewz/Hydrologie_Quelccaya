@@ -113,8 +113,47 @@ duplicate_check <- duplicates %>%
   )
 count(duplicate_check, Source.Code, has_conflict)
 # No differences exist the data set has real duplicates and can therefore be removed.
-# Documentation of this decision
 
+# ----------- Repeat workflow check duplicate dates on sensor basis after removement of individual files -------------
+duplicate_dates <- data_meteo_standardized %>%
+  group_by(ID, Date) %>%
+  summarise(
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  filter(n > 1)
+# Show results
+count(duplicate_dates, ID)
+
+# check if measurement columns have equal values
+duplicate_dates <- data_meteo_standardized %>%
+  group_by(ID, Date) %>%
+  filter(n() > 1) %>%
+  arrange(Date)
+duplicate_dates %>%
+  summarise(
+    first_duplicate = min(Date),
+    last_duplicate = max(Date),
+    n_duplicates = n()
+  )
+print(duplicate_dates, n = Inf)
+
+duplicate_check <- duplicates %>%
+  group_by(ID, Date) %>%
+  summarise(
+    across( # across applies the following function to all columns
+      all_of(METEO_MEASUREMENT_COLUMNS), # all_off combined with across dplyr logic
+      ~ n_distinct(.x, na.rm = FALSE) # n_distinct count how many different value pairs exist. #na.rm not ignoring NA values
+    ), # .x control variable inserting each column of each from the previous commands. ~ short way for a function call.
+    .groups = "drop" # drop group logic good practice, for summarise command.
+  ) %>%
+  mutate(
+    has_conflict = if_any(
+      all_of(METEO_MEASUREMENT_COLUMNS),
+      ~ .x > 1
+    )
+  )
+count(duplicate_check, ID, has_conflict)
 
 # ==============================================================
 # 15 - minute time step workflow for 10_QORIKALIS_18_08_2025.csv
