@@ -7,7 +7,6 @@ required_packages <- c(
   "lubridate",  # Date handling
   "readxl",     # Excel import
   "stringr",    # String extraction (Piezometer ID)
-  "naniar",     # NA data examination
   "gtExtras",    # Easy tables
   "rlang"       # Symbol conversion for functions
 )
