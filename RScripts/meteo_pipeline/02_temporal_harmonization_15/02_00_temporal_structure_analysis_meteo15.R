@@ -1,5 +1,5 @@
 #======================================================================
-# Script name: 01_01_temporal_structure_analysis_meteo.R
+# Script name: 02_00_temporal_structure_analysis_meteo15.R
 # Goal(s): 
   # Detection of different NA codes used in the meteorological data sets
   # Analysis of the time steps of each individual input data using Source.Code differentiation

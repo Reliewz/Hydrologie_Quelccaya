@@ -1,5 +1,5 @@
 #======================================================================
-# Script name: 01_02_temporal_harmonization_METEO15.R
+# Script name: 02_01_temporal_harmonization_meteo15.R
 # Goal(s): 
   # Elimination of duplicate records in master data frame, based on decision making in 01_01 temporal structure analysis and documentation of the decision making.
   # Documentation of Temporal gap filling result for 15 min data sheet 10_QORIKALIS_18_08_2025.csv based on the analysis of 01_01_temporal structure analysis
