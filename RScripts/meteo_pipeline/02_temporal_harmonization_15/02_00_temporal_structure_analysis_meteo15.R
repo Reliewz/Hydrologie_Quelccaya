@@ -22,7 +22,7 @@
 # NA code analysis
 # ------------------------------------------------------------------------------
 # Identify common NA codes METEO
-for(col in METEO_MEASUREMENT_COLUMNS){
+for(col in METEO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS){
   
   cat("\n", col, "\n")
   
@@ -100,14 +100,14 @@ duplicate_check <- duplicates %>%
   group_by(Source.Code, Date) %>%
   summarise(
     across( # across applies the following function to all columns
-      all_of(METEO_MEASUREMENT_COLUMNS), # all_off combined with across dplyr logic
+      all_of(METEO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS), # all_off combined with across dplyr logic
       ~ n_distinct(.x, na.rm = FALSE) # n_distinct count how many different value pairs exist. #na.rm not ignoring NA values
     ), # .x control variable inserting each column of each from the previous commands. ~ short way for a function call.
     .groups = "drop" # drop group logic good practice, for summarise command.
   ) %>%
   mutate(
     has_conflict = if_any(
-      all_of(METEO_MEASUREMENT_COLUMNS),
+      all_of(METEO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS),
       ~ .x > 1
     )
   )
@@ -142,14 +142,14 @@ duplicate_check <- duplicates %>%
   group_by(ID, Date) %>%
   summarise(
     across( # across applies the following function to all columns
-      all_of(METEO_MEASUREMENT_COLUMNS), # all_off combined with across dplyr logic
+      all_of(METEO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS), # all_off combined with across dplyr logic
       ~ n_distinct(.x, na.rm = FALSE) # n_distinct count how many different value pairs exist. #na.rm not ignoring NA values
     ), # .x control variable inserting each column of each from the previous commands. ~ short way for a function call.
     .groups = "drop" # drop group logic good practice, for summarise command.
   ) %>%
   mutate(
     has_conflict = if_any(
-      all_of(METEO_MEASUREMENT_COLUMNS),
+      all_of(METEO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS),
       ~ .x > 1
     )
   )
@@ -167,7 +167,7 @@ data_meteo_standardized %>%
 
 # Isolate "10_QORIKALIS_18_08_2025.csv" as it contains 15 minute time steps
 qk15 <- data_meteo_standardized %>%
-  filter(Source.Code == "10_QORIKALIS_18_08_2025.csv")
+  filter(Source.Code == METEO_MASTER_DF_STANDARDIZED$SOURCE_IDS_15)
 
 # arrange for good practice
 qk15 <- qk15 %>%
@@ -184,7 +184,7 @@ qk15 <- qk15 %>%
   )
 
 qk15 %>%
-  filter(Source.Code == "10_QORIKALIS_18_08_2025.csv") %>%
+  filter(Source.Code == METEO_MASTER_DF_STANDARDIZED$SOURCE_IDS_15) %>%
   summarise(
     start = min(Date, 5),
     end   = max(Date, 5),
