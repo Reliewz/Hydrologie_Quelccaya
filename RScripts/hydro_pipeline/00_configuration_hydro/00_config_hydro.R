@@ -12,42 +12,46 @@
 #------------------------------------------------------------------------------
 # IMPORT Section
 # -----------------------------------------------------------------------------
+HYDRO_IMPORT_FRAMEWORK <- list(
+  DATE_COLUMN = "Datum.Zeit..GMT.05.00" , DROP_COLUMNS_FINAL = c("Datum.Zeit..GMT.05.00", "Record", "Angehalten")
+  )
+  
 HYDRO_SENSOR_IMPORTS <- list(
-  # Original Column name after .csv conversion
-  HYDRO_DATE_COLUMN <- "Datum.Zeit..GMT.05.00" , HYDRO_DROP_COLUMNS_FINAL <- c("Datum.Zeit..GMT.05.00", "Record"),
   WLS_O = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_outlet\\outlet_input_data",
                KEEP_FILES = c("21826515_QK_salida_25_02_2025.csv", "21826515_QK_salida_19_11_25.csv",
-                              "21826515_QK_salida_24_03_26.csv"), id = "WLS_O"),
+                              "21826515_QK_salida_24_03_26.csv"), ID = "WLS_O"),
   WLS_L = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\waterlevel_lagoon\\lagoon_input_data",
                KEEP_FILES = c("21826493_QK_lag_24_02_25.csv", "21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv"), id = "WLS_L"),
   PZ1  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ01",
-              KEEP_FILES = NULL, id = "PZ01"),
+              KEEP_FILES = NULL, ID = "PZ01"),
   PZ2  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ02", 
-              KEEP_FILES = NULL, id = "PZ02"),
+              KEEP_FILES = NULL, ID = "PZ02"),
   PZ3  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ03", 
-              KEEP_FILES = NULL, id = "PZ03"),
+              KEEP_FILES = NULL, ID = "PZ03"),
   PZ4  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ04", 
-              KEEP_FILES = NULL, id = "PZ04"),
+              KEEP_FILES = NULL, ID = "PZ04"),
   PZ5  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ05", 
-              KEEP_FILES = NULL, id = "PZ05"),
+              KEEP_FILES = NULL, ID = "PZ05"),
   PZ6  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ06", 
-              KEEP_FILES = NULL, id = "PZ06"),
+              KEEP_FILES = NULL, ID = "PZ06"),
   PZ7  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ07", 
-              KEEP_FILES = NULL, id = "PZ07"),
+              KEEP_FILES = NULL, ID = "PZ07"),
   PZ8  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ08", 
-              KEEP_FILES = NULL, id = "PZ08"),
+              KEEP_FILES = NULL, ID = "PZ08"),
   PZ9  = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ09", 
-              KEEP_FILES = NULL, id = "PZ09"),
+              KEEP_FILES = NULL, ID = "PZ09"),
   PZ10 = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ10", 
-              KEEP_FILES = NULL, id = "PZ10"),
+              KEEP_FILES = NULL, ID = "PZ10"),
   PZ11 = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ11", 
-              KEEP_FILES = NULL, id = "PZ11"),
+              KEEP_FILES = NULL, ID = "PZ11"),
   PZ12 = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\piezometer_data\\PZ12", 
-              KEEP_FILES = NULL, id = "PZ12"),
+              KEEP_FILES = NULL, ID = "PZ12"),
   BAROM = list(FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\Hydrological_data\\barometer_data\\baro_input_data", 
                KEEP_FILES = c("21826507_QK_baro_06_08_24.csv", "21826507_QK_baro_12_11_24.csv", "21826507_QK_baro_24_02_25.csv",
-                              "21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv"), id = "BAROM")
-)
+                              "21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv"), ID = "BAROM")
+  )
+
+
 # Import Framework for all sensors
 TIMEZONE_DATA <- "America/Lima"
 TIMEZONE_PROCESS <- "Europe/Berlin"
@@ -84,7 +88,6 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
   Connection_on  = "character",
   Host_connected = "character",
   Data_end       = "character",
-  Angehalten     = "character",
   Source.Code    = "character"
 )
 
@@ -121,17 +124,20 @@ HYDRO_OUTPUT_DIRECTORIES <- list(
   DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
 )
 
-#------------------------------------------------------------------------------
-# QC Preparation Steps
-# -----------------------------------------------------------------------------
-# Identification of maintenance and data collection events
-
-
 
 
 #------------------------------------------------------------------------------
 # QC Parametrization
 # -----------------------------------------------------------------------------
+HYDRO_QC_PARAMS <- list(
+  DATA15 = list(
+    max_gap_min = 30,  max_rate_of_change = c(Abs_pres = 5,  Temp = 2)
+  ),
+  DATA60 = list(
+    max_gap_min = 120, max_rate_of_change = c(Abs_pres = 15, Temp = 6)
+  )
+)
+
 HYDRO_QC_CONFIG <- list(
   completeness_test = list(
     WLS_O = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),

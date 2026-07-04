@@ -27,24 +27,24 @@ data_hydro <- purrr::map_dfr(
     
     # Import with sensor specific parameters from hydro_config.
     df <- load_hobo_csv(
-      folder_path = cfg$folder,      # cfg$folder = folder element from the list
-      date_col    = HYDRO_DATE_COLUMN,     # directly taken from config counts for all sensors
+      folder_path = cfg$FOLDER,      # cfg$folder = folder element from the list
+      date_col    = HYDRO_IMPORT_FRAMEWORK$DATE_COLUMN,     # directly taken from config counts for all sensors
       timezone    = TIMEZONE_DATA,   # directly taken from config counts for all sensors
-      keep_files  = cfg$keep_files   # Vectors for WLS all data for PZ
+      keep_files  = cfg$KEEP_FILES   # Vectors for WLS all data for PZ
     )
     # Removing device-id from columns for input standardization (required for map_dfr)
     names(df) <- gsub("\\.\\.LGR.*", "", names(df))
     # Add ID column using the ID defined in the configuration
     df %>%
       rename_columns(rename_map = HYDRO_COLUMN_RENAME_MAP) %>% # rename columns according to rename_map, defined in the configuration file
-      mutate(ID = cfg$id)
+      mutate(ID = cfg$ID)
   }
 )
 
 # drop columns
 data_hydro <- drop_columns(
   df = data_hydro,
-  column_selection = HYDRO_DROP_COLUMNS_FINAL)
+  column_selection = HYDRO_IMPORT_FRAMEWORK$DROP_COLUMNS_FINAL)
 
 # NA code harmonization
 data_hydro <- harmonize_NA_codes(
