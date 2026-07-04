@@ -51,7 +51,7 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   action = "manual_documentation",
   operator = "Kai Zwießler",
   device = "Meteorological Stations SENAMHI: Datasets_QUISOQUEPINA, SIBINACHOCHA_joined.xlsx",
-  reason = paste("The temporal structure analysis identified duplicate timestamps in individual sheets.",
+  reason = paste("Removal of duplicate time step: The temporal structure analysis identified duplicate timestamps in individual sheets.",
                  "A comparison of all meteorological measurement columns has shown that no deviations conflicts between the duplicate records.",
                  "The duplicates were therefore classified as redundant records and are removed prior to quality control. removed duplicates n = 1438."
   ))
@@ -61,7 +61,7 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   action = "manual_documentation",
   operator = "Kai Zwießler",
   device = "Meteorological Station Qori-Kalis, Overlapping Datasets: 8_QORIKALIS_22_06_2025.csv, 9_QORIKALIS_07_07_2025.csv",
-  reason = paste("The temporal structure analysis identified duplicate timestamps on sensor basis.",
+  reason = paste("Removal of duplicate time steps: The temporal structure analysis identified duplicate timestamps on sensor basis.",
                  "A comparison of all meteorological measurement columns has shown that no deviations in measurement values of the same time steps are present.",
                  "The duplicates were therefore classified as redundant records and are removed prior to quality control. removed duplicates n = 2836."
   ))
@@ -72,7 +72,7 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   action = "manual_documentation",
   operator = "Kai Zwießler",
   device = "Data sheet: 10_QORIKALIS_18_08_2025.csv Meteorological station",
-  reason = paste("The temporal structure analysis identified a temporal resolution of 15 minutes for this data file.",
+  reason = paste("Decision-making original temporal resolution: The temporal structure analysis identified a temporal resolution of 15 minutes for this data file.",
                  "The decision was made to run the whole QC framework on the original temporal resolution before aggregating to a hourly time step.",
                  "This prevents that potential outliers will be concealed after using mathematical operations like arithmetic mean",
                  "in the temporal aggregation workflows. The data will then be re-joined with the master data frame.",

@@ -16,7 +16,7 @@
 
 
 datapaths <- list.files(
-  path = METEO_SENSOR_IMPORTS$STATION_QQ$folder,
+  path = METEO_SENSOR_IMPORTS$STATION_QQ$FOLDER,
   pattern = "\\.xlsx$",
   full.names = TRUE
 )
@@ -32,14 +32,14 @@ data_qq <- map_dfr(
 data_qq <- data_qq %>%
   mutate(across(c(AirTC, Precip_Tot, RH, WD, WS, WS_Max), as.character))
 # remove not required columns
-data_qq <- drop_columns(data_qq, column_selection = METEO_SENSOR_IMPORTS$STATION_QQ$DROP_COLUMNs_FINAL)
+data_qq <- drop_columns(data_qq, column_selection = METEO_SENSOR_IMPORTS$STATION_QQ$DROP_COLUMNS_FINAL)
 
 # Rename function according to rename map
 data_qq <- rename_columns(data_qq, rename_map = COLUMN_RENAME_MAP_QQ)
 
 # Add ID column
 data_qq <- data_qq %>%
-  mutate(ID = METEO_SENSOR_IMPORTS$STATION_QQ$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_QQ$ID)
 
 
  

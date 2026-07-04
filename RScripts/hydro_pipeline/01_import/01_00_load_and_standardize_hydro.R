@@ -49,7 +49,7 @@ data_hydro <- drop_columns(
 # NA code harmonization
 data_hydro <- harmonize_NA_codes(
   df = data_hydro,
-  measurement_columns = HYDRO_MASTER_DF$HYDRO_MEASUREMENT_COLUMNS,
+  measurement_columns = HYDRO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS,
   NA_codes = HYDRO_MISSING_CODES
 )
 # documentation

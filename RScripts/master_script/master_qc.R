@@ -76,10 +76,10 @@ cat("\n=== Step 1: Load and Standardize ===\n")
 
 if (PIPELINE_MODE == "METEO"){
 # Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration_meteo/00_clean_qq_raw.R")
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/00_configuration_meteo/00_clean_senamhi_raw.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/01_import/01_00_import_stationQQ.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/01_import/01_01_import_SENAMHI_stations.R")
 # Load Qori-Kalis meteorological station and standardize meteorological master data frame
-source("RScripts/meteo_pipeline/01_import/01_00_load_and_standardize_meteo.R")
+source("RScripts/meteo_pipeline/01_import/01_02_load_and_standardize_meteo.R")
 }
 
 if (PIPELINE_MODE == "HYDRO"){

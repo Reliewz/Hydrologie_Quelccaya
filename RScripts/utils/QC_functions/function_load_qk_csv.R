@@ -51,7 +51,7 @@ load_qk_csv <- function(cfg, timezone) {
   
   # Create file list
   datapaths <- list.files(
-    cfg$folder,
+    cfg$FOLDER,
     pattern = "\\.csv$",
     full.names = TRUE
   )
@@ -61,9 +61,9 @@ load_qk_csv <- function(cfg, timezone) {
     basename(datapaths)
   )
   
-  if (!is.null(cfg$keep_files)) {
+  if (!is.null(cfg$KEEP_FILES)) {
     datapaths_named <- datapaths_named[
-      names(datapaths_named) %in% cfg$keep_files
+      names(datapaths_named) %in% cfg$KEEP_FILES
     ]
   }
   
@@ -142,13 +142,13 @@ load_qk_csv <- function(cfg, timezone) {
     )
   )
   
-  # Add station id
+  # Add station ID
   data_list <- purrr::map(
     data_list,
     \(df) {
       dplyr::mutate(
         df,
-        ID = cfg$id
+        ID = cfg$ID
       )
     }
   )

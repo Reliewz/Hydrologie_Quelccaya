@@ -46,7 +46,7 @@ HYDRO_SENSOR_IMPORTS <- list(
                keep_files = c("21826507_QK_baro_06_08_24.csv", "21826507_QK_baro_12_11_24.csv", "21826507_QK_baro_24_02_25.csv",
                               "21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv"), id = "BAROM")
 )
-# Equal Import-Parameters for all sensors
+# Import Framework for all sensors
 HYDRO_DATE_COLUMN <- "Datum.Zeit..GMT.05.00" # Original Column name after .csv conversion
 HYDRO_DROP_COLUMNS_FINAL <- c("Datum.Zeit..GMT.05.00", "Record")
 TIMEZONE_DATA <- "America/Lima"
@@ -89,25 +89,22 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
 )
 
 # Hydro Master DF pre standardization
-HYDRO_MASTER_DF <- list(
-  DATE_COLUMN = "Date", 
-  HYDRO_MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), HYDRO_INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop")
+HYDRO_MASTER_DF_FRAMEWORK <- list(
+  DATE_COLUMN = "Date", STATION_ID = "ID", SOURCE_COLUMN = "Source.Code",
+  MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop")
 )
 
 # Master DF after load and standardization
 HYDRO_MASTER_DF_STANDARDIZED <- list(
-  DATE_COLUMN = "Date", 
-  HYDRO_MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), HYDRO_INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
-  HYDRO_TEMPORAL_AGGREGATION_FUNCTIONS = c(Abs_pres = "mean", Temp = "mean"), SOURCE_COLUMN_AGGREGATION = "Source.Code", 
-  SOURCE_IDS_TEMPORAL_AGGREGATION = c("PZ"),
-  SOURCE_COLUMN_COMPLETION = "Source.Code", 
-  SOURCE_IDS_COMPLETION = c("21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv", "21826507_QK_baro_19_11_25.csv",
-                            "21826507_QK_baro_24_03_26.csv", "21826515_QK_salida_19_11_25.csv", "21826515_QK_salida_24_03_26.csv",
-                            "PZ01_02_14_08_2025_21826509.csv", "PZ02_02_14_08_2025_21826502.csv", "PZ03_02_14_08_2025_21826497.csv",
-                            "PZ04_02_14_08_2025_21826519.csv", "PZ05_02_14_08_2025_21826512.csv", "PZ06_02_14_08_2025_21826504.csv",
-                            "PZ07_02_14_08_2025_21826505.csv", "PZ08_02_14_08_2025_21826496.csv", "PZ09_02_14_08_2025_21826494.csv",
-                            "PZ10_02_14_08_2025_21826516.csv", "PZ11_02_14_08_2025_21826500.csv", "PZ12_02_14_08_2025_21826503.csv")
-)
+  TEMPORAL_AGGREGATION_FUNCTIONS = c(Abs_pres = "mean", Temp = "mean"), MIN_COVERAGE_AGGREGATION = 0.5, SOURCE_COLUMN = "Source.Code", 
+  SOURCE_COLUMN_FILES = "Source.Code", 
+  SOURCE_IDS_15 = c("21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv", "21826507_QK_baro_19_11_25.csv",
+                    "21826507_QK_baro_24_03_26.csv", "21826515_QK_salida_19_11_25.csv", "21826515_QK_salida_24_03_26.csv",
+                    "PZ01_02_14_08_2025_21826509.csv", "PZ02_02_14_08_2025_21826502.csv", "PZ03_02_14_08_2025_21826497.csv",
+                    "PZ04_02_14_08_2025_21826519.csv", "PZ05_02_14_08_2025_21826512.csv", "PZ06_02_14_08_2025_21826504.csv",
+                    "PZ07_02_14_08_2025_21826505.csv", "PZ08_02_14_08_2025_21826496.csv", "PZ09_02_14_08_2025_21826494.csv",
+                    "PZ10_02_14_08_2025_21826516.csv", "PZ11_02_14_08_2025_21826500.csv", "PZ12_02_14_08_2025_21826503.csv")
+                                    )
 
 
 #------------------------------------------------------------------------------

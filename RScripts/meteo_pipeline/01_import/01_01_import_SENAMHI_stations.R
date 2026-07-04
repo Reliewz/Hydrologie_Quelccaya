@@ -6,7 +6,6 @@
   # hormonization date column change Date format to POSIXct
   # Add station ID
   # join .xlsx and .csv
-  # export standardized .csv files for further QC steps
 # Author: Kai Albert Zwießler
 # Date: 2026.06.01
 # Input Dataset: 
@@ -16,18 +15,18 @@
 # Data import individual files .csv and .xlsx
 # Using build function for data import
 data_qp <- load_senamhi_csv(
-  folder_path = METEO_SENSOR_IMPORTS$STATION_QP$folder,
+  folder_path = METEO_SENSOR_IMPORTS$STATION_QP$FOLDER_CSV,
 )
 data_sc <- load_senamhi_csv(
-  folder_path = METEO_SENSOR_IMPORTS$STATION_SC$folder,
+  folder_path = METEO_SENSOR_IMPORTS$STATION_SC$FOLDER_CSV,
 )
 data_cb <- load_senamhi_csv(
-  folder_path = METEO_SENSOR_IMPORTS$STATION_CB$folder,
+  folder_path = METEO_SENSOR_IMPORTS$STATION_CB$FOLDER_CSV,
 )
 # Import .xlsx
-data_xlsx_qp <- read_excel(SENAMHI_XLSX_IMPORTS$STATION_QP$file, sheet = SENAMHI_XLSX_IMPORTS$STATION_QP$sheet_name)
-data_xlsx_sc <- read_excel(SENAMHI_XLSX_IMPORTS$STATION_SC$file, sheet = SENAMHI_XLSX_IMPORTS$STATION_SC$sheet_name)
-data_xlsx_cb <- read_excel(SENAMHI_XLSX_IMPORTS$STATION_CB$file, sheet = SENAMHI_XLSX_IMPORTS$STATION_CB$sheet_name)
+data_xlsx_qp <- read_excel(METEO_SENSOR_IMPORTS$STATION_QP$IMPORT_XLSX, sheet = METEO_SENSOR_IMPORTS$STATION_QP$SHEET_NAME)
+data_xlsx_sc <- read_excel(METEO_SENSOR_IMPORTS$STATION_SC$IMPORT_XLSX, sheet = METEO_SENSOR_IMPORTS$STATION_SC$SHEET_NAME)
+data_xlsx_cb <- read_excel(METEO_SENSOR_IMPORTS$STATION_CB$IMPORT_XLSX, sheet = METEO_SENSOR_IMPORTS$STATION_CB$SHEET_NAME)
 
 # Column-type synchronization .csv and .xlsx for CARABAYA, adressing differences in colum types
 data_xlsx_cb <- data_xlsx_cb %>%
@@ -125,11 +124,11 @@ data_cb_joined <- data_cb_joined %>%
 
 # Add ID column
 data_qp_joined <- data_qp_joined %>%
-  mutate(ID = METEO_SENSOR_IMPORTS$STATION_QP$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_QP$ID)
 data_sc_joined <- data_sc_joined %>%
-  mutate(ID = METEO_SENSOR_IMPORTS$STATION_SC$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_SC$ID)
 data_cb_joined <- data_cb_joined %>%
-  mutate(ID = METEO_SENSOR_IMPORTS$STATION_CB$id)
+  mutate(ID = METEO_SENSOR_IMPORTS$STATION_CB$ID)
 
 
 
