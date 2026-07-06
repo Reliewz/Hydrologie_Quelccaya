@@ -28,10 +28,6 @@ data_meteo_standardized <- data_meteo_standardized %>%
 # 15 - minute workflow for 10_QORIKALIS_18_08_2025.csv
 # ====================================================
 
-# Extraction of data 10_QORIKALIS_18_08_2025.csv
-data_meteo15_standardized <- data_meteo_standardized %>%
-  filter(Source.Code == METEO_MASTER_DF_STANDARDIZED$SOURCE_IDS_15)
-
 # ------------------------------------------------------------------------------
 # Complete missing time steps for 10_QORIKALIS_18_08_2025.csv
 # ------------------------------------------------------------------------------

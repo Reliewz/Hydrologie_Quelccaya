@@ -49,6 +49,7 @@ source("RScripts/utils/QC_functions/function_convert_column_types.R")
 
 source("RScripts/utils/qc_functions/function_calc_time_diff.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
+source("RScripts/utils/qc_functions/function_complete_timeseries.R")
 source("RScripts/utils/qc_functions/function_vector_mean_wd.R")
 source("RScripts/utils/qc_functions/function_aggregate_15min_to_hourly.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
