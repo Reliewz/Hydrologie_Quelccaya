@@ -2,7 +2,8 @@
 # Scriptname: utils/function_complete_timeseries.R
 # Function name: complete_timeseries
 # Goal(s): 
-  # 
+  # complete time series according to a selected temporal interval.
+  # report to the operator how many records were added.
 # Author: Kai Albert Zwießler
 # Date: 2026.07.02
 # Outputs:
@@ -28,30 +29,41 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
   
   
   # --- Input validation
-    if (!is.data.frame(df)){ stop("`df` must be a data.frame or tibble.")
-    }  
-    # date column validation
-    if (is.null(date_column)) {
-      stop("The name of the `date_column` must be specified as a character string.")
-    }
-    # date_column character & vector validation
-    if (!is.character(date_column) || length(date_column) != 1) {
-      stop("`date_column` must be a single character string not a character vector.")
-    }
-    if (!date_column %in% names(df)) {
-      stop(paste("`date_column`", date_column, "not found in `df`."))
-    }
-    if (!inherits(df[[date_column]], "POSIXct")) {
-      stop(paste("Column", date_column, "must be of class POSIXct before this action can be performed."))
-    }
-    
-    # Present temporal interval validation / time_step validation
-    if(is.null(time_step)){
-      stop("Please specify the `time_step` parameter according to the temporal interval the input data possesses. ")
-    }
-    if(!is.character(time_step)){
-      stop("The `time_step` parameter must be a character string. e.g. (e.g. \"15 min\", \"60 min\", or \"1 day\"). ")
-    }
+  if (!is.data.frame(df)) {
+    stop("`df` must be a data.frame or tibble.")
+  }
+  # date column validation
+  if (is.null(date_column)) {
+    stop("The name of the `date_column` must be specified as a character string.")
+  }
+  # date_column character & vector validation
+  if (!is.character(date_column) || length(date_column) != 1) {
+    stop(
+      "`date_column` must be a single character string not a character vector."
+    )
+  }
+  if (!date_column %in% names(df)) {
+    stop(paste("`date_column`", date_column, "not found in `df`."))
+  }
+  if (!inherits(df[[date_column]], "POSIXct")) {
+    stop(paste(
+      "Column",
+      date_column,
+      "must be of class POSIXct before this action can be performed."
+    ))
+  }
+  
+  # Present temporal interval validation / time_step validation
+  if (is.null(time_step)) {
+    stop(
+      "Please specify the `time_step` parameter according to the temporal interval the input data possesses. "
+    )
+  }
+  if (!is.character(time_step)) {
+    stop(
+      "The `time_step` parameter must be a character string. e.g. (e.g. \"15 min\", \"60 min\", or \"1 day\"). "
+    )
+  }
     # Match.arg restriction of time_step parameter
     time_step <- match.arg(
       time_step,
@@ -61,7 +73,7 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
         "60 min",
         "1 hour",
         "1 day"
-        )
+      )
     )
     
     # conversion of character type time_step parameter input to a numeric value. f.e. "15 mins" to 15 for later use in the function
@@ -120,62 +132,87 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
     
   
     # Add missing time steps according to the selected character vector
-    if(!is.null(source_column) && !is.null(source_ids)){
+    if (!is.null(source_column) && !is.null(source_ids)) {
       df <- df %>%
         group_by(.data[[source_column]]) %>%
-        
-          group_modify(function(.x, .y) { #.x is the grouped data frame; .y is the group key containing the group information
-            if(.y[[source_column]] %in% source_ids){
-              group_name <- .y[[source_column]]
-              
-              timestep_check <- difftime(
-                  .x[[date_column]],  # end date
-                  lag(.x[[date_column]]), # previous date. function lag shifts back the time series.
-                  units = "mins" # output time difference in minutes
-                  )
-          timestep_check <- as.numeric(timestep_check) # convert difftime object to numeric.
-          timestep_check <- timestep_check[!is.na(timestep_check)] # remove first NA value in the vector, which is an expected behavior of difftime()
-              
-          
-          # Intermediate check for more than two records. As a requirement for correct timediff calculation.
-          if (length(timestep_check) == 0) { # 0 because the expected NA generation of difftime have been removed beforehand. Which includes the case of 1 record for this validation.
-            stop(
-              paste0(
-                "Group '", group_name,
-                "' contains fewer than two observations. ",
-                "Temporal verification cannot be performed."
-              )
+    
+        group_modify(function(.x, .y) {
+          #.x is the grouped data frame; .y is the group key containing the group information
+          if (.y[[source_column]] %in% source_ids) {
+            group_name <- .y[[source_column]]
+            
+            n_original <- nrow(.x) # determine n_original for user report
+    
+            timestep_check <- difftime(
+              .x[[date_column]], # end date
+              lag(.x[[date_column]]), # previous date. function lag shifts back the time series.
+              units = "mins" # output time difference in minutes
             )
-          }
-          
-          
-          if(all(timestep_check %% time_step_minutes == 0)){ # modulo sign %% checking if timestep_check is a multiple of time_step.
-            return(  
-              tidyr::complete(.x,
-                !!rlang::sym(date_column) := seq( # := tidy evaluation sign to allow dynamic columns (!!date_column) on the left side which usually    expects expressions
+            timestep_check <- as.numeric(timestep_check) # convert difftime object to numeric.
+            timestep_check <- timestep_check[!is.na(timestep_check)] # remove first NA value in the vector, which is an expected behavior of difftime()
+    
+            # Intermediate check for more than two records. As a requirement for correct timediff calculation.
+            if (length(timestep_check) == 0) {
+              # 0 because the expected NA generation of difftime have been removed beforehand. Which includes the case of 1 record for this validation.
+              stop(
+                paste0(
+                  "Group '",
+                  group_name,
+                  "' contains fewer than two observations. ",
+                  "Temporal verification cannot be performed."
+                )
+              )
+            }
+    
+            if (all(timestep_check %% time_step_minutes == 0)) {
+              # modulo sign %% checking if timestep_check is a multiple of time_step.
+              
+              completed <- tidyr::complete(
+                  .x,
+                  !!rlang::sym(date_column) := seq(
+                    # := tidy evaluation sign to allow dynamic columns (!!date_column) on the left side which usually    expects expressions
                     from = min(.x[[date_column]]),
-                    to   = max(.x[[date_column]]),
-                    by   = time_step
-                  )))
-                  
-                
-          }else {
-            
-            stop(
-              paste0("Input Group '", group_name, "' contains time intervals that are not multiples ",
-                     "of the specified 'time_step' ('", time_step, "').",
-                 "This occurs when the input data contains fractional time steps or different temporal intervals. ",
-                 "Please correct the temporal structure before re-running `complete_timeseries()`. "))
-          }
+                    to = max(.x[[date_column]]),
+                    by = time_step
+                  )
+                )
+              # information collection user report
+              n_final <- nrow(completed)
+              n_added <- n_final - n_original
+              percent_added <- 100 * n_added / n_final
               
+              message(
+                sprintf(
+                  "Group: %s | %d original -> %d final records | Added: %d (%.2f%%)", 
+                  # %s = character string, %d = integer value %.2f = float number rounded to two digits.
+                  group_name,
+                  n_original,
+                  n_final,
+                  n_added,
+                  percent_added
+                )
+              )
               
-          }else {
+              return(completed)
+            } else {
+              stop(
+                paste0(
+                  "Input Group '",
+                  group_name,
+                  "' contains time intervals that are not multiples ",
+                  "of the specified 'time_step' ('",
+                  time_step,
+                  "').",
+                  "This occurs when the input data contains fractional time steps or different temporal intervals. ",
+                  "Please correct the temporal structure before re-running `complete_timeseries()`. "
+                )
+              )
+            }
+          } else {
             return(.x)
-            
           }
-          }) %>%
+        }) %>%
         ungroup() # release group selection from group_by mechanism
-        return(df)
-      
-        }
+      return(df)
+    }
 }
