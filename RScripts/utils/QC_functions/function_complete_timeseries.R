@@ -12,14 +12,14 @@
 
 #' @note Completes missing time steps for selected time series within a master data frame. The function is intended for multi-sensor data sets where individual series are identified via a grouping column (e.g. Source.Code or ID).
 #' @param df data frame or tibble
-#' @param date_column Column which contains the temporal information for the beginning and end of the completion range Default: Date.
+#' @param date_column Column which contains the temporal information for the beginning and end of the completion range.
 #' @param time_step Temporal resolution that is assumed for the input time series and used interval for the generation of missing time steps
 #' (possible entries are "15 min", "30 min", "60 min", "1 hour" or "1 day")
 #' @param source_column Character string. Specifying the column that contains the values provided in `source_ids`.
 #' @param source_ids Character vector defining the groups that should undergo temporal completion. 
-#' Values usually represent file identifiers (Source.Code or SensorID).
-#' Individual files of a master data frame can be selected by providing a character vector containing their source name. 
-#' Whole hydrological sensors or meteorological stations can be completed by providing a shared identification ID for the whole sensor group.
+#' Values usually represent file identifiers (f.e. Source.Code or Sensor ID).
+#' Individual files of a master data frame can be selected by providing a character vector containing their source name or another clear identifier. 
+#' Whole hydrological sensors or meteorological stations can be completed by providing a shared identification ID describing the whole sensor group.
 #' @return data frame or tibble with completed time series
 #' @export
 
@@ -102,10 +102,10 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
       stop("The `source_ids` parameter must be specified if `source_column` is provided. Please specify the ID-code for individual data files or sensors. ")
     }
     if(is.null(source_column) && !is.null(source_ids)){
-      stop("The `source_column` parameter must be specified. Please specify the column in which the `source_ids` information can be found.")
+      stop("The `source_column` parameter must be specified if `source_ids` are provided. Please specify the column in which the `source_ids` information can be found.")
     }
     if (!is.character(source_column)) {
-      stop("`source_column` must be a character string or NULL.")
+      stop("`source_column` must be a character string. ")
     }
     if (length(source_column) != 1) {
       stop("`source_column` must be a single character string. No character vector. ")
@@ -141,7 +141,7 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
           if (.y[[source_column]] %in% source_ids) {
             group_name <- .y[[source_column]]
             
-            n_original <- nrow(.x) # determine n_original for user report
+            n_original <- nrow(.x) # determine the total amount of records for the user report
     
             timestep_check <- difftime(
               .x[[date_column]], # end date
@@ -179,7 +179,7 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
               # information collection user report
               n_final <- nrow(completed)
               n_added <- n_final - n_original
-              percent_added <- 100 * n_added / n_final
+              percent_added <- n_added / n_final * 100 
               
               message(
                 sprintf(

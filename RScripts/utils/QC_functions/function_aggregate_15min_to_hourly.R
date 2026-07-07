@@ -90,7 +90,7 @@
 #'       Returns an empty data frame if no coverage issues were detected.}
 #'   }
 #'
-#' @seealso \code{\link{vector_mean_wd}} for the circular vector averaging
+#' @seealso \code{\link{function_vector_mean_wd}} for the circular vector averaging
 #'   function used for wind direction aggregation.
 #'
 #' @export

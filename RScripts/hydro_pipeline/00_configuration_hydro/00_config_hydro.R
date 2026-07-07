@@ -108,9 +108,47 @@ HYDRO_MASTER_DF_STANDARDIZED <- list(
                    "PZ10_02_14_08_2025_21826516.csv", "PZ11_02_14_08_2025_21826500.csv", "PZ12_02_14_08_2025_21826503.csv"),
   TEMPORAL_AGGREGATION_FUNCTIONS = c(Abs_pres = "mean", Temp = "mean"), MIN_COVERAGE_AGGREGATION = 0.5)
 
+
+#------------------------------------------------------------------------------
+# QC Parametrization
+# -----------------------------------------------------------------------------
+# General
 HYDRO_MASTER_DF_HARMONIZED <- list(
   
 )
+
+#------------------------------------------------------------------------------
+# QC Flagging Workflow & Documentation
+# -----------------------------------------------------------------------------
+# QC flags workflow Parameter
+QC_TEST_VERIFICATION <- list(
+  ALLOWED_QC_LEVELS = c("completeness_test", "range_test", "step_test", "persistence_test", "internal_consistency"),
+  LOGS = 
+)
+# Metadata
+SENSOR_UNITS <- list(Abs_pres = "kPa", Temp = "°C")
+
+# WLS Serial Number
+SENSOR_SN_WLS <- list(
+  WLS_O_SN = "21826515",
+  WLS_L_SN = "21826493"
+  
+)
+SENSOR_SN_PIEZOMETER <- list(
+  PZ01_SN = "21826509",
+  PZ02_SN = "21826502",
+  PZ03_SN = "21826497",
+  PZ04_SN = "21826519",
+  PZ05_SN = "21826512",
+  PZ06_SN = "21826504",
+  PZ07_SN = "21826505",
+  PZ08_SN = "21826596",
+  PZ09_SN = "21826594",
+  PZ10_SN = "21826516",
+  PZ11_SN = "21826500",
+  PZ12_SN = "21826503"
+)
+SENSOR_SN_BARO <- "21826507"
 
 #------------------------------------------------------------------------------
 # EXPORT Section
@@ -172,40 +210,7 @@ HYDRO_QC_CONFIG <- list(
 
 
 
-#------------------------------------------------------------------------------
-# QC Flagging & Documentation
-# -----------------------------------------------------------------------------
-# QC flags workflow Parameter
-QC_FLAG_CONFIG <- list(
-ALLOWED_QC_LEVELS = c("completeness_test", "timing_gap_test",
-  "range_test", "step_test", "persistence_test", "internal_consistency",
-  ),
-LOGS = 
-)
-# Metadata
-SENSOR_UNITS <- list(Abs_pres = "kPa", Temp = "°C")
 
-# WLS Serial Number
-SENSOR_SN_WLS <- list(
-  WLS_O_SN = "21826515",
-  WLS_L_SN = "21826493"
-  
-)
-SENSOR_SN_PIEZOMETER <- list(
-  PZ01_SN = "21826509",
-  PZ02_SN = "21826502",
-  PZ03_SN = "21826497",
-  PZ04_SN = "21826519",
-  PZ05_SN = "21826512",
-  PZ06_SN = "21826504",
-  PZ07_SN = "21826505",
-  PZ08_SN = "21826596",
-  PZ09_SN = "21826594",
-  PZ10_SN = "21826516",
-  PZ11_SN = "21826500",
-  PZ12_SN = "21826503"
-  )
-SENSOR_SN_BARO <- "21826507"
 
 
 
