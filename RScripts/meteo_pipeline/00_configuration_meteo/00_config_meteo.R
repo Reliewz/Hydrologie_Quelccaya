@@ -150,28 +150,25 @@ METEO_MASTER_DF_STANDARDIZED <- list(
   MIN_COVERAGE_AGGREGATION = 0.5
 )
 
-METEO_MASTER_DF_HARMONIZED <- list(
-  
+#------------------------------------------------------------------------------
+# QC Parametrization
+# -----------------------------------------------------------------------------
+# General configuration
+METEO_QC_CONFIG <- list(
+  COMPLETENESS_TEST = list(FLAG_VALUE = "MISSING_VALUE"
+  ),
+  RANGE_TEST = list(
+    
+  )
 )
-
-
-
-
-
 
 
 #------------------------------------------------------------------------------
 # Documentation of flagging and decision making
 # -----------------------------------------------------------------------------
+# QC Tests executed in the pipeline workflow - for apply_qc_flags -function
+ALLOWED_QC_TESTS <- names(METEO_QC_CONFIG) # derived from Hydro QC config.
 
-# apply qc flags executed tests
-ALLOWED_QC_TESTS <- c(
-  "range_test",
-  "step_test",
-  "persistence_test",
-  "internal_consistency",
-  "summarization_test"
-)
 # List where records inside the pipeline will be stored for final master_log bind_row execution
 qc_logs <- list()
 
@@ -196,7 +193,7 @@ METEO_QC_CONFIG <- list(
     STATION_QQ  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
     STATION_QUISIQUEPINA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
     STATION_CARABAYA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
-    STATION_SIBINACHOCHA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
+    STATION_SIBINACHOCHA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10)
   ),
   
   timing_gap_test = list(

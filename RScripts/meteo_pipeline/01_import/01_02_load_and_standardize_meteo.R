@@ -69,7 +69,7 @@ data_meteo <- convert_column_types(
 data_meteo_standardized <- data_meteo
 
 
-cat("\n✓ Step 1.0 complete: data_meteo_standardized ready (", nrow(data_meteo_standardized), "rows)\n")
+cat("\n✓ Step 1.02 complete: data_meteo_standardized ready (", nrow(data_meteo_standardized), "rows)\n")
 # ==============================================================================
 # END OF 01_00_load_and_standardize_meteo
 # ==============================================================================

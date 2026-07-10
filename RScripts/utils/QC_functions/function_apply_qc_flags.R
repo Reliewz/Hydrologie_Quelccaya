@@ -20,7 +20,7 @@
 #' The function applies QC flags to an assigned data frame.
 #' 
 #' # ========== CONFIGURATION ==========
-#' @param df the data frame where the qc flags are supposed to be applied to
+#' @param df the data frame where the QC flags are supposed to be applied to
 #' @param flag_value a parameter where the user has to assign a flag value f.e. "REVIEW", "DELETE", "VALID", "INVALID" (...)
 #' @param qc_test provides the information from which qc_test the flags will be applied. - 
 #' Note: qc_test will be used as the column name in which the flags are stored.

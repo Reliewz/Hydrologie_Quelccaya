@@ -1,5 +1,5 @@
 #======================================================================
-# Scriptname: utils/function_complete_timeseries.R
+# Scriptname: function_complete_timeseries.R
 # Function name: complete_timeseries
 # Goal(s): 
   # complete time series according to a selected temporal interval.

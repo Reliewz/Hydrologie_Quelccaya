@@ -54,6 +54,8 @@ source("RScripts/utils/qc_functions/function_vector_mean_wd.R")
 source("RScripts/utils/qc_functions/function_aggregate_15min_to_hourly.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
+
+source("RScripts/utils/qc_functions/function_qc_completeness_test.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
@@ -133,8 +135,11 @@ if (KEEP_INTERMEDIATE) {
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "completeness test"
 CURRENT_PIPELINE_STAGE  <- "completeness_test"
-if (PIPELINE_MODE == "METEO"){}
-if (PIPELINE_MODE == "HYDRO"){}
+if (PIPELINE_MODE == "METEO"){
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
+
+if (PIPELINE_MODE == "HYDRO"){
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
 # ------------------------------------------------------------------------------
 # 3a. Basic QC - Level 1.1 - Temporal continuity Gap test date column
 # ------------------------------------------------------------------------------

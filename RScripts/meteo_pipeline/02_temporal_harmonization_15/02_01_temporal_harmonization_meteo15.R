@@ -71,7 +71,7 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   reason = paste("Decision-making original temporal resolution: The temporal structure analysis identified a temporal resolution of 15 minutes for this data file.",
                  "The decision was made to run the whole QC framework on the original temporal resolution before aggregating to a hourly time step.",
                  "This prevents that potential outliers will be concealed after using mathematical operations like arithmetic mean",
-                 "in the temporal aggregation workflows. The data will then be re-joined with the master data frame.",
+                 "in the temporal aggregation workflows. The data will then be re-joined with the master data frame."
   ))
 
 
@@ -79,9 +79,9 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
 
 
 # Final rename
-data_meteo15_harmonized <- data_meteo15_standardized
+data_meteo15_harmonized <- data_meteo_standardized
 
-cat("\n✓ Step 1.02 complete: data_meteo15_harmonized ready (", nrow(data_meteo15_harmonized), "rows)\n")
+cat("\n✓ Step 2.01 complete: data_meteo15_harmonized ready (", nrow(data_meteo15_harmonized), "rows)\n")
 # ==============================================================================
 # END OF Temporal harmonization meteo 15
 # ==============================================================================
