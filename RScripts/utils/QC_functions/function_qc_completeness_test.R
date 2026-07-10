@@ -27,8 +27,8 @@
 #'  \describe{
 #'    \item{data}{Contains all records where at least one measurement column is NA.}
 #'    \item{detection_summary}{Contains further information how many values for each measurement variable have been detected.
-#'    \code{n_na} is the total amount of detected values, and \code{pct_na} is the percentage of the detected values in relation
-#'    to the total values examined (both reported per measurement column, e.g. \code{n_na_Abs_pres}, \code{pct_na_Abs_pres}).}
+#'    \code{n_detected} is the total amount of detected values, and \code{pct_detected} is the percentage of the detected values in relation
+#'    to the total values examined (both reported per measurement column, e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}).}
 #'  }
 #' @export
 #' @seealso \code{\link{function_apply_qc_flags}} to assign the respective QC flags & 
@@ -144,8 +144,8 @@ qc_completeness_test <- function(df,
         across(
           all_of(
           measurement_columns), .fns = list(
-            n_na = ~ sum(is.na(.x)),
-            pct_na = ~ sum(is.na(.x)) / length(.x) * 100), 
+            n_detected = ~ sum(is.na(.x)),
+            pct_detected = ~ sum(is.na(.x)) / length(.x) * 100), 
           .names = "{.fn}_{.col}" # {.fn} is defined in the names in the function list
           )
         ) |> 
@@ -158,12 +158,15 @@ qc_completeness_test <- function(df,
   
   message(
     paste0(
-      "Completeness Test has been executed successfully ✓. ",
-      "In total '", total_values ,"' values have been examined.",
-      "From which '",total_detected_output, "' failed the test. ",
-      "This makes a total percentage of '",total_percentage, "'%. ", 
-      "Check detection_summary in the generated list inside the global environment for a detailed description for each measurement value. ",
-      "The $data point inside this list shows all rows where at least one measurement value were NA.")
+      "Completeness Test has been executed successfully ✓.\n",
+      "In total '", total_values, "' values have been examined.\n",
+      "From which '", total_detected_output, "' failed the test.\n",
+      "This makes a total percentage of '", total_percentage, "'%.\n\n", 
+      "Check detection_summary in the generated list inside the global environment ",
+      "for a detailed description for each measurement value.\n\n", 
+      "The $data point inside this list shows all rows where at least one ",
+      "measurement value was NA."
+    )
   )
   
   return(list(
@@ -191,8 +194,8 @@ qc_completeness_test <- function(df,
       across(
         all_of(
           measurement_columns), .fns = list(
-            n_na = ~ sum(is.na(.x)),
-            pct_na = ~ sum(is.na(.x)) / length(.x) * 100), 
+            n_detected = ~ sum(is.na(.x)),
+            pct_detected = ~ sum(is.na(.x)) / length(.x) * 100), 
         .names = "{.fn}_{.col}"
       )
     ) |> 
@@ -207,18 +210,19 @@ qc_completeness_test <- function(df,
   
   message(
     paste0(
-  "Completeness Test has been executed successfully ✓. ",
-  "In total '", total_values ,"' values have been examined.",
-  "From which '",total_detected_output, "' failed the test. ",
-  "This makes a total percentage of '",total_percentage, "'%. ", 
+  "Completeness Test has been executed successfully ✓.\n",
+  "In total '", total_values ,"' values have been examined.\n",
+  "From which '",total_detected_output, "' failed the test.\n",
+  "This makes a total percentage of '",total_percentage, "'%.\n\n", 
   "Check detection_summary in the generated list inside the global environment for a detailed description for each measurement value. ")
   )
   
+  
   warning(
     paste0(
-      "The Completeness Test has been executed successfully on the whole data frame. ",
-      "If you use a master data frame as input which contains different sensors, separated with a unique identifier ",
-      "You want to use source_column and source_ids for specification. ",
+      "The Completeness Test has been executed successfully on the whole data frame.\n",
+      "If you use a master data frame as input which contains different sensors, separated with a unique identifier\n",
+      "You want to use source_column and source_ids for specification.\n",
       "Please check the returned data and detection_summary in the global environment. ")
   )
       

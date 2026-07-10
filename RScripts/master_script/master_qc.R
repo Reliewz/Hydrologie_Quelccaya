@@ -134,7 +134,7 @@ if (KEEP_INTERMEDIATE) {
 # 3. Basic QC - Level 1 - Completeness Test
 # ------------------------------------------------------------------------------
 PIPELINE_STEP <- "completeness test"
-CURRENT_PIPELINE_STAGE  <- "completeness_test"
+CURRENT_PIPELINE_STEP  <- "completeness_test"
 if (PIPELINE_MODE == "METEO"){
   source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
 

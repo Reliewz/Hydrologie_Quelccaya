@@ -114,11 +114,11 @@ HYDRO_MASTER_DF_STANDARDIZED <- list(
 #------------------------------------------------------------------------------
 # QC Parametrization
 # -----------------------------------------------------------------------------
-# Completeness test
+# General configuration QC testing
 HYDRO_QC_CONFIG <- list(
   COMPLETENESS_TEST = list(
     FLAG_VALUE = "MISSING_VALUE"
-  ),
+    ),
   RANGE_TEST = list(
     
   )
