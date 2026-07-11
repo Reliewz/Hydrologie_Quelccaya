@@ -137,7 +137,7 @@ aggregate_15min_to_hourly <- function(
   }
   
   if (!inherits(df[[date_column]], "POSIXct")) {
-    stop(paste("Column", date_column, "must be of class POSIXct before this action can be performed."))
+    stop(paste("Column", date_column, "must be of type POSIXct. "))
   }
   
   # source_column and source_id

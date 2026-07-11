@@ -32,6 +32,10 @@ calc_time_diff <- function(df, id_column = "ID", date_column = "Date", output_co
 
   if (!id_column %in% names(df)) stop(sprintf("id_column '%s' not found in input_file, df.", id_column))
   if (!date_column %in% names(df)) stop(sprintf("date_column '%s' not found in input_file, df.", date_column))
+  # check for column type POSIXct
+  if (!inherits(df[[date_column]], "POSIXct")) {
+    stop(sprintf("The column '%s' must be of type POSIXct.", date_column))
+  }
  
 # Conversion of strings with characters, containing column information, to symbols. The conversion helps to assign a symbol in the function section so that !!sym() dosent have to be converted inside the code. Dplyr internal logic.
   

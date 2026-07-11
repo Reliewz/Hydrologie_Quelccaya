@@ -10,7 +10,7 @@
 
 #' Function name: check_temporal_inconsistencies()
 #' The functions calculates intervals of different time steps and safes the respective rows according to set categories into a list.
-#' @param date_col Column with the temporal information usually "Date"
+#' @param date_col Column with the temporal information.
 #' @param id_col Column that contains the information of the different measurement devices to ensure a device by device analysis
 #' @param df data frame
 #' @param timediff_col contains the information in minutes. Calculated by the function calc_time_diff()
@@ -37,13 +37,13 @@ check_temporal_inconsistencies <- function(
   
   # 2. Check if columns exist
   if (!date_col %in% names(df)) {
-    stop("Date_column must deliver be a column name in the data frame. Standard 'Date'")
+    stop("date_col must deliver be a column name in the data frame. ")
   }
   if (!id_col %in% names(df)) {
-    stop("ID_column must deliver a column name in the data frame. Standard 'ID'")
+    stop("id_col must deliver a column name in the data frame. ")
   }    
   if (!timediff_col %in% names(df)) {
-    stop("timediff_column must deliver a column name in the data frame. Standard 'time_diff'")
+    stop("timediff_col must deliver a column name in the data frame. ")
   }
   
   # 3. Prüfe ob thresholds numerisch und sortiert sind

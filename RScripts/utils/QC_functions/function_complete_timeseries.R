@@ -49,8 +49,7 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
     stop(paste(
       "Column",
       date_column,
-      "must be of class POSIXct before this action can be performed."
-    ))
+      "must be of type POSIXct."))
   }
   
   # Present temporal interval validation / time_step validation
