@@ -134,7 +134,7 @@ METEO_COLUMN_ORDER_TYPES <- list(
 METEO_MASTER_DF_FRAMEWORK <- list(
   DATE_COLUMN = "Date", SOURCE_COLUMN_STATION = "ID", SOURCE_COLUMN_FILE = "Source.Code",
   SOURCE_IDS15 = "10_QORIKALIS_18_08_2025.csv",
-  METEO_MEASUREMENT_COLUMNS = c("AirTC", "RH", "Precip", "WS", "Wind_gust", "WD", "Dew_point")
+  MEASUREMENT_COLUMNS = c("AirTC", "RH", "Precip", "WS", "Wind_gust", "WD", "Dew_point")
 )
 
 # Master df standardized - temporal harmonization workflow

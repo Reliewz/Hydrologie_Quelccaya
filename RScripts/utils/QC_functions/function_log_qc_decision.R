@@ -2,13 +2,14 @@
 # Script name: utils/QC_functions/function_log_qc_decision.R
 # Function name: log_qc_decision()
 # Goal(s): 
-  # With this parsimonious function the user creates documentation of assignments and reclassifications of QC flags.
+  # With this parsimonious function the user creates documentation of initial assignments, reclassification of QC flags and manual review or documentation of QC decisions.
   # User is obligated to enter a flag value in case of Reclassification or initial_assignments.
+  # The functions documents the number of flagged values for initial assignments and reclassification.
 
 # Flagging Log - Quality Control - Good Practices, Reproducibility
 # Author: Kai Albert Zwießler
 # Date: 2025.12.16
-
+#======================================================================
 
 #' function name: log_qc_decision()
 #' The function provides a framework for reproducible documentation of changes according to flags in the quality control phase.
@@ -91,17 +92,17 @@ if (is.null(process_step)) {
     }
     # case, to_flag is not assigned a value
     if (is.null(to_flag)){
-      stop("For action = 'initial_assignment' an argument needs to be delivered to the parameter to_flag (f.e. 'REVIEW', 'DELETE', 'VALID', 'IMPLAUSIBLE' (...)")
+      stop("For action = 'initial_assignment' the parameter to_flag needs to be specified. (e.g. 'REVIEW', 'DELETE', 'VALID', 'IMPLAUSIBLE' (...)")
     }
     # case, when reason is not assigned any value
     if (is.null(reason)){
       stop("Documentation error: Good practice examples in QC workflows suggest a specification for the flag assignment. Please enter an explanation to the 'reason' parameter.")
     }
     if (is.null(qc_threshold)){
-      stop("Documentation error: Quality control tests have to be documented with the threshold value. Please enter the threshold value for the executed test to the 'qc_threshold' parameter.")
+      warning("Absence of Threshold parameter: Please verify that the added flag information does not descent from a quality control tests using a threshold parameter.\n", "If a threshold parameter is associated please specifiy the qc_threshold parameter. ")
     }
     
-    }
+   }
   
   # Input validation in context to declared action
   # reclassification
@@ -123,7 +124,7 @@ if (is.null(process_step)) {
       stop("Documentation error: Good practice examples in QC workflows suggest a explaination, when a reclassification in the QC Step  occurs.\n Please enter an explanation to the 'reason' parameter.")
     }
     if (is.null(qc_threshold)){
-      stop("Documentation error: Quality control tests have to be documented with the threshold value. Please enter the threshold value for the executed test to the 'qc_threshold' parameter. This is especially important if the threshold value was the reason for the reclassification of flags.")
+      warning("Absence of Threshold parameter: Please verify that the added flag information does not descent from a quality control tests using a threshold parameter.\n", "If a threshold parameter is associated please specifiy the qc_threshold parameter. ")
     }
   }
   
@@ -179,7 +180,7 @@ qc_log <- tibble::tibble(
   to_flag = to_flag,
   qc_threshold = qc_threshold,
   reason = reason,
-  nrows = nrows_value
+  n_flagged = nrows_value
 )} else {
   qc_log <- tibble::tibble(
     timestamp = timestamp,
@@ -191,7 +192,7 @@ qc_log <- tibble::tibble(
     to_flag = to_flag,
     qc_threshold = qc_threshold,
     reason = reason,
-    nrows = NA_integer_
+    n_flagged = NA_integer_
   )
   }
 

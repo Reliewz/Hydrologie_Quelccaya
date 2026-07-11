@@ -156,9 +156,9 @@ apply_qc_flags <- function(
   }
   # ==== COLUMN CREATION ====
   # Assignment of an output column where flags will be applied to. If no column exist in the selected data frame it will be created
-  # Create qc test column if it doesn't exist
+  # Create "qc test" column if it doesn't exist
   if (!qc_test %in% names(df)) {
-    message("Creating new QC column: '", qc_test, "' (initialized with NA).")
+    message("Creating new QC column: '", qc_test, "'.")
     df <- df %>%
       mutate(!!qc_column := NA_character_)
   }
@@ -172,14 +172,7 @@ apply_qc_flags <- function(
     )
     df[[qc_test]] <- as.character(df[[qc_test]])
   }
-
-  # Sort function
-  if (!sort) {
-    warning(
-      "no sorting mechanism is carried out. Good practice examples suggest to always organize the data before applying operational steps."
-    )
-  }
-
+  
   # When extracting form a list
   if (is.list(df_flag_info) && !is.data.frame(df_flag_info)) {
     stop(

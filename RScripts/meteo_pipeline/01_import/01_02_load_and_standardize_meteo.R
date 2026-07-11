@@ -38,7 +38,7 @@ data_meteo <- bind_rows(data_list)
 # NA_code harmonization (missing values codes)
 data_meteo <- harmonize_NA_codes(
   df = data_meteo,
-  measurement_columns = METEO_MASTER_DF_FRAMEWORK$METEO_MEASUREMENT_COLUMNS,
+  measurement_columns = METEO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS,
   NA_codes = METEO_MISSING_CODES
 )
 

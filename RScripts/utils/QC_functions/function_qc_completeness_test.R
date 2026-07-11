@@ -140,12 +140,12 @@ qc_completeness_test <- function(df,
         n_group_detected = sum(
           if_any(
             all_of(measurement_columns), is.na)),
-        percent_detected = n_group_detected / n_group * 100,
+        percent_detected = round(n_group_detected / n_group * 100, digits = 2),
         across(
           all_of(
           measurement_columns), .fns = list(
             n_detected = ~ sum(is.na(.x)),
-            pct_detected = ~ sum(is.na(.x)) / length(.x) * 100), 
+            pct_detected = ~ round(sum(is.na(.x)) / length(.x) * 100, digits = 2)), 
           .names = "{.fn}_{.col}" # {.fn} is defined in the names in the function list
           )
         ) |> 
@@ -154,7 +154,7 @@ qc_completeness_test <- function(df,
   # General statistic derivation for message output
   total_values <- nrow(filtered_df)
   total_detected_output <- nrow(rows_with_NA)
-  total_percentage <- total_detected_output / total_values * 100
+  total_percentage <- round(total_detected_output / total_values * 100, digits = 2)
   
   message(
     paste0(
@@ -190,12 +190,12 @@ qc_completeness_test <- function(df,
       n_detected = sum(
         if_any(
           all_of(measurement_columns), is.na)),
-      percent_detected = n_detected / n_total * 100,
+      percent_detected = round(n_detected / n_total * 100, digits = 2),
       across(
         all_of(
           measurement_columns), .fns = list(
             n_detected = ~ sum(is.na(.x)),
-            pct_detected = ~ sum(is.na(.x)) / length(.x) * 100), 
+            pct_detected = ~ round(sum(is.na(.x)) / length(.x) * 100, digits = 2)), 
         .names = "{.fn}_{.col}"
       )
     ) |> 
@@ -206,7 +206,7 @@ qc_completeness_test <- function(df,
   # General statistic derivation for message output
   total_values <- nrow(df)
   total_detected_output <- nrow(rows_with_NA)
-  total_percentage <- total_detected_output / total_values * 100
+  total_percentage <- round(total_detected_output / total_values * 100, digits = 2)
   
   message(
     paste0(
