@@ -3,15 +3,14 @@
 # Function name: aggregate_15min_to_hourly
 # Goal(s): 
   # aggregate 15 minute time steps to hourly time steps
-  # inform the user for required dependencies and other functions required for specific variables
+  # inform the user for required dependencies and other functions required for specific variables (e.g. wind direction)
   # informs the user when more columns are defined in the configuration than existing in the data frame
   # informs the user if deviations with the number of available records used for the aggregation exist
-
 # Author: Kai Albert Zwießler
 # Date: 2026.06.24
 # Output:
 # Returns a named list with two elements:
-# $data — master data frame with aggregated files substituted for their
+  # $data — master data frame with aggregated files substituted for their
 #          15-minute predecessors. Non-aggregated files remain unchanged.
 #          Column structure and order are identical to the input data frame.
 # $coverage_problems — data frame documenting all hours where temporal
@@ -22,7 +21,7 @@
 #                    defined in agg_config. Must be loaded before this function.
 #======================================================================
 
-#' Aggregate 15-minute meteorological or hydrological time series to hourly values
+#' @title Aggregate 15-minute meteorological or hydrological time series to hourly values
 #'
 #' Aggregates 15-minute interval time series data to hourly values for one or
 #' more specified files within a master data frame. Each file is extracted by a
@@ -35,7 +34,7 @@
 #'
 #' The function evaluates temporal coverage per variable per hour. Hours where
 #' the number of valid (non-NA) measurement values falls below the
-#' \code{min_coverage} threshold are set to \code{NA} and reported in the
+#' \code{min_coverage} threshold are reported in the
 #' returned \code{coverage_problems} data frame. Hours where more valid values
 #' than expected are detected cause the function to stop, as this indicates a
 #' deviation from the expected 15-minute time step.
@@ -47,17 +46,13 @@
 #' @param df A data frame or tibble containing the master data frame with
 #'   15-minute interval time series data. Must contain all columns defined in
 #'   \code{agg_config}, the \code{date_column}, and the \code{source_column}.
-#'
 #' @param agg_config A fully named list defining the aggregation function per
 #'   variable. Names must match column names in \code{df}. Values must be
 #'   character strings matching the exact function name (e.g. \code{"mean"},
 #'   \code{"sum"}, \code{"max"}, \code{"vector_mean_wd"}) or function objects.
-
-#'
 #' @param date_column A single character string specifying the name of the
 #'   date and time column in \code{df}. Must be of class \code{POSIXct}.
-#'   Timestamps are floored to the full hour during aggregation.
-#'
+#'   Time stamps are floored to the full hour during aggregation.
 #' @param source_column A single character string specifying the name of the
 #'   column in \code{df} that contains the file identifiers (e.g.
 #'   \code{"Source.Code"}). Used to extract individual files from the master
@@ -67,7 +62,6 @@
 #'   more file identifiers to aggregate. Values must match entries in
 #'   \code{source_column}. Each file is aggregated independently and
 #'   substituted back into the master data frame.
-#'
 #' @param min_coverage A single numeric value between 0 and 1 defining the
 #'   minimum proportion of valid (non-NA) measurement values required per hour
 #'   to perform the aggregation. For 15-minute data, one hour contains 4
@@ -89,10 +83,8 @@
 #'       available), and \code{issue} (description of the detected problem).
 #'       Returns an empty data frame if no coverage issues were detected.}
 #'   }
-#'
 #' @seealso \code{\link{function_vector_mean_wd}} for the circular vector averaging
 #'   function used for wind direction aggregation.
-#'
 #' @export
 
 aggregate_15min_to_hourly <- function(
