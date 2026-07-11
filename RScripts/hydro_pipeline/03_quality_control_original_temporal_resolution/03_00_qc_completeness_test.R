@@ -23,7 +23,6 @@ hydro_results_completeness_test <- qc_completeness_test(
   source_column = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_COLUMN_FILE,
   source_ids = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_IDS15
 )
-print(hydro_results_completeness_test$detection_summary)
 
 # ------------------------------------------------------------------------------
 # Application of quality control flag information
@@ -46,7 +45,7 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   df = hydro_results_completeness_test$data,
   to_flag = HYDRO_QC_CONFIG$COMPLETENESS_TEST$FLAG_VALUE,
   operator = "Kai Zwießler",
-  device = "All hydrological sensors with 15 minute resolution",
+  device = "All hydrological data sheets with 15 minute temporal resolution",
   reason = paste("Completeness Test results: the individual data sheets contain no missing values and are approved for further analysis.  ",
                  "Total examined values: 284839."
   ))

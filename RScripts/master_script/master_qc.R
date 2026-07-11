@@ -23,7 +23,7 @@ cat(sprintf("Running pipeline: %s\n", PIPELINE_MODE))
 #### SOURCES ####
 
 # Define pipeline control variables
-CURRENT_PIPELINE_STAGE  <- "configuration"  # Track current step
+PIPELINE_STEP  <- "configuration"  # Track current step
 KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 
 # ------------------------------------------------------------------------------
@@ -68,14 +68,14 @@ source("RScripts/hydro_pipeline/00_configuration_hydro/00_config_hydro.R")
 }
 
 
-# Define pipeline control variables
-CURRENT_PIPELINE_STAGE  <- "load_and_standardize"  # Track current step
-KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
-CURRENT_QC_LEVEL <- NULL
+
 # ------------------------------------------------------------------------------
 # 1. LOAD & STANDARDIZE
 # ------------------------------------------------------------------------------
 cat("\n=== Step 1: Load and Standardize ===\n")
+# Define pipeline control variables
+PIPELINE_STEP  <- "load_and_standardize"  # Track current step
+KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 
 if (PIPELINE_MODE == "METEO"){
 # Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
@@ -106,6 +106,8 @@ if (KEEP_INTERMEDIATE) {
 # ------------------------------------------------------------------------------
 # 2. TEMPORAL HARMONIZATION AND DOCUMENTATION
 # ------------------------------------------------------------------------------
+PIPELINE_STEP  <- "harmonization"  # Track current step
+KEEP_INTERMEDIATE <- FALSE
 
 if (PIPELINE_MODE == "METEO"){
 # Temporal harmonization and documentation steps
@@ -117,7 +119,7 @@ source("RScripts/hydro_pipeline/02_temporal_harmonization_15/02_01_temporal_harm
 }
 
 # Verify expected outputs were generated
-expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo_standardized" else "data_hydro_standardized"
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_harmonized" else "data_hydro15_harmonized"
 
 if (!exists(expected_obj)) {
   stop(sprintf("ERROR: %s not created in step 2", expected_obj))
@@ -133,76 +135,129 @@ if (KEEP_INTERMEDIATE) {
 # ------------------------------------------------------------------------------
 # 3. Basic QC - Level 1 - Completeness Test
 # ------------------------------------------------------------------------------
-PIPELINE_STEP <- "completeness test"
-CURRENT_PIPELINE_STEP  <- "completeness_test"
+PIPELINE_STEP <- "COMPLETENESS_TEST"
+KEEP_INTERMEDIATE <- FALSE  
+
 if (PIPELINE_MODE == "METEO"){
   source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
 
 if (PIPELINE_MODE == "HYDRO"){
   source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
-# ------------------------------------------------------------------------------
-# 3a. Basic QC - Level 1.1 - Temporal continuity Gap test date column
-# ------------------------------------------------------------------------------
-PIPELINE_STEP <- "1.0 temporal continuity"
-CURRENT_PIPELINE_STAGE <- "temporal_continuity"
 
-# Source QC script
-source("RScripts/hydro_pipeline/02_quality_control/02_qc_temporal_consistency_pz.R")
+# Verify expected outputs were generated
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_completeness_flagged" else "data_hydro15_completeness_flagged"
 
-# Verify expected outputs
-if (!exists("data_tc_flagged")) {
-  stop("ERROR: data_tc_flagged not created in QC step 2.1 temporal consistency.")
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 2", expected_obj))
 } else {
-  PIPELINE_STEP <- "after_tc"
-  n_flagged <- sum(!is.na(data_tc_flagged[[TC_FLAGS_COLUMN]]))
-  pct_flagged <- round(n_flagged / nrow(data_tc_flagged) * 100, 2)
-  
-  cat("✓ Flagged", n_flagged, "records (", pct_flagged, "%)\n")
+  PIPELINE_STEP <- "after_completeness_test"
+}
+
+# Optional: Save checkpoint
+if (KEEP_INTERMEDIATE) {
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_completeness_test.rds"))
 }
 
 # ------------------------------------------------------------------------------
-# 3b. QC - Level 1.1 - Tolerance Test - range test
+# 3.1 Basic QC - Level 1 - WMO's Gross Error Check
 # ------------------------------------------------------------------------------
-PIPELINE_STEP <- "1.1 temporal_consistency"
-CURRENT_PIPELINE_STAGE <- "range_test"
+PIPELINE_STEP <- "GROSS_ERROR_CHECK"
 
-# ------------------------------------------------------------------------------
-# 3c. QC - Level 1.2 - Temporal consistency - step test
-# ------------------------------------------------------------------------------
-PIPELINE_STEP <- "1.2 temporal_consistency"
-CURRENT_PIPELINE_STAGE <- "step_test"
-# ------------------------------------------------------------------------------
-# 3d. QC - Level 1.3 - Temporal consistency - persistence test
-# ------------------------------------------------------------------------------
-PIPELINE_STEP <- "1.3 temporal_consistency"
-CURRENT_PIPELINE_STAGE <- "persistence_test"
+if (PIPELINE_MODE == "METEO"){
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")}
 
-# ------------------------------------------------------------------------------
-# 3e. QC - Level 1.4 - Internal Consistency
-# ------------------------------------------------------------------------------
-PIPELINE_STEP <- "1.4 internal consistency"
-CURRENT_QC_LEVEL <- "internal_consistency"
+if (PIPELINE_MODE == "HYDRO"){
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")}
 
+# Verify expected outputs were generated
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_gross_error_flagged" else "data_hydro15_gross_error_flagged"
 
-
-cat("\n=== Step 4: QC physical plausibility ===\n")
-# Verify expected outputs
-if (!exists("data_qc_duplicates")) {
-  stop("ERROR: data_pp_flagged not created in QC step 2.2 physical plausibility.")
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 2", expected_obj))
 } else {
-  PIPELINE_STEP <- "after_pp"
-  n_flagged <- sum(!is.na(data_pp_flagged[[PP_FLAGS_COLUMN]]))
-  pct_flagged <- round(n_flagged / nrow(data_pp_flagged) * 100, 2)
-  
-  cat("✓ Flagged", n_flagged, "records (", pct_flagged, "%)\n")
+  PIPELINE_STEP <- "after_gross_error_check"
+}
+
+# Optional: Save checkpoint
+if (KEEP_INTERMEDIATE) {
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_gross_error.rds"))
+}
+
+# ------------------------------------------------------------------------------
+# 3.2.1 Basic QC - Level 1 - Temporal Consistency: Persistence Test
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "PERSISTENCE_TEST"
+
+if (PIPELINE_MODE == "METEO"){
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
+
+if (PIPELINE_MODE == "HYDRO"){
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
+
+# Verify expected outputs were generated
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_persistence_flagged" else "data_hydro15_persistence_flagged"
+
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 2", expected_obj))
+} else {
+  PIPELINE_STEP <- "after_persistence_test"
+}
+
+# Optional: Save checkpoint
+if (KEEP_INTERMEDIATE) {
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_persistent.rds"))
 }
 
 
 # ------------------------------------------------------------------------------
-# 5. 
+# 3.2.2 Basic QC - Level 1 - Temporal Consistency: Step test
 # ------------------------------------------------------------------------------
+PIPELINE_STEP <- "STEP_TEST"
 
-# data_flagged
+if (PIPELINE_MODE == "METEO"){
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_02_qc_step_test.R")}
+
+if (PIPELINE_MODE == "HYDRO"){
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_02_qc_step_test.R")}
+
+# Verify expected outputs were generated
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_step_test_flagged" else "data_hydro15_step_test_flagged"
+
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 2", expected_obj))
+} else {
+  PIPELINE_STEP <- "after_step_test"
+}
+
+# Optional: Save checkpoint
+if (KEEP_INTERMEDIATE) {
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_step.rds"))
+}
+
+# ------------------------------------------------------------------------------
+# 3.3 BASIC QC - Level 1 - Internal Consistency
+# ------------------------------------------------------------------------------
+PIPELINE_STEP <- "INTERNAL_CONSISTENCY"
+
+if (PIPELINE_MODE == "METEO"){
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_03_qc_internal_consistency.R")}
+
+if (PIPELINE_MODE == "HYDRO"){
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_03_qc_internal_consistency.R")}
+
+# Verify expected outputs were generated
+expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_internal_consistency_flagged" else "data_hydro15_internal_consistency_flagged"
+
+if (!exists(expected_obj)) {
+  stop(sprintf("ERROR: %s not created in step 2", expected_obj))
+} else {
+  PIPELINE_STEP <- "after_internal_consistency"
+}
+
+# Optional: Save checkpoint
+if (KEEP_INTERMEDIATE) {
+  saveRDS(get(expected_obj), file.path(DIR_CHECKPOINTS, "01_data_internal_consistency.rds"))
+}
 
 
 cat("\n╔════════════════════════════════════════════════════════════╗\n")
