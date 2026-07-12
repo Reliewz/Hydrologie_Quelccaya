@@ -121,8 +121,10 @@ HYDRO_QC_CONFIG <- list(
     ),
   GROSS_ERROR_CHECK = list(
     FLAG_VALUE = "WMO_GROSS_ERROR",
-    Abs_pres   = c(lower = 69, upper = 207),
-    Temp       = c(lower = 0, upper = 40),
+    THRESHOLDS = list(
+      Abs_pres   = c(lower = 69, upper = 207),
+      Temp       = c(lower = 0, upper = 40),
+    )
   )
 )
 

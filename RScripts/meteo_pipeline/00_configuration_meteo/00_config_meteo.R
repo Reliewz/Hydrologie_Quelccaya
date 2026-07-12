@@ -159,12 +159,14 @@ METEO_QC_CONFIG <- list(
   ),
   GROSS_ERROR_CHECK = list(
     FLAG_VALUE = "WMO_GROSS_ERROR",
-    AirTC     = c(lower = -20, upper = 50),
-    RH        = c(lower = 0, upper = 100),
-    Precip    = c(lower = 0, upper = 127),
-    WS        = c(lower = 0, upper = 76),
-    Wind_gust = c(lower = 0, upper = 76),
-    WD        = c(lower = 0, upper = 355)
+    THRESHOLDS = list(
+      AirTC     = c(lower = -20, upper = 50),
+      RH        = c(lower = 0, upper = 100),
+      Precip    = c(lower = 0, upper = 127),
+      WS        = c(lower = 0, upper = 76),
+      Wind_gust = c(lower = 0, upper = 76),
+      WD        = c(lower = 0, upper = 355)
+    )
   )
 )
 
