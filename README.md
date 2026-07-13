@@ -15,7 +15,7 @@ Beyond quality control, the framework supports reproducible data management by i
 Key components include:
 
 * Data import and harmonization
-* Temporal continuity assessment
+* Temporal continuity assessment & aggregation
 * Quality control procedures
 * Flexible QC flagging
 * QC documentation and audit logging
@@ -27,12 +27,13 @@ Key components include:
 Implemented utility functions support:
 
 * Folder-based batch Imports for .csv data
-* Automatic timestamp conversion according to ISO 8601
-* Time zone handling
+* Automatic time stamp conversion according to ISO 8601 and Time zone handling
 * Column harmonization
 * Header cleaning
 * Translation of station-specific headers
+* Column rename and/or removal
 * Source file tracking
+* Missing-Code (NA) harmonization
 * Standardized output structures
 
 Fully automatic and specialized import workflows are currently available for:
@@ -42,13 +43,13 @@ Fully automatic and specialized import workflows are currently available for:
 
 ### Temporal Continuity Assessment
 
-Implemented temporal continuity tools include:
+Implemented temporal continuity workflows include:
 
-* Time-step calculation
-* Interval summarization
-* Identification of temporal inconsistencies
-* Gap detection and completion
-* Aggregation to hourly, daily time steps
+1. Time-step calculation
+2. Summarization of the calculated intervals (<15, 15-60, 60-1440, >1440)
+3. Display of full records and categorization in the mentioned intervals.
+4. Gap detection and completion
+5. Aggregation from 15 minute to hourly time steps
 
 These functions support the detection of missing observations, unexpected sampling intervals and temporal gaps.
 
@@ -60,48 +61,51 @@ The QC flagging system supports:
 
 * User-defined QC stage columns (e.g. range_test, persistence_test, step_test)
 * Fully customizable flag values and classification schemes (e.g. VALID, SUSPECT, REVIEW, DELETE)
-* Conflict detection
+* Conflict detection in case old flags are in danger to be overwritten for Merge-safe flag assignment workflows
 * Initial flag assignment and reclassification workflows
 * Documentation of expert reviews and design decisions independent of flag assignments
-* Merge-safe flag assignment workflows
 
 ### QC Documentation
 
 Every QC decision can be documented through an audit-log framework that records:
 
 * Timestamp
+* Operator
 * Device
 * Action
-* Pipeline stage
+* Process step
 * Previous flag state
 * New flag state
 * Reason for decision
+* Threshold value
 * Number of affected observations
 * Support for both flag-based and non-flag-based documentation
 
 This supports reproducibility and transparent data governance by documenting expert reviews, preprocessing decisions and QC results.
 
-## Planned Quality Control Tests
-
-The following station-internal quality control procedures are currently under development:
+## Implemented Quality Control Tests
 
 ### Completeness
 
 * Missing value assessment
-* Completeness tests
+* Completeness test
 
-### Tolerance Tests
+## Planned Quality Control Tests
 
-* Range tests
+The following station-internal quality control procedures are currently under development:
+
+### WMO Gross Error Check
+
+* Gross Error Check (Range test)
+
+### Temporal Consistency
+
+* Persistence test
+* Step-change test
 
 ### Internal Consistency
 
 * Physically plausible relationships between variables and derived statistics (e.g. Tmin < Tmean < Tmax, Wind Gust ≥ Wind Speed, Air Temperature ≥ Dew Point Temperature)
-
-### Temporal Consistency
-
-* Persistence tests
-* Step tests
 
 ### Summarization
 
