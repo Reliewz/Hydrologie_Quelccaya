@@ -90,7 +90,7 @@ This supports reproducibility and transparent data governance by documenting exp
 * Missing value assessment
 * Completeness test
 
-## Planned Quality Control Tests
+## Quality Control Tests Under Current Development
 
 The following station-internal quality control procedures are currently under development:
 
