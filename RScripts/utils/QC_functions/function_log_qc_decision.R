@@ -1,5 +1,5 @@
 #======================================================================
-# Script name: utils/QC_functions/function_log_qc_decision.R
+# Script name: function_log_qc_decision.R
 # Function name: log_qc_decision()
 # Goal(s): 
   # With this parsimonious function the user creates documentation of initial assignments, reclassification of QC flags and manual review or documentation of QC decisions.
@@ -11,32 +11,57 @@
 # Date: 2025.12.16
 #======================================================================
 
-#' function name: log_qc_decision()
-#' The function provides a framework for reproducible documentation of changes according to flags in the quality control phase.
+#' @title Function for documentation and archiving of QC test results and associated QC flags to guarantee reproducible workflows.
 #' 
-#' # ========== CONFIGURATION ==========
-#' @param df Optional: Data frame, tibble or object that contains the affected rows.
+#' 
+#' Can also be used or for the documentation of reproducible decision making important workflow related decisions to ensure reproducible workflows. 
+#' 
+#' Mostly in relation to QC flagging.
+#' initial assignments or reclassifying  and/or important decisions throughout different
+#'  process steps to guarantee reproducible workflows.
+#'
+#' @description The function contains relevant parameters for QC related documentation.
+#' But can also be used for documentation purposes not associated with QC flags or threshold values.
+#' 
+#' Different selection possibilities of the \code{action} parameter enable the operator to make a selection according to the project status and requirements.
+#' With the \code{initital_assignment} possibility it is made clear that this is the first QC with this data set.
+#' With the \code{reclassification} possibility already tested and archived data can be re-evaluated under changed conditions. Former assigned flag values can be
+#' exchanged for new flag assignments.
+#' With the \code{manual_documentation} Documentation possibility not related to QC test results. Use cases can be peer reviews, expert evaluation, visual inspections 
+#' 
+#' @details The time and date will be automatically generated when the log entry is generated. Default timezone: Europe/Berlin
+#' In case a \code{df} is provided the function also provides information about the total number of rows.
+#' #' The \code{reason} is usually filled with contextual information and one of the most important documentation assets.
+#' 
+#' @param df Optional: Data frame, tibble or object that contains the detected rows.
 #' If provided, summary information (e.g. number of affected rows) is derived automatically.
 #' If NULL, the QC step is documented without direct relation to data input.
-#' @param process_step documentation requirement. The user has to enter the working step in which the generated documentation log is generated. 
+#' @param process_step Character string. Documentation requirement. The operator has to enter the working step in which the generated documentation log is generated. 
 #' Examples include "range_test", "data_harmonization" or "expert_review".
-#' @param operator The person who executed the quality control procedure
-#' @param device enables to user to differentiate between devices which are related to the documented flags.
+#' @param operator Character string. The name of the contact person or the organisation which executed the quality control procedure.
+#' @param device character string or character vector. Enables the operator to clearly define which devices or data sheets have been suspect to the
+#' quality control procedure.
 #' @param action Description of the action determining which documentation workflow will be executed.
 #'  \describe{
-#'      \item {initial_assignment}{Primary assignment of a QC flag based on a data frame}
+#'      \item {initial_assignment}{Primary assignment of a QC flags for this data set}
 #'      \item {reclassification}{Reclassification of an existing QC-flag-value, into a new flag category.}
-#'      \item {manual_documentation}{Documentation of a QC decision without direct data frame input this can occure in (e.g. peer review, expert evaluation, visual inspections or process steps not associated with flagging workflows).}}
-#' @param from_flag Contains the previous flag declaration. Only required for reclassification purposes. Default: NULL (used for initial assignments and manual documentation)
-#' @param to_flag Contains the flag declaration after a reclassification or a first assignment.
+#'      \item {manual_documentation}{Documentation of a QC decisions not based on a data frame input. This option can occur in (e.g. peer reviews, 
+#'      expert evaluation, visual inspections or process steps not associated with flagging workflows).}}
+#' @param from_flag Character string. Contains the previously assigned flag value. 
+#' Only required for the \code{reclassification} workflow. Default: NULL.
+#' @param to_flag Character string. Main flag assignment parameter. Contains the now assigned flag value for the \code{initial assignment} or 
+#' after a \code{reclassification} workflow.
 #' Must be NULL when action = "manual_documentation" is chosen.
-#' @param qc_threshold the selected threshold(s) for the QC tests.
+#' @param qc_threshold Named list. Contains the selected threshold(s) for the respective QC tests.
 #' @param tz Timezone used for time stamp generation (IANA format, e.g. "Europe/Berlin" on default)
-#' @param reason Provides contextual background information to understand the reasoning behind the process step
+#' @param reason Provides contextual background information to understand the reasoning behind the process step and associated decisions.
+#' 
+#' @author Kai Albert Zwießler
 #' @return Returns a one-row tibble documenting a single QC decision. 
 #' The returned object does not contain the data itself, only metadata. 
-#' A time stamp is automatically generated with function call time.
-#' NOTE: Step count is derived externally when combining multiple log entries
+#' 
+#' @seealso The function works best when integrated into a workflow with the following function:
+#' \code{\link{apply_qc_flags}} to assign the respective QC flags to a data frame.
 
 
 
