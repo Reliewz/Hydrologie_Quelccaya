@@ -1,28 +1,37 @@
 #=================================================================================================================
-# Scriptname: function_interval_determination.R
+# Script name: function_interval_determination.R
+# Function name: check_temporal_inconsistencies()
 # Goal(s):
-# The function analyses different intervals in context of the temporal consistency analysis.
-# The intervals are < 15min, 15< - <60 min, 60min> - <1440.
-# Author: Kai Albert Zwießler
+  # The function groups rows according to predefined categories.
+  # allows for a "full coverage profile
+  # The intervals are < 15min, 15< - <60 min, 60min> - <1440.
 # Date: 2025.12.01
-# Outputs: 
 #=================================================================================================================
 
-#' Function name: check_temporal_inconsistencies()
-#' The functions calculates intervals of different time steps and safes the respective rows according to set categories into a list.
-#' @param date_col Column with the temporal information.
+#' @title The functions displays intervals of pre-defined temporal gaps between time steps inside a list.
+#' 
+#' @description 
+#' 
+#' @note If time step duplicates exist they will be listed in the category \code{below15} and can be identified by checking the time_diff column
+#' 
+#' @param df data frame or tibble
+#' @param date_col Character string. Column with the temporal information. Default: Date.
 #' @param id_col Column that contains the information of the different measurement devices to ensure a device by device analysis
-#' @param df data frame
 #' @param timediff_col contains the information in minutes. Calculated by the function calc_time_diff()
 #' @param categories String to analyze intervals < 15 minutes, > 15 < 60 minutes and >60 minutes. Default: all categories will be analyzed
 #' @param thresholds sets the threshold value in minutes. Default: 15, 60
 #' @param sort Logical. Should data be sorted within function? Default: TRUE
-#' @return List containing data frames for each selected category
-#' 
-
+#' @return A list containing the rows according to predefined \code{categories}.
+#'  \itemize{
+#'    \item \code{above1440}: Contains the records which temporal gap of examined time steps exceed 1440 minutes (1 day).
+#'    \item \code{between60_1440}: Contains the records which temporal gap is situated between 60 minutes and 1440 minutes.
+#'    \item \code{between15_60}: Contains the records which temporal gap is situated between 15 minutes and 60 minutes.
+#'    \item \code{below15}: Contains the records which temporal gap of examined time steps is below 15 minutes.
+#' @author Kai Albert Zwießler
+#' @export
 check_temporal_inconsistencies <- function(
     df,
-    date_col,
+    date_col = "Date",
     id_col,
     timediff_col,
     categories = c("below15", "between15_60", "between60_1440", "above1440"),

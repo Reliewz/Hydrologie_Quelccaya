@@ -1,9 +1,10 @@
 #======================================================================
-# Scriptname: utils/calc_time_diff.R
+# Script name: function_calc_time_diff.R
 # Function name: calc_time_diff()
 # Goal(s): 
-  # Generating a function that calculates the time difference in minutes from one time step to another the result will be saved into a separate column. The Goal is to ensure temporal continuity and avoid temporal gaps.
-  # Temporal Gap test
+  # Generating a function that calculates the time difference (in minutes) from one time step to another 
+  # the result will be saved into a separate column.
+  # Th Goal is to ensure temporal continuity and avoid temporal gaps.
 # Author: Kai Albert Zwießler
 # Date: 2025.11.18
 # Outputs: 
@@ -12,7 +13,7 @@
   # minutes
 #======================================================================
 
-#' calc_time_diff
+#' @title calc_time_diff
 #' 
 #' Calculate time difference (in minutes) of each individual device and add column
 #' Generic forpiezometer, WLS, meteorological stations.
@@ -23,6 +24,10 @@
 #' @param output_column string: Name of the output-column (default "time_diff")
 #' @param units string: units for difftime (default "mins")
 #' @return tibble with an additional output column, containing the colucalted results
+#' @seealso This function is a preparation step for the temporal gap-analysis
+#'  \code{\link{function_timediff_sum}}} Builds on the calculated time steps and provides a comprehensive summary of the different time intervals
+#'  of the data set.
+#'  \code{\link{interval_determination}}} Also aprt of the workflow to extract the individual rows which cause 
 #' @export
 
 

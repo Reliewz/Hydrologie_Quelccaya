@@ -145,12 +145,12 @@ qc_completeness_test <- function(df,
   detection_summary <- filtered_df |> 
     group_by(.data[[source_column]]) |>
       summarise(
-        n_group = n(),
+        n_group = n(), # All values inside the group to report this value as well in detection_summary
         n_group_detected = sum(
           if_any(
-            all_of(measurement_columns), is.na)),
+            all_of(measurement_columns), is.na)), # how many rows contain atleast one NA measurement value
         percent_detected = round(n_group_detected / n_group * 100, digits = 2),
-        across(
+        across( # across workflow to report for each variable.
           all_of(
           measurement_columns), .fns = list(
             n_detected = ~ sum(is.na(.x)),

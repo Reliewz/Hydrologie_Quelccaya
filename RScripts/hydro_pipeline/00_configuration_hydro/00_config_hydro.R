@@ -94,13 +94,14 @@ HYDRO_COLUMN_ORDER_TYPES <- list(
 # Hydro Master DF pre standardization
 HYDRO_MASTER_DF_FRAMEWORK <- list(
   DATE_COLUMN = "Date", SOURCE_COLUMN_STATION = "ID", SOURCE_COLUMN_FILE = "Source.Code",
-  MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
   SOURCE_IDS15 = c("21826493_QK_lag_14_08_25.csv", "21826493_QK_lag_20_11_25.csv", "21826507_QK_baro_19_11_25.csv",
                    "21826507_QK_baro_24_03_26.csv", "21826515_QK_salida_19_11_25.csv", "21826515_QK_salida_24_03_26.csv",
                    "PZ01_02_14_08_2025_21826509.csv", "PZ02_02_14_08_2025_21826502.csv", "PZ03_02_14_08_2025_21826497.csv",
                    "PZ04_02_14_08_2025_21826519.csv", "PZ05_02_14_08_2025_21826512.csv", "PZ06_02_14_08_2025_21826504.csv",
                    "PZ07_02_14_08_2025_21826505.csv", "PZ08_02_14_08_2025_21826496.csv", "PZ09_02_14_08_2025_21826494.csv",
-                   "PZ10_02_14_08_2025_21826516.csv", "PZ11_02_14_08_2025_21826500.csv", "PZ12_02_14_08_2025_21826503.csv")
+                   "PZ10_02_14_08_2025_21826516.csv", "PZ11_02_14_08_2025_21826500.csv", "PZ12_02_14_08_2025_21826503.csv"),
+  MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
+  MEASUREMENT_UNITS = list(Abs_pres = "kPa", Temp = "°C")
 )
 
 # Master DF after load and standardization
@@ -108,8 +109,6 @@ HYDRO_MASTER_DF_STANDARDIZED <- list(
   TIME_STEP15 = "15 min",
   TEMPORAL_AGGREGATION_FUNCTIONS = c(Abs_pres = "mean", Temp = "mean"), MIN_COVERAGE_AGGREGATION = 0.5
   )
-  
-
 
 #------------------------------------------------------------------------------
 # QC Parametrization
@@ -119,19 +118,24 @@ HYDRO_QC_CONFIG <- list(
   COMPLETENESS_TEST = list(
     FLAG_VALUE = "MISSING_VALUE"
     ),
-  GROSS_ERROR_CHECK = list(
-    FLAG_VALUE = "WMO_GROSS_ERROR",
+  GROSS_ERROR_CALIBRATION = list(
+    FLAG_VALUE = "OUT_OF_CALIBRATION_RANGE",
     THRESHOLDS = list(
-      Abs_pres   = c(lower = 69, upper = 207),
-      Temp       = c(lower = 0, upper = 40),
+      Abs_pres   = c(lower = 69, upper = 207), # Factory calibration range HOBO U20-L sensor - conservative threshold setting.
+      Temp       = c(lower = 0, upper = 40)
+    )
+  ),
+  GROSS_ERROR_OPERATION = list(
+    FLAG_VALUE = "OUT_OF_OPERATION_RANGE",
+    THRESHOLDS = list(
+      Abs_pres   = c(lower = 0, upper = 207), # Operation range of the HOBO U20-L sensor
+      Temp       = c(lower = -20, upper = 50)
     )
   )
 )
 
 # QC Tests executed in the pipeline workflow
 ALLOWED_QC_TESTS <- names(HYDRO_QC_CONFIG) # derived from Hydro QC config.
-
-
 
 # Next Test
 

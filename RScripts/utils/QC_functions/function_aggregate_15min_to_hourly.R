@@ -6,24 +6,12 @@
   # inform the user for required dependencies and other functions required for specific variables (e.g. wind direction)
   # informs the user when more columns are defined in the configuration than existing in the data frame
   # informs the user if deviations with the number of available records used for the aggregation exist
-# Author: Kai Albert Zwießler
 # Date: 2026.06.24
-# Output:
-# Returns a named list with two elements:
-  # $data — master data frame with aggregated files substituted for their
-#          15-minute predecessors. Non-aggregated files remain unchanged.
-#          Column structure and order are identical to the input data frame.
-# $coverage_problems — data frame documenting all hours where temporal
-#                      coverage deviates from the expected 4 values per hour.
-#                      Empty if no coverage issues were detected.
-# Dependencies:
-# vector_mean_wd() — required for wind direction aggregation if WD is
-#                    defined in agg_config. Must be loaded before this function.
 #======================================================================
 
 #' @title Aggregate 15-minute meteorological or hydrological time series to hourly values
 #'
-#' Aggregates 15-minute interval time series data to hourly values for one or
+#' @description Aggregates 15-minute interval time series data to hourly values for one or
 #' more specified files within a master data frame. Each file is extracted by a
 #' unique identifier, aggregated independently, and substituted back into the
 #' master data frame. Aggregation functions are defined per variable in a named
@@ -43,6 +31,7 @@
 #'   maintenance events) are not supported by standard aggregation functions.
 #'   It is recommended to resolve or remove such columns prior to aggregation
 #'   using a completeness check.
+#' @details 
 #' @param df A data frame or tibble containing the master data frame with
 #'   15-minute interval time series data. Must contain all columns defined in
 #'   \code{agg_config}, the \code{date_column}, and the \code{source_column}.
@@ -69,22 +58,23 @@
 #'   Hours below or equal to this threshold are reported to the operator. Defaults to
 #'   \code{0.5}.
 #' @return A named list with two elements:
-#'   \describe{
-#'     \item{\code{data}}{A data frame or tibble containing the updated master
+#'   \itemize{
+#'     \item \code{data}: A data frame or tibble containing the updated master
 #'       data frame. Aggregated files are substituted for their 15-minute
 #'       predecessors. Non-aggregated files remain unchanged. Column structure
-#'       and column order are identical to the input \code{df}.}
-#'     \item{\code{coverage_problems}}{A data frame documenting all hours where
+#'       and column order are identical to the input \code{df}.
+#'     \item \code{coverage_problems}: A data frame documenting all hours where
 #'       temporal coverage deviates from the expected 4 values per hour. Contains
 #'       the following columns: the date column, \code{variable} (affected
 #'       variable name), \code{n_measurement_values} (number of valid values
 #'       available), \code{n_total_rows_per_hour} (total rows in the hour
 #'       including NA rows), \code{coverage_pct} (percentage of expected values
 #'       available), and \code{issue} (description of the detected problem).
-#'       Returns an empty data frame if no coverage issues were detected.}
+#'       Returns an empty data frame if no coverage issues were detected.
 #'   }
-#' @seealso \code{\link{function_vector_mean_wd}} for the circular vector averaging
-#'   function used for wind direction aggregation.
+#'
+#' @seealso Dependencies \code{\link{vector_mean_wd}} required for the aggregation of wind direction using circular vector averaging.
+#' @author Kai Albert Zwießler
 #' @export
 
 aggregate_15min_to_hourly <- function(

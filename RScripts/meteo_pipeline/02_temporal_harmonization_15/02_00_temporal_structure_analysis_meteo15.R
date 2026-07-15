@@ -52,6 +52,14 @@ timediff_summary <- sum_timediff(
 print(timediff_summary, n = Inf)
 count(data_meteo_standardized, Source.Code, time_diff)
 
+rows_extracted <- check_temporal_inconsistencies(
+  data_meteo_standardized,
+  id_col = "Source.Code",
+  date_col = "Date",
+  timediff_col = "time_diff"
+)
+print(rows_extracted)
+
 # dominant intervall determination
 dominant_interval <- data_meteo_standardized %>%
 group_by(Source.Code) %>%

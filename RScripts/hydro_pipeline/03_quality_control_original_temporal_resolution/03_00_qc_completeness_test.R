@@ -30,8 +30,8 @@ hydro_results_completeness_test <- qc_completeness_test(
 data_hydro15_harmonized <- apply_qc_flags(
   df = data_hydro15_harmonized,
   df_flag_info = hydro_results_completeness_test$data,
-  flag_value = HYDRO_MASTER_DF_HARMONIZED$FLAG_VALUE,
-  qc_test = "completeness_test",
+  flag_value = HYDRO_QC_CONFIG$COMPLETENESS_TEST$FLAG_VALUE,
+  qc_test = "COMPLETENESS_TEST",
   merge_col = HYDRO_MASTER_DF_FRAMEWORK$DATE_COLUMN,
   id_col = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_COLUMN_FILE
 )

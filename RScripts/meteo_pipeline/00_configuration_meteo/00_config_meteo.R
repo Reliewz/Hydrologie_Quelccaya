@@ -134,7 +134,8 @@ METEO_COLUMN_ORDER_TYPES <- list(
 METEO_MASTER_DF_FRAMEWORK <- list(
   DATE_COLUMN = "Date", SOURCE_COLUMN_STATION = "ID", SOURCE_COLUMN_FILE = "Source.Code",
   SOURCE_IDS15 = "10_QORIKALIS_18_08_2025.csv",
-  MEASUREMENT_COLUMNS = c("AirTC", "RH", "Precip", "WS", "Wind_gust", "WD", "Dew_point")
+  MEASUREMENT_COLUMNS = c("AirTC", "RH", "Precip", "WS", "Wind_gust", "WD", "Dew_point"),
+  MEASUREMENT_UNITS = list(AirTC = "°C", RH = "%", Precip = "mm", WS = "m/s", Wind_gust = "m/s", WD = "°", Dew_point = "°C")
 )
 
 # Master df standardized - temporal harmonization workflow
@@ -233,7 +234,6 @@ METEO_QC_CONFIG <- list(
 
 
 # Metadata
-SENSOR_UNITS <- list(AirTC = "°C", RH = "%", Precip_Tot = "mm", WS = "m/s", WS_Max = "m/s", WD = "°", Dewp = "°C")
 SENSOR_SN_QK <- c(
   `AirTC/RH_S-THC-M008_SN` = "21666169",
   `Rain_Gauge_HOBO_S-RGB-M002_SN` = "21673752",

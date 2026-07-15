@@ -56,6 +56,7 @@ source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
 source("RScripts/utils/qc_functions/function_qc_completeness_test.R")
+source("RScripts/utils/qc_functions/function_qc_gross_error_check.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
@@ -139,10 +140,12 @@ PIPELINE_STEP <- "COMPLETENESS_TEST"
 KEEP_INTERMEDIATE <- FALSE  
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")
+  }
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")}
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")
+  }
 
 # Verify expected outputs were generated
 expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_completeness_flagged" else "data_hydro15_completeness_flagged"
