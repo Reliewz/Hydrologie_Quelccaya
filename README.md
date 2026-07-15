@@ -90,13 +90,13 @@ This supports reproducibility and transparent data governance by documenting exp
 * Missing value assessment
 * Completeness test
 
-## Quality Control Tests Under Current Development
-
-The following station-internal quality control procedures are currently under development:
-
 ### WMO Gross Error Check
 
 * Gross Error Check (Range test)
+
+## Quality Control Tests Under Current Development
+
+The following station-internal quality control procedures are currently under development:
 
 ### Temporal Consistency
 
