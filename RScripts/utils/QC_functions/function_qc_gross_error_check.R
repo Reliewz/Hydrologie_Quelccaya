@@ -186,7 +186,7 @@ qc_gross_error_check <- function(df,
     filtered_df <- df |> 
       filter(.data[[source_column]] %in% source_ids)
     
-    # generating detected df containing the intermediate result for $data and $detection summary 
+    # generating detected df containing the intermediate result for $data and $detection_summary 
     detected_df <- filtered_df |> 
       mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
         across(

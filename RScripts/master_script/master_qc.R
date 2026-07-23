@@ -167,10 +167,12 @@ if (KEEP_INTERMEDIATE) {
 PIPELINE_STEP <- "GROSS_ERROR_CHECK"
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")}
+  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")
+  }
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")}
+  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")
+  }
 
 # Verify expected outputs were generated
 expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_gross_error_flagged" else "data_hydro15_gross_error_flagged"

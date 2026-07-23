@@ -156,7 +156,7 @@ apply_qc_flags <- function(
   if (!exists("ALLOWED_QC_TESTS")) {
     stop(
       "ALLOWED_QC_TESTS must be defined in the global environment.\n",
-      "Example: ALLOWED_QC_TESTS <- c('range_test', 'step_test', 'persistence_test')."
+      "Example: ALLOWED_QC_TESTS <- c('GROSS_ERROR_CHECK', 'PERSISTENCE_TEST', (...))."
     )
   }
 

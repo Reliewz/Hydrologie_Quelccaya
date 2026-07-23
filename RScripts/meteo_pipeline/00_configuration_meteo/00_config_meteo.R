@@ -168,7 +168,20 @@ METEO_QC_CONFIG <- list(
       Wind_gust = c(lower = 0, upper = 76),
       WD        = c(lower = 0, upper = 355)
     )
+  ),
+  PERSISTENCE_TEST15 = list(
+    FLAG_VALUE = "FLAT_LINE",
+    WINDOW     = 
+    THRESHOLDS = list(
+      AirTC     = c(lower = -20, upper = 50),
+      RH        = c(lower = 0, upper = 100),
+      Precip    = c(lower = 0, upper = 127),
+      WS        = c(lower = 0, upper = 76),
+      Wind_gust = c(lower = 0, upper = 76),
+      WD        = c(lower = 0, upper = 355)
+    )
   )
+  PERSISTENCE_TEST60 = list
 )
 
 
@@ -190,47 +203,8 @@ METEO_OUTPUT_FILES <- list(
 
 METEO_OUTPUT_DIRECTORIES <- list(
   DIR_RESULTS = "results/meteo_pipeline", DIR_LOGS = "results/meteo_pipeline/logs",
-  DIR_CHECKPOINTS = "results/meteo_pipeline/pipeline_debugging", DIR_QC_SUMMARY = "results/hydro_pipeline/qc_summary",
+  DIR_CHECKPOINTS = "results/meteo_pipeline/pipeline_debugging", DIR_QC_SUMMARY = "results/meteo_pipeline/qc_summary",
   DIR_PLOTS = "results/meteo_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/meteo_pipeline/tables")
-
-#------------------------------------------------------------------------------
-# QC Parametrization
-# -----------------------------------------------------------------------------
-METEO_QC_CONFIG <- list(
-  completeness_test = list(
-    STATION_QK = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    STATION_QQ  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
-    STATION_QUISIQUEPINA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
-    STATION_CARABAYA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10),
-    STATION_SIBINACHOCHA  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10)
-  ),
-  
-  timing_gap_test = list(
-    STATION_QK = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    STATION_QQ = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    STATION_QUISIQUEPINA = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    STATION_CARABAYA = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    STATION_SIBINACHOCHA = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10)
-  ),
-  
-  range_test = list(
-    METEO_RANGE_THRESHOLDS = list(temp_range = c(min = -20, max = 50), precip_range = c(min = 69, max = 207), RH_range = c(min = 0, max = 100)), WS_range = c(min = 0, max_qk = 76), WD_range = c(min = 0, max = 355)
-  ),
-  
-  step_test = list(
-    STATION_QK = list(water_level = 0.5),
-    PZ01  = list(water_level = 0.3)
-  ),
-  
-  persistence_test = list(
-    METEO_PERSISTANCE_THRESHOLD = list(window = 6),
-    PZ01  = list(window = 6)
-  ),
-  
-  internal_consistency_test = list(
-    METEO_CONDITIONS = list(temp_exp = X>X), (precip_exp = XXXX), (RH_exp = X), (WS_exp = XX))
-    )
-
 
 
 # Metadata

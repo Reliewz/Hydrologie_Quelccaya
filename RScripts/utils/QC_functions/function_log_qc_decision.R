@@ -175,7 +175,9 @@ if (is.null(process_step)) {
       stop("Documentation error: Good practice examples in QC workflows suggest a specification for every QC Step. Please enter an explanation describing the design-decision taken to the 'reason' parameter.")
     }
     if (is.null(qc_threshold)){
-      message("Note that no threshold value is provided in this documentation step. If the documentation step is associated with a documented QC test the repeated documentation of the QC threshold value with the 'qc_threshold' parameter is highly suggested.")
+      message("Function log_qc_decision: Note that no threshold value is provided in this documentation step.\n",
+      "If the documentation step is associated with a documented QC test the repeated documentation of the QC threshold\n",
+      "value with the 'qc_threshold' parameter is highly suggested.")
     }
   }
 

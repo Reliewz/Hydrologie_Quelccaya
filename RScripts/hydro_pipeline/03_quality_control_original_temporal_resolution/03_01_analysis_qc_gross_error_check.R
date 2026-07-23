@@ -25,11 +25,20 @@ temp_check_min <-hydro_results_gross_error_check_calibration[[1]] |>
 
 # - 12.7°C
 
-# Export QC summary gross error check
+# Export QC summary gross error check HYDRO
 
 readr::write_csv(
   hydro_results_gross_error_check_calibration$detection_summary,
   file.path(
     HYDRO_OUTPUT_DIRECTORIES$DIR_QC_SUMMARY,
     "gross_error_calibraton_summary.csv"
+  ))
+
+
+# Export QC summary gross error check METEO
+readr::write_csv(
+  meteo_results_gross_error_check$detection_summary,
+  file.path(
+    METEO_OUTPUT_DIRECTORIES$DIR_QC_SUMMARY,
+    "gross_error_check_summary.csv"
   ))

@@ -113,7 +113,7 @@ HYDRO_MASTER_DF_STANDARDIZED <- list(
 #------------------------------------------------------------------------------
 # QC Parametrization
 # -----------------------------------------------------------------------------
-# General configuration QC testing
+# General configuration QC testing UNITS: Abs_pres = "kPa", Temp = "°C"
 HYDRO_QC_CONFIG <- list(
   COMPLETENESS_TEST = list(
     FLAG_VALUE = "MISSING_VALUE"
@@ -131,14 +131,53 @@ HYDRO_QC_CONFIG <- list(
       Abs_pres   = c(lower = 0, upper = 207), # Operation range of the HOBO U20-L sensor
       Temp       = c(lower = -20, upper = 50)
     )
-  )
+  ),
+  PERSISTENCE_TEST15 = list(
+    # Temporal resolution 15 minutes
+    FLAG_VALUE = "CVE",
+    WINDOW     = 4,
+    THRESHOLDS_BARO = list(
+      Abs_pres   = c(range = 0.2, sd = 0.2), #tbd threshold range & sd
+      Temp       = c(range = 1, sd = 1) #tbd threshold range & sd
+    ),
+    THRESHOLDS_WLS  = list(
+      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd thresholds
+      Temp       = c(range = 0.1, sd = 1) #tbd thresholds
+    ),
+    THRESHOLDS_PZ = list(
+      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd
+      Temp       = c(range = 0.1, sd = 1) #tbd threshold sd
+    ),
+    MIN_COVERAGE = 0.5,
+    SOURCE_IDS = c("21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv")
+    ),
+    
+  PERSISTENCE_TEST_HOURLY  = list(
+    FLAG_VALUE = "CVE", # Constant Value Episode: used in Kaffashzadeh (2023)
+    WINDOW     = 3,
+    THRESHOLDS_BARO = list(
+      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd
+      Temp       = c(range = 0.1, sd = 1) #tbd threshold sd
+      ),
+    THRESHOLDS_WLS  = list(
+      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd thresholds
+      Temp       = c(range = 0.1, sd = 1) #tbd thresholds
+    ),
+    THRESHOLDS_PZ = list(
+      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd
+      Temp       = c(range = 0.1, sd = 1) #tbd threshold sd
+    ),
+    MIN_COVERAGE = 0.66,
+    SOURCE_IDS = c("21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv")
+    )
 )
+
 
 # QC Tests executed in the pipeline workflow
 ALLOWED_QC_TESTS <- names(HYDRO_QC_CONFIG) # derived from Hydro QC config.
 
-# Next Test
-
+# List where records inside the pipeline will be stored for final master_log bind_row execution
+qc_logs <- list()
 #------------------------------------------------------------------------------
 # QC Flagging Workflow & Documentation
 # -----------------------------------------------------------------------------
@@ -181,55 +220,3 @@ HYDRO_OUTPUT_DIRECTORIES <- list(
   DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
   DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
 )
-
-
-qc_summary
-#------------------------------------------------------------------------------
-# QC Parametrization
-# -----------------------------------------------------------------------------
-HYDRO_QC_PARAMS <- list(
-  DATA15 = list(
-    max_gap_min = 30,  max_rate_of_change = c(Abs_pres = 5,  Temp = 2)
-  ),
-  DATA60 = list(
-    max_gap_min = 120, max_rate_of_change = c(Abs_pres = 15, Temp = 6)
-  )
-)
-
-HYDRO_QC_CONFIG <- list(
-  completeness_test = list(
-    WLS_O = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    PZ01  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10)
-  ),
-  
-  timing_gap_test = list(
-    WLS_O = list(deployed = as.POSIXct("2025-01-15", tz = "America/Lima"), interval_min = 10),
-    PZ01  = list(deployed = as.POSIXct("2025-04-03", tz = "America/Lima"), interval_min = 10)
-  ),
-  
-  range_test = list(
-    HYDRO_DEVICES_THRESHOLD = list(temp_threshold = c(min = 0, max = 40), PRES_THRESHOLD = c(min = 69, max = 207)),
-    PZ01  = list(water_level = c(min = 0, max = 3.0))
-  ),
-  
-  step_test = list(
-    WLS_O = list(water_level = 0.5),
-    PZ01  = list(water_level = 0.3)
-  ),
-  
-  persistence_test = list(
-    WLS_O = list(window = 6),
-    PZ01  = list(window = 6)
-  ),
-  
-  internal_consistency_test = list(
-    WLS_O = Expression,
-    PZ01  = list(...elt())
-  ))
-
-
-
-
-
-
-
