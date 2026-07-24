@@ -161,7 +161,7 @@ HYDRO_QC_CONFIG <- list(
       ),
     THRESHOLDS_WLS  = list(
       Abs_pres   = c(range = 0.01, sd = 0.2), #tbd thresholds
-      Temp       = c(range = 0.1, sd = 1) #tbd thresholds
+      Temp       = c(range = 0.01, sd = 1) #tbd thresholds
     ),
     THRESHOLDS_PZ = list(
       Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd

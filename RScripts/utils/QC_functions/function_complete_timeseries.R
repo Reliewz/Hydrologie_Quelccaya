@@ -1,26 +1,50 @@
 #======================================================================
-# Scriptname: function_complete_timeseries.R
-# Function name: complete_timeseries
-# Goal(s): 
-  # complete time series according to a selected temporal interval.
-  # report to the operator how many records were added.
+# Script name: function_complete_timeseries.R
+# Function name: complete_timeseries()
+
 # Author: Kai Albert Zwießler
 # Date: 2026.07.02
 # Outputs:
-  # data frame or tibble with completed time series for the selected data
+  # 
 #======================================================================
 
-#' @note Completes missing time steps for selected time series within a master data frame. The function is intended for multi-sensor data sets where individual series are identified via a grouping column (e.g. Source.Code or ID).
-#' @param df data frame or tibble
-#' @param date_column Column which contains the temporal information for the beginning and end of the completion range.
-#' @param time_step Temporal resolution that is assumed for the input time series and used interval for the generation of missing time steps
-#' (possible entries are "15 min", "30 min", "60 min", "1 hour" or "1 day")
-#' @param source_column Character string. Specifying the column that contains the values provided in `source_ids`.
-#' @param source_ids Character vector defining the groups that should undergo temporal completion. 
-#' Values usually represent file identifiers (f.e. Source.Code or Sensor ID).
-#' Individual files of a master data frame can be selected by providing a character vector containing their source name or another clear identifier. 
+#' @title Function to complete time series
+#' 
+#' @description Completes temporal gaps in a time series by inserting missing time stamps and filling associated measurement values with \code{NA}
+#' 
+#' @details Reports the number and percentage of rows inserted for each completed group.
+#' 
+#' The function internally calculates temporal differences between consecutive observations and therefore does not require \code{calc_time_diff()} 
+#' to be executed beforehand.
+#' 
+#' Input records are automatically sorted chronologically within each selected group before temporal validation and completion.
+#' 
+#' Before completion, the function verifies that all observed time intervals are integer multiples of the specified \code{time_step}. 
+#' This prevents the insertion of timestamps into irregular or fractionally spaced time series. Or fractional time steps 
+#' which can occur in maintenance-/ or data collection events.
+#' 
+#' 
+#' @note This function is intended for multi-sensor data sets where individual series are identified via a grouping column (e.g. Source.Code or ID).
+#' A master data frame is required.
+#' Individual files inside a master data frame are selected via \code{source_ids}. These identifiers are matched against the group variable
+#' specified in \code{source_column}. 
 #' Whole hydrological sensors or meteorological stations can be completed by providing a shared identification ID describing the whole sensor group.
-#' @return data frame or tibble with completed time series
+#' 
+#' Currently supported intervals range from 15 minutes to one day. Monthly and yearly intervals 
+#' are not supported because their varying lengths require different handling.
+#' 
+#' @param df master data frame or tibble.
+#' @param date_column Character string. Column which contains the temporal information to derive the beginning and end of the completion range.
+#' @param time_step Temporal resolution that is assumed for the input time series and used interval for the generation of missing time steps
+#' @examples possible entries are:
+#' "15 min", "30 min", "60 min", "1 hour" or "1 day"
+#' @param source_column Character string. Specifying the column that contains the values provided in \code{source_ids}.
+#' @param source_ids Character vector. Containing the values of \code{source_column} that identify the time series to be completed.
+#' 
+#' @return Returns the input data frame with missing timestamps inserted for the selected groups. Newly created observations contain \code{NA}
+#' in all measurement columns.
+#' 
+#' @author Kai Albert Zwießler
 #' @export
 
 complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source_column = NULL, source_ids = NULL){
@@ -128,31 +152,30 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
     }
     
     
-    
-  
     # Add missing time steps according to the selected character vector
     if (!is.null(source_column) && !is.null(source_ids)) {
       df <- df %>%
         group_by(.data[[source_column]]) %>%
+        arrange(.data[[source_column]], .data[[date_column]]) %>%
     
         group_modify(function(.x, .y) {
           #.x is the grouped data frame; .y is the group key containing the group information
           if (.y[[source_column]] %in% source_ids) {
-            group_name <- .y[[source_column]]
+            group_name <- .y[[source_column]] # extraction of the group name and .y contains a sample.
             
             n_original <- nrow(.x) # determine the total amount of records for the user report
     
-            timestep_check <- difftime(
+            timestep_check <- difftime( 
               .x[[date_column]], # end date
-              lag(.x[[date_column]]), # previous date. function lag shifts back the time series.
+              lag(.x[[date_column]]), # previous date. function lag() shifts back the time series.
               units = "mins" # output time difference in minutes
             )
             timestep_check <- as.numeric(timestep_check) # convert difftime object to numeric.
-            timestep_check <- timestep_check[!is.na(timestep_check)] # remove first NA value in the vector, which is an expected behavior of difftime()
+            timestep_check <- timestep_check[!is.na(timestep_check)] # remove first NA value in the vector.
     
-            # Intermediate check for more than two records. As a requirement for correct timediff calculation.
+            # Intermediate check that more than two records exist. As a requirement for correct timediff calculation.
             if (length(timestep_check) == 0) {
-              # 0 because the expected NA generation of difftime have been removed beforehand. Which includes the case of 1 record for this validation.
+              # 0 because the expected NA generation of difftime have been removed beforehand. Therefore the case of 1 record for this validation is included.
               stop(
                 paste0(
                   "Group '",
@@ -164,12 +187,12 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
             }
     
             if (all(timestep_check %% time_step_minutes == 0)) {
-              # modulo sign %% checking if timestep_check is a multiple of time_step.
+              # modulo sign %% checking if timestep_check is a multiple of time_step. No rest allowed. Supposed to protect agsinst fractional or irregular time steps.
               
               completed <- tidyr::complete(
                   .x,
                   !!rlang::sym(date_column) := seq(
-                    # := tidy evaluation sign to allow dynamic columns (!!date_column) on the left side which usually    expects expressions
+                    # := tidy evaluation sign to allow dynamic columns (!!date_column) on the left side which usually expects expressions
                     from = min(.x[[date_column]]),
                     to = max(.x[[date_column]]),
                     by = time_step
@@ -208,10 +231,11 @@ complete_timeseries <- function(df, date_column = NULL, time_step = NULL, source
               )
             }
           } else {
-            return(.x)
+            return(.x) # return .x if the time step was present it will be returned unchanged.
           }
         }) %>%
         ungroup() # release group selection from group_by mechanism
+      
       return(df)
     }
 }

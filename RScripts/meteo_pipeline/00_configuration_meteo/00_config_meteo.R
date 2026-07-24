@@ -174,7 +174,6 @@ METEO_QC_CONFIG <- list(
     THRESHOLDS = list(
       AirTC     = c(range = 0.1, sd = 1),
       RH        = c(range = 1, sd = 1),
-      Precip    = c(range = 0.1, sd = 1),
       WS        = c(range = 0.1, sd = 1),
       Wind_gust = c(range = 0.1, sd = 1),
       WD        = c(range = 0.1, sd = 1)
@@ -184,11 +183,10 @@ METEO_QC_CONFIG <- list(
     FLAG_VALUE = "FLAT_LINE",
     WINDOW     = 
       THRESHOLDS = list(
-        AirTC     = c(range = 0.1, sd = 1),
-        RH        = c(range = 1, sd = 1),
-        Precip    = c(range = 0.1, sd = 1),
-        WS        = c(range = 0.1, sd = 1),
-        Wind_gust = c(range = 0.1, sd = 1),
+        AirTC     = c(range = 0.1, sd = 1), #sd tbd
+        RH        = c(range = 1, sd = 1), #sd tbd
+        WS        = c(range = 0.5, sd = 1),
+        Wind_gust = c(range = 0.8, sd = 1),
         WD        = c(range = 0.1, sd = 1)
       )
   )

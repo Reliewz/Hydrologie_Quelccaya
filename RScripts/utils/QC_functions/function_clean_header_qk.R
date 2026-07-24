@@ -1,17 +1,15 @@
 #======================================================================
-# Scriptname: utils/function_clean_headers_qk.R
+# Script name: function_clean_headers_qk.R
 # Function name: clean_headers_qk ()
-# Goal(s):
-  # Remove logger and sensor metadata from meteorological column names
-
-# Author: Kai Albert Zwießler
 # Date: 2026.06.06
-# Input:  character vector containing column names
-# Output: character vector without meta data
 #======================================================================
-
-#' @param x character vector containing column names
+#' @title Function to remove metadata for the Qori-Kalis meteorological station
+#' 
+#' @note specified function especially for the metadata of this individual station.
+#'  
+#' @param x character vector. Containing the names of the column where the function is applied to.
 #' @return character vector without meta data
+#' @author Kai Albert zwießler
 #' @export
 
 clean_headers_qk <- function(x){
