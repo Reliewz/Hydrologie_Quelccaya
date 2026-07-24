@@ -15,7 +15,7 @@ METEO_SENSOR_IMPORTS <- list(
     KEEP_FILES = c("2_QORIKALIS_20_12_2023.csv", "3_QORIKALIS_30_04_24.csv", "4_QORIKALIS_04_06_24.csv", "5_QORIKALIS_06_08_2024.csv",
                    "6_QORIKALIS_12_11_2024.csv", "7_QORIKALIS_24_02_2025.csv", "8_QORIKALIS_22_06_2025.csv", "9_QORIKALIS_07_07_2025.csv",
                    "10_QORIKALIS_18_08_2025.csv"),
-    ID = "QK", DATE_COLUMN = "Date_raw", DROP_IMPORT_COLUMNS_QK = c("Total: Regen, mm", "Total: Lluvia, mm"), DROP_COLUMNS_FINAL = c("Record", "Date_raw")),
+    ID = "QK", DATE_COLUMN = "Date_raw", DROP_IMPORT_COLUMNS_QK = c("Total: Regen, mm", "Total: Lluvia, mm"), DROP_COLUMNS_FINAL = c("Record", "Date_raw", "Dew_point")),
   STATION_QQ = list(
     FOLDER = "D:\\RProjekte\\Hydrologie_Quelccaya\\Datenquellen\\STATION_QUELCCAYA\\meteo_input_data",
     KEEP_FILES = NULL, ID = "QQ", DATE_COLUMN = "Date", DROP_COLUMNS_FINAL = c("SlrW", "SlrW_Max", "SlrW_Avg", "SnDep", "RECORD", "Tot24")),
@@ -126,7 +126,6 @@ METEO_COLUMN_ORDER_TYPES <- list(
   WS          = "numeric",
   Wind_gust   = "numeric",
   WD          = "numeric",
-  Dew_point   = "numeric",
   Source.Code = "character"
 )
 
@@ -134,7 +133,7 @@ METEO_COLUMN_ORDER_TYPES <- list(
 METEO_MASTER_DF_FRAMEWORK <- list(
   DATE_COLUMN = "Date", SOURCE_COLUMN_STATION = "ID", SOURCE_COLUMN_FILE = "Source.Code",
   SOURCE_IDS15 = "10_QORIKALIS_18_08_2025.csv",
-  MEASUREMENT_COLUMNS = c("AirTC", "RH", "Precip", "WS", "Wind_gust", "WD", "Dew_point"),
+  MEASUREMENT_COLUMNS = c("AirTC", "RH", "Precip", "WS", "Wind_gust", "WD"),
   MEASUREMENT_UNITS = list(AirTC = "°C", RH = "%", Precip = "mm", WS = "m/s", Wind_gust = "m/s", WD = "°", Dew_point = "°C")
 )
 
@@ -173,15 +172,26 @@ METEO_QC_CONFIG <- list(
     FLAG_VALUE = "FLAT_LINE",
     WINDOW     = 
     THRESHOLDS = list(
-      AirTC     = c(lower = -20, upper = 50),
-      RH        = c(lower = 0, upper = 100),
-      Precip    = c(lower = 0, upper = 127),
-      WS        = c(lower = 0, upper = 76),
-      Wind_gust = c(lower = 0, upper = 76),
-      WD        = c(lower = 0, upper = 355)
+      AirTC     = c(range = 0.1, sd = 1),
+      RH        = c(range = 1, sd = 1),
+      Precip    = c(range = 0.1, sd = 1),
+      WS        = c(range = 0.1, sd = 1),
+      Wind_gust = c(range = 0.1, sd = 1),
+      WD        = c(range = 0.1, sd = 1)
     )
+  ),
+  PERSISTENCE_TEST60 = list(
+    FLAG_VALUE = "FLAT_LINE",
+    WINDOW     = 
+      THRESHOLDS = list(
+        AirTC     = c(range = 0.1, sd = 1),
+        RH        = c(range = 1, sd = 1),
+        Precip    = c(range = 0.1, sd = 1),
+        WS        = c(range = 0.1, sd = 1),
+        Wind_gust = c(range = 0.1, sd = 1),
+        WD        = c(range = 0.1, sd = 1)
+      )
   )
-  PERSISTENCE_TEST60 = list
 )
 
 
@@ -189,7 +199,7 @@ METEO_QC_CONFIG <- list(
 # Documentation of flagging and decision making
 # -----------------------------------------------------------------------------
 # QC Tests executed in the pipeline workflow - for apply_qc_flags -function
-ALLOWED_QC_TESTS <- names(METEO_QC_CONFIG) # derived from Hydro QC config.
+ALLOWED_QC_TESTS <- names(METEO_QC_CONFIG) # names derived from METEO_QC_CONFIG.
 
 # List where records inside the pipeline will be stored for final master_log bind_row execution
 qc_logs <- list()
@@ -207,7 +217,10 @@ METEO_OUTPUT_DIRECTORIES <- list(
   DIR_PLOTS = "results/meteo_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/meteo_pipeline/tables")
 
 
-# Metadata
+#------------------------------------------------------------------------------
+# Metadata Section
+# -----------------------------------------------------------------------------
+
 SENSOR_SN_QK <- c(
   `AirTC/RH_S-THC-M008_SN` = "21666169",
   `Rain_Gauge_HOBO_S-RGB-M002_SN` = "21673752",

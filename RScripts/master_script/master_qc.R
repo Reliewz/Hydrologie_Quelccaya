@@ -35,6 +35,7 @@ source("RScripts/hydro_pipeline/00_configuration_hydro/00_setup_packages.R")
 # ------------------------------------------------------------------------------
 # Load Functions
 # ------------------------------------------------------------------------------
+#Data cleaning and Import functions
 source("RScripts/utils/QC_functions/function_clean_header_qk.R")
 source("RScripts/utils/QC_functions/function_translate_headers_qk.R")
 source("RScripts/utils/qc_functions/function_load_hobo_csv.R")
@@ -44,9 +45,11 @@ source("RScripts/utils/qc_functions/function_ensure_required_columns_qk.R")
 source("RScripts/utils/qc_functions/function_parse_datetime_column.R")
 source("RScripts/utils/qc_functions/function_drop_columns.R")
 source("RScripts/utils/qc_functions/function_load_qk_csv.R")
+
+
+#Harmonization Functions
 source("RScripts/utils/QC_functions/function_harmonize_NA_codes.R")
 source("RScripts/utils/QC_functions/function_convert_column_types.R")
-
 source("RScripts/utils/qc_functions/function_calc_time_diff.R")
 source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_complete_timeseries.R")
@@ -55,8 +58,10 @@ source("RScripts/utils/qc_functions/function_aggregate_15min_to_hourly.R")
 source("RScripts/utils/qc_functions/function_interval_determination.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
+#QC Tests and Functions for Flagging Workflow
 source("RScripts/utils/qc_functions/function_qc_completeness_test.R")
 source("RScripts/utils/qc_functions/function_qc_gross_error_check.R")
+source("RScripts/utils/qc_functions/function_qc_persistence_test.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 

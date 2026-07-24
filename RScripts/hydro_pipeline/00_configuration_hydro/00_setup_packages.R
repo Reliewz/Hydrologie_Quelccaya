@@ -1,7 +1,7 @@
 #### PACKAGES ####
 required_packages <- c(
   "dplyr",      # Data manipulation
-  "slider",     # Data selection package, applying a function to all data
+  "slider",     # Data selection package, applying a function to all data (sliding window)
   "tidyr",      # Data structure
   "purrr",      # data import concatenate sensors and station data
   "lubridate",  # Date handling

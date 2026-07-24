@@ -173,18 +173,33 @@ HYDRO_QC_CONFIG <- list(
 )
 
 
-# QC Tests executed in the pipeline workflow
-ALLOWED_QC_TESTS <- names(HYDRO_QC_CONFIG) # derived from Hydro QC config.
+
+#------------------------------------------------------------------------------
+# Documentation of flagging and decision making
+# -----------------------------------------------------------------------------
+# QC Tests executed in the pipeline workflow - for apply_qc_flags -function
+ALLOWED_QC_TESTS <- names(HYDRO_QC_CONFIG) # names derived from HYDRO_QC_CONFIG.
 
 # List where records inside the pipeline will be stored for final master_log bind_row execution
 qc_logs <- list()
+
+
 #------------------------------------------------------------------------------
-# QC Flagging Workflow & Documentation
+# EXPORT Section
 # -----------------------------------------------------------------------------
+HYDRO_OUTPUT_FILES <- list(
+  QC_LOG = "results/hydro_pipeline/logs/qc_log.csv")
 
+HYDRO_OUTPUT_DIRECTORIES <- list(
+  DIR_RESULTS = "results/hydro_pipeline",
+  DIR_LOGS = "results/hydro_pipeline/logs", DIR_QC_SUMMARY = "results/hydro_pipeline/qc_summary",
+  DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
+  DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
+)
 
-# Metadata
-SENSOR_UNITS <- list(Abs_pres = "kPa", Temp = "°C")
+#------------------------------------------------------------------------------
+# Metadata Section
+# -----------------------------------------------------------------------------
 
 # WLS Serial Number
 SENSOR_SN_WLS <- list(
@@ -208,15 +223,4 @@ SENSOR_SN_PIEZOMETER <- list(
 )
 SENSOR_SN_BARO <- "21826507"
 
-#------------------------------------------------------------------------------
-# EXPORT Section
-# -----------------------------------------------------------------------------
-HYDRO_OUTPUT_FILES <- list(
-  QC_LOG = "results/hydro_pipeline/logs/qc_log.csv")
 
-HYDRO_OUTPUT_DIRECTORIES <- list(
-  DIR_RESULTS = "results/hydro_pipeline",
-  DIR_LOGS = "results/hydro_pipeline/logs", DIR_QC_SUMMARY = "results/hydro_pipeline/qc_summary",
-  DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
-  DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
-)
