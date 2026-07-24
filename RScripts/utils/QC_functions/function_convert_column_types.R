@@ -1,27 +1,34 @@
 #======================================================================
-# Scriptname: utils/function_convert_column_types.R
-# Function name: convert_column_types
-# Goal(s): 
-  # Convert column types according to the requirements of the measurement value defined in the configuration file
-  # changes order of columns according to the order of the defined list
-  # validates if all columns have been assigned in the configuration file that exist in the data frame.
-  # Cross check for valid column type. Supports the following types: "numeric","character","POSIXct","logical","integer".
-# Author: Kai Albert Zwießler
-# Date: 2026.06.23
-# Outputs:
-  # data frame or tibble with adjusted column types
+# Script name: function_convert_column_types.R
+# Function name: convert_column_types()
 #======================================================================
 
-#' #' Note:
-#' Non-convertible values (e.g., non-numeric strings in numeric columns)
-#' will be coerced to NA during type conversion.
-#' Explicit missing value codes should be handled prior using
-#' harmonize_NA_codes().
-#' @param df data frame or tibble
-#' @param column_definition list containing the
-#' column names and types.
-#' @param timezone time zone in which the data has been recorded
-#' @return data frame or tibble with harmonized NA codes
+#' @title Converting column-types and their order.
+#' 
+#' @description According to the parameter \code{column_definition} the column-type and it's order are changed inside \code{df}.
+#' 
+#' @details 
+#' A validation step is integrated, testing if the exact amount of columns defined in \code{column_definition} are present in \code{df} and vice versa.
+#' 
+#' The following types are supported: "numeric","character","POSIXct","logical","integer"
+#' 
+#' 
+#' @note Non-convertible values (e.g., non-numeric strings in numeric columns) will be coerced to NA during type conversion
+#' @seealso Explicit missing value codes should be handled prior using harmonize_NA_codes().
+#' \code{\link{harmonize_NA_codes}}
+#' 
+#' @param df data frame or tibble.
+#' @param column_definition Named list. Containing the column names and types. The order in which the columns are arranged will be used to arrange \code{df}.
+#' @examples Dont run this code.
+#' list(
+#' Date        = "POSIXct",
+#' ID          = "character",
+#' AirTC       = "numeric")
+#' 
+#' @param timezone time zone in which the data has been recorded.
+#' 
+#' @return data frame or tibble with arranged and harmonized column-types according to the configuration.
+#' @author Kai Albert Zwießler
 #' @export
 
 
@@ -49,7 +56,7 @@ convert_column_types <- function(df, column_definition = NULL, timezone = NULL) 
     )
   }
   
-  # Visa versa verification missing in configuration file but extra in data frame
+  # Vice versa verification missing in configuration file but extra in data frame
   extra_cols <- setdiff(
     names(df),
     names(column_definition)

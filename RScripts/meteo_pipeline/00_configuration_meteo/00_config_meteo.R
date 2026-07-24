@@ -170,7 +170,7 @@ METEO_QC_CONFIG <- list(
   ),
   PERSISTENCE_TEST15 = list(
     FLAG_VALUE = "FLAT_LINE",
-    WINDOW     = 
+    WINDOW     = 4,
     THRESHOLDS = list(
       AirTC     = c(range = 0.1, sd = 1),
       RH        = c(range = 1, sd = 1),
@@ -181,7 +181,7 @@ METEO_QC_CONFIG <- list(
   ),
   PERSISTENCE_TEST60 = list(
     FLAG_VALUE = "FLAT_LINE",
-    WINDOW     = 
+    WINDOW     = 3,
       THRESHOLDS = list(
         AirTC     = c(range = 0.1, sd = 1), #sd tbd
         RH        = c(range = 1, sd = 1), #sd tbd

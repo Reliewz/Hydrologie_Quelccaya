@@ -52,6 +52,7 @@ harmonize_NA_codes <- function(df, measurement_columns = NULL, NA_codes = NULL) 
   }
 
   message(
+    "function harmonize_NA_codes report: ",
     n_replaced,
     " missing codes were converted to NA."
   )

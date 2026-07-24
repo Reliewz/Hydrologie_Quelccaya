@@ -112,7 +112,7 @@ load_qk_csv <- function(cfg, timezone) {
     \(df) {
       ensure_required_columns_qk(
         df,
-        required_columns = names(COLUMN_RENAME_MAP_QK)
+        required_columns = names(COLUMN_RENAME_MAP_QK) # uses the information from column rename map for this step.
       )
     }
   )

@@ -1,19 +1,19 @@
 #======================================================================
-# Scriptname: utils/function_drop_columns.R
-# Function name: drop_columns
-# Goal(s): 
-  # Remove selected columns from a data frame.
-  # Warn if configured columns are not present in the data frame.
-# Author: Kai Albert Zwießler
-# Outputs:
-  # data frame without selected columns
-  # informs via message() about columns that are assigned in the configuration but are not present in the data frame. This helps to detect changes in format or erroneously removed columns
+# Script name: function_drop_columns.R
+# Function name: drop_columns()
 #======================================================================
 
+#' @title Function to remove columns
+#' 
+#' @description Used to quickly remove columns from \code{df}. 
+#' 
+#' @details Input validation for the case in \code{column_selection} are columns defined that do not exist in \code{df}.
+#' 
 #' @param df data frame or tibble
-#' @param column_selection character vector containing column names that
-#' should be removed from the data frame. Typically defined in the configuration file.
-#' @return data frame or tibble with the selected columns removed.
+#' @param column_selection character vector. Containing column names that will be removed from \code{df}.
+#' 
+#' @return data frame or tibble where the specified columns are removed.
+#' @author Kai Albert Zwießler
 #' @export
 
 drop_columns <- function(df, column_selection = NULL) {
