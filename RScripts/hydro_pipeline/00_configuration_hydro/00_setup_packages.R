@@ -6,9 +6,11 @@ required_packages <- c(
   "purrr",      # data import concatenate sensors and station data
   "lubridate",  # Date handling
   "readxl",     # Excel import
-  "stringr",    # String extraction (Piezometer ID)
-  "gtExtras",    # Easy tables
-  "rlang"       # Symbol conversion for functions
+  "stringr",    # String extraction
+  "gtExtras",   # Easy tables
+  "rlang",      # Symbol conversion for functions
+  "quarto",     # Creating reports of the results
+  "here"        # Adjusting directories for usage in universal environments
 )
 
 # Install missing packages
@@ -16,7 +18,7 @@ new_packages <- required_packages[!required_packages %in% installed.packages()[,
 if(length(new_packages)) install.packages(new_packages)
 
 # Load all packages quietly
-invisible(lapply(required_packages, library, character.only = TRUE))
+invisible(lapply(required_packages, library, character.only = TRUE)) # library() all relevant packages
 
 #### GLOBAL OPTIONS ####
 options(stringsAsFactors = FALSE)
