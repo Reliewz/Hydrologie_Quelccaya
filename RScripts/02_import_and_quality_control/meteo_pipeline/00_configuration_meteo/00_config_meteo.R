@@ -206,13 +206,14 @@ qc_logs <- list()
 # EXPORT Section
 # -----------------------------------------------------------------------------
 METEO_OUTPUT_FILES <- list(
-  QC_LOG = "results/meteo_pipeline/logs/qc_log.csv"
+  QC_LOG = "results/quality_control/meteo_pipeline/logs/qc_log.csv"
 )
 
 METEO_OUTPUT_DIRECTORIES <- list(
-  DIR_RESULTS = "results/meteo_pipeline", DIR_LOGS = "results/meteo_pipeline/logs",
-  DIR_CHECKPOINTS = "results/meteo_pipeline/pipeline_debugging", DIR_QC_SUMMARY = "results/meteo_pipeline/qc_summary",
-  DIR_PLOTS = "results/meteo_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/meteo_pipeline/tables")
+  DIR_RESULTS = "results/quality_control/meteo_pipeline", DIR_LOGS = "results/quality_control/meteo_pipeline/logs",
+  DIR_CHECKPOINTS = "results/quality_control/meteo_pipeline/pipeline_debugging", DIR_QC_SUMMARY = "results/quality_control/meteo_pipeline/qc_summary",
+  DIR_PLOTS = "results/quality_control/meteo_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/quality_control/temporal", 
+  DIR_TABLES = "results/quality_control/meteo_pipeline/tables")
 
 
 #------------------------------------------------------------------------------

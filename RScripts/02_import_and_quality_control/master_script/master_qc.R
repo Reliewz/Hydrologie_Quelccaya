@@ -31,7 +31,7 @@ KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 # ------------------------------------------------------------------------------
 cat("=== Loading Configuration ===\n")
 # Loading packages for both pipelines
-source("RScripts/hydro_pipeline/00_configuration_hydro/00_setup_packages.R")
+source("RScripts/00_setup/00_setup_packages.R")
 # ------------------------------------------------------------------------------
 # Load Functions
 # ------------------------------------------------------------------------------
@@ -85,14 +85,14 @@ KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 
 if (PIPELINE_MODE == "METEO"){
 # Load and standardize Station Data QUELCCAYA & SENAMHI meteorological stations
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/01_import/01_00_import_stationQQ.R")
-source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/meteo_pipeline/01_import/01_01_import_SENAMHI_stations.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/02_import_and_quality_control/meteo_pipeline/01_import/01_00_import_stationQQ.R")
+source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/02_import_and_quality_control/meteo_pipeline/01_import/01_01_import_SENAMHI_stations.R")
 # Load Qori-Kalis meteorological station and standardize meteorological master data frame
 source("RScripts/meteo_pipeline/01_import/01_02_load_and_standardize_meteo.R")
 }
-
+02_import_and_quality_control/
 if (PIPELINE_MODE == "HYDRO"){
-source("RScripts/hydro_pipeline/01_import/01_00_load_and_standardize_hydro.R")
+source("RScripts/02_import_and_quality_control/hydro_pipeline/01_import/01_00_load_and_standardize_hydro.R")
 }
 
 # Verify expected outputs were generated
@@ -117,11 +117,11 @@ KEEP_INTERMEDIATE <- FALSE
 
 if (PIPELINE_MODE == "METEO"){
 # Temporal harmonization and documentation steps
-source("RScripts/meteo_pipeline/02_temporal_harmonization_15/02_01_temporal_harmonization_meteo15.R")
+source("RScripts/02_import_and_quality_control/meteo_pipeline/02_temporal_harmonization_15/02_01_temporal_harmonization_meteo15.R")
 }
 
 if (PIPELINE_MODE == "HYDRO"){
-source("RScripts/hydro_pipeline/02_temporal_harmonization_15/02_01_temporal_harmonization_hydro15.R")
+source("RScripts/02_import_and_quality_control/hydro_pipeline/02_temporal_harmonization_15/02_01_temporal_harmonization_hydro15.R")
 }
 
 # Verify expected outputs were generated
@@ -145,11 +145,11 @@ PIPELINE_STEP <- "COMPLETENESS_TEST"
 KEEP_INTERMEDIATE <- FALSE  
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")
+  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")
   }
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")
+  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_00_qc_completeness_test.R")
   }
 
 # Verify expected outputs were generated
@@ -172,11 +172,11 @@ if (KEEP_INTERMEDIATE) {
 PIPELINE_STEP <- "GROSS_ERROR_CHECK"
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")
+  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")
   }
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")
+  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_01_qc_gross_error_check.R")
   }
 
 # Verify expected outputs were generated
@@ -199,10 +199,10 @@ if (KEEP_INTERMEDIATE) {
 PIPELINE_STEP <- "PERSISTENCE_TEST"
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
+  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
+  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
 
 # Verify expected outputs were generated
 expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_persistence_flagged" else "data_hydro15_persistence_flagged"
@@ -225,10 +225,10 @@ if (KEEP_INTERMEDIATE) {
 PIPELINE_STEP <- "STEP_TEST"
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_02_qc_step_test.R")}
+  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_02_qc_step_test.R")}
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_02_qc_step_test.R")}
+  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_02_qc_step_test.R")}
 
 # Verify expected outputs were generated
 expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_step_test_flagged" else "data_hydro15_step_test_flagged"
@@ -250,10 +250,10 @@ if (KEEP_INTERMEDIATE) {
 PIPELINE_STEP <- "INTERNAL_CONSISTENCY"
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/meteo_pipeline/03_quality_control_original_temporal_resolution/03_03_qc_internal_consistency.R")}
+  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_03_qc_internal_consistency.R")}
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/hydro_pipeline/03_quality_control_original_temporal_resolution/03_03_qc_internal_consistency.R")}
+  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_03_qc_internal_consistency.R")}
 
 # Verify expected outputs were generated
 expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_internal_consistency_flagged" else "data_hydro15_internal_consistency_flagged"

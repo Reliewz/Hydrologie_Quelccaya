@@ -188,13 +188,14 @@ qc_logs <- list()
 # EXPORT Section
 # -----------------------------------------------------------------------------
 HYDRO_OUTPUT_FILES <- list(
-  QC_LOG = "results/hydro_pipeline/logs/qc_log.csv")
+  QC_LOG = "results/quality_control/hydro_pipeline/logs/qc_log.csv")
 
 HYDRO_OUTPUT_DIRECTORIES <- list(
-  DIR_RESULTS = "results/hydro_pipeline",
-  DIR_LOGS = "results/hydro_pipeline/logs", DIR_QC_SUMMARY = "results/hydro_pipeline/qc_summary",
-  DIR_CHECKPOINTS = "results/hydro_pipeline/pipeline_debugging",
-  DIR_PLOTS = "results/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/temporal", DIR_TABLES = "results/hydro_pipeline/tables"
+  DIR_RESULTS = "results/quality_control/hydro_pipeline",
+  DIR_LOGS = "results/quality_control/hydro_pipeline/logs", DIR_QC_SUMMARY = "results/quality_control/hydro_pipeline/qc_summary",
+  DIR_CHECKPOINTS = "results/quality_control/hydro_pipeline/pipeline_debugging",
+  DIR_PLOTS = "results/quality_control/hydro_pipeline/plots", DIR_TEMPORAL_RESULTS = "results/quality_control/temporal", 
+  DIR_TABLES = "results/quality_control/hydro_pipeline/tables"
 )
 
 #------------------------------------------------------------------------------
