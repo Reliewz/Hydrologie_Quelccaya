@@ -55,7 +55,7 @@ source("RScripts/utils/qc_functions/function_timediff_sum.R")
 source("RScripts/utils/qc_functions/function_complete_timeseries.R")
 source("RScripts/utils/qc_functions/function_vector_mean_wd.R")
 source("RScripts/utils/qc_functions/function_aggregate_15min_to_hourly.R")
-source("RScripts/utils/qc_functions/function_interval_determination.R")
+source("RScripts/utils/qc_functions/function_check_temporal_inconsistencies.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 
 #QC Tests and Functions for Flagging Workflow
