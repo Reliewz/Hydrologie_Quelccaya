@@ -24,9 +24,9 @@
 #' @return tibble with an additional output column, containing the calculated, temporal differences from one time step to the next.
 #' 
 #' @seealso This function is a preparation step for the temporal gap-analysis
-#'  \code{\link{function_timediff_sum}}} Builds on the calculated time steps and provides a comprehensive summary of the different time intervals
+#'  \code{\link{function_timediff_sum}} Builds on the calculated time steps and provides a comprehensive summary of the different time intervals
 #'  of the data set.
-#'  \code{\link{interval_determination}}} Also part of the temporal continuity  examination workflow to extract the individual rows assigned to
+#'  \code{\link{interval_determination}} Also part of the temporal continuity  examination workflow to extract the individual rows assigned to
 #'  the group where the calculated time difference is situated.
 #' @author Kai Albert Zwießler
 #'  

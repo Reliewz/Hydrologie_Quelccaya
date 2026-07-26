@@ -32,7 +32,7 @@ data_meteo15_completeness_flagged <- apply_qc_flags(
   df = data_meteo15_completeness_flagged,
   df_flag_info = meteo_results_gross_error_check$data,
   flag_value = METEO_QC_CONFIG$GROSS_ERROR_CHECK$FLAG_VALUE,
-  qc_test = "GROSS_ERROR_CHECK",
+  qc_test = "GROSS_ERROR_OPERATION",
   merge_col = METEO_MASTER_DF_FRAMEWORK$DATE_COLUMN,
   id_col = METEO_MASTER_DF_FRAMEWORK$SOURCE_COLUMN_FILE
 )

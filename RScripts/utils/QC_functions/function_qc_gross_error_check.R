@@ -122,6 +122,14 @@ qc_gross_error_check <- function(df,
     )
   }
   
+  if (!purrr::every(thresholds, ~ setequal(names(.x), c("upper", "lower")))) { # setequal functions allows to validate the names of the named
+    # vector inside the list despite their order inside the configuration.
+    stop(
+      "The names inside the provided list for the `thresholds` parameter, must be `upper` and `lower` inside the named vector./n",
+      "Check the roxygen2 documentation on how to setup the thresholds parameter."
+    ) 
+  }
+  
   if (!purrr::every(thresholds, ~ is.numeric(.x) && length(.x) == 2)) { # every checks if every element of that list full fills the condition.
     # every contains two functions elements that both have to be full filled to pass the validation test.
     stop(
@@ -187,7 +195,7 @@ qc_gross_error_check <- function(df,
       filter(.data[[source_column]] %in% source_ids)
     
     # generating detected df containing the intermediate result for $data and $detection_summary 
-    detected_df <- filtered_df |> 
+    marked_detections_df <- filtered_df |> 
       mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
         across(
           .cols = names(thresholds), 
@@ -199,18 +207,18 @@ qc_gross_error_check <- function(df,
           )
       )
      
-    detected_records <- detected_df|>
+    detected_records <- marked_detections_df|>
       filter(
         if_any(
           .cols = ends_with("_out_of_range"), # Column selection scheme using the end of the column names defined in .names above to select the columns
-          # containing the detection information generated from the detected_df pipeline.
+          # containing the detection information generated from the marked_detections_df pipeline.
           .fns = ~ !is.na(.x) & .x
         )
       ) |>
       arrange(.data[[source_column]], .data[[date_column]])
     
    
-    detection_summary <- detected_df |> 
+    detection_summary <- marked_detections_df |> 
       group_by(.data[[source_column]]) |> 
         summarise( # workflow numbers for each group (row-based)
           n_group            = sum(
@@ -258,7 +266,7 @@ qc_gross_error_check <- function(df,
     }else {
       
       # generating detected df containing the intermediate result which will be used to generate $data and $detection summary 
-      detected_df <- df |> 
+      marked_detections_df <- df |> 
     mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
       across(
         .cols = names(thresholds), 
@@ -271,18 +279,18 @@ qc_gross_error_check <- function(df,
     )
   
       # filtering the results, determining detected records
-      detected_records <- detected_df|>
+      detected_records <- marked_detections_df|>
         filter(
           if_any(
             .cols = ends_with("_out_of_range"), # Column selection scheme using the end of the column names defined in .names above to select the columns
-            # containing the detection information generated from the detected_df pipeline.
+            # containing the detection information generated from the marked_detections_df pipeline.
             .fns = ~ !is.na(.x) & .x
           )
         ) |>
         arrange(.data[[date_column]]) # arrange only by date since source column is not provided.
       
       # generating detection_summary for the output list
-      detection_summary <- detected_df |> 
+      detection_summary <- marked_detections_df |> 
         summarise( # workflow numbers for each group (row-based)
           n_total            = sum(
             !if_all(ends_with("_out_of_range"), is.na)), # Answers the question: How many rows exist in that group, without the rows where every

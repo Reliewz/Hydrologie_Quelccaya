@@ -46,7 +46,7 @@ print(hydro_results_gross_error_check_operation)
 # ------------------------------------------------------------------------------
 data_hydro15_completeness_flagged <- apply_qc_flags(
   df = data_hydro15_completeness_flagged,
-  df_flag_info = hydro_results_gross_error_check$data,
+  df_flag_info = hydro_results_gross_error_check_calibration$data,
   flag_value = HYDRO_QC_CONFIG$GROSS_ERROR_CALIBRATION$FLAG_VALUE,
   qc_test = "GROSS_ERROR_CALIBRATION",
   merge_col = HYDRO_MASTER_DF_FRAMEWORK$DATE_COLUMN,
@@ -60,8 +60,8 @@ data_hydro15_completeness_flagged <- apply_qc_flags(
 qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   process_step = "QC Test: Gross Error Check v.1",
   action = "initial_assignment",
-  df = hydro_results_gross_error_check$data,
-  to_flag = HYDRO_QC_CONFIG$GROSS_ERROR_CHECK$FLAG_VALUE,
+  df = hydro_results_gross_error_check_calibration$data,
+  to_flag = HYDRO_QC_CONFIG$GROSS_ERROR_CALIBRATION$FLAG_VALUE,
   operator = "Kai Zwießler",
   device = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_IDS15,
   qc_threshold = HYDRO_QC_CONFIG$GROSS_ERROR_CALIBRATION$THRESHOLDS,
@@ -77,8 +77,8 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
 qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   process_step = "QC Test: Gross Error Check v.2",
   action = "initial_assignment",
-  df = hydro_results_gross_error_check$data,
-  to_flag = HYDRO_QC_CONFIG$GROSS_ERROR_CHECK$FLAG_VALUE,
+  df = hydro_results_gross_error_check_operation$data,
+  to_flag = HYDRO_QC_CONFIG$GROSS_ERROR_OPERATION$FLAG_VALUE,
   operator = "Kai Zwießler",
   device = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_IDS15,
   qc_threshold = HYDRO_QC_CONFIG$GROSS_ERROR_OPERATION$THRESHOLDS,

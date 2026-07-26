@@ -31,7 +31,7 @@ KEEP_INTERMEDIATE <- FALSE  # For debugging, set FALSE for production
 # ------------------------------------------------------------------------------
 cat("=== Loading Configuration ===\n")
 # Loading packages for both pipelines
-source("RScripts/00_setup/00_setup_packages.R")
+source("RScripts/01_setup/01_setup_packages.R")
 # ------------------------------------------------------------------------------
 # Load Functions
 # ------------------------------------------------------------------------------
@@ -61,19 +61,19 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 #QC Tests and Functions for Flagging Workflow
 source("RScripts/utils/qc_functions/function_qc_completeness_test.R")
 source("RScripts/utils/qc_functions/function_qc_gross_error_check.R")
-source("RScripts/utils/qc_functions/function_qc_persistence_test.R")
+
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
+source("RScripts/utils/qc_functions/function_qc_persistence_test.R")
+
 if (PIPELINE_MODE == "METEO"){
-source("RScripts/meteo_pipeline/00_configuration_meteo/00_config_meteo.R") 
+source("RScripts/02_import_and_quality_control/meteo_pipeline/00_configuration_meteo/00_config_meteo.R") 
 }
 
 if (PIPELINE_MODE == "HYDRO"){
-source("RScripts/hydro_pipeline/00_configuration_hydro/00_config_hydro.R")
+source("RScripts/02_import_and_quality_control/hydro_pipeline/00_configuration_hydro/00_config_hydro.R")
 }
-
-
 
 # ------------------------------------------------------------------------------
 # 1. LOAD & STANDARDIZE
@@ -88,9 +88,9 @@ if (PIPELINE_MODE == "METEO"){
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/02_import_and_quality_control/meteo_pipeline/01_import/01_00_import_stationQQ.R")
 source("D:/RProjekte/Hydrologie_Quelccaya/RScripts/02_import_and_quality_control/meteo_pipeline/01_import/01_01_import_SENAMHI_stations.R")
 # Load Qori-Kalis meteorological station and standardize meteorological master data frame
-source("RScripts/meteo_pipeline/01_import/01_02_load_and_standardize_meteo.R")
+source("RScripts/02_import_and_quality_control/meteo_pipeline/01_import/01_02_load_and_standardize_meteo.R")
 }
-02_import_and_quality_control/
+
 if (PIPELINE_MODE == "HYDRO"){
 source("RScripts/02_import_and_quality_control/hydro_pipeline/01_import/01_00_load_and_standardize_hydro.R")
 }

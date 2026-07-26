@@ -202,10 +202,12 @@ qc_log <- tibble::tibble(
   action = action,
   process_step = process_step,
   operator = operator,
-  device = device,
+  device = paste(device, collapse = "; "),
   from_flag = from_flag,
   to_flag = to_flag,
-  qc_threshold = qc_threshold,
+  qc_threshold = paste(names(qc_threshold),
+                       qc_threshold,
+                       collapse = "; "),
   reason = reason,
   n_flagged = nrows_value
 )} else {
@@ -214,10 +216,12 @@ qc_log <- tibble::tibble(
     action = action,
     process_step = process_step,
     operator = operator,
-    device = device,
+    device = paste(device, collapse = "; "),
     from_flag = from_flag,
     to_flag = to_flag,
-    qc_threshold = qc_threshold,
+    qc_threshold = paste(names(qc_threshold),
+                         qc_threshold,
+                         collapse = "; "),
     reason = reason,
     n_flagged = NA_integer_
   )
