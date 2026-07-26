@@ -61,11 +61,11 @@ source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
 #QC Tests and Functions for Flagging Workflow
 source("RScripts/utils/qc_functions/function_qc_completeness_test.R")
 source("RScripts/utils/qc_functions/function_qc_gross_error_check.R")
-
+source("RScripts/utils/qc_functions/function_qc_persistence_test.R")
 source("RScripts/utils/qc_functions/function_apply_qc_flags.R")
 source("RScripts/utils/qc_functions/function_log_qc_decision.R")
 
-source("RScripts/utils/qc_functions/function_qc_persistence_test.R")
+
 
 if (PIPELINE_MODE == "METEO"){
 source("RScripts/02_import_and_quality_control/meteo_pipeline/00_configuration_meteo/00_config_meteo.R") 

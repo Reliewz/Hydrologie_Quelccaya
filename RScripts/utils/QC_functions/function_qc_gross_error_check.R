@@ -225,14 +225,14 @@ qc_gross_error_check <- function(df,
                                 !if_all(ends_with("_out_of_range"), is.na)), # Answers the question: How many rows exist in that group, without the rows where every
     #measurement variable is NA. if_all is used as the condition when all are NA. ! to exclude them.
           n_group_detected   = sum(
-                                if_any(ends_with("_out_of_range"), .fns = ~ !is.na(.x) & .x)), #How many rows have at least one value that did not pass the test.
+                                if_any(ends_with("_out_of_range"), .fns = ~ !is.na(.x) & .x)), #How many rows have at least one value that did not pass the test and is not NA
           pct_group_detected = round(n_group_detected / n_group * 100, digits = 2 ),
           
             across( # worflow for group + each variable documentation
               .cols = ends_with("_out_of_range"),
               .fns = list(
                 n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group.
-                pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # this does not work. length and sum will produce the exact same values as all of them are already detected.
+                pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
               .names = "{.fn}_{.col}"
             )
         )|> 
@@ -248,7 +248,7 @@ qc_gross_error_check <- function(df,
       paste0(
         "WMO's Gross Error Check has been executed successfully ✓.\n",
         "In total '", total_values, "' values have been examined.\n",
-        "From which '", total_detected_output, "' failed the test.\n",
+        "From which '", total_detected_output, "' rows had at least one measurement value failed the test.\n",
         "This makes a total percentage of '", total_percentage, "'%.\n\n", 
         "Check detection_summary in the generated list inside the global environment ",
         "for a detailed description for each measurement value.\n\n", 
