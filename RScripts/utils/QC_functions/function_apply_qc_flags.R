@@ -52,15 +52,12 @@
 #' A reasonable nomenclature connects the QC test (e.g. "completeness_test", "gross_error_check" (...)) with the associated flags.
 #' Important: The specified name for \code{qc_test} has to match with one of the character-values stored inside the variable \code{ALLOWED_QC_FLAGS} defined in 
 #' the global environment.
-#' 
 #' @param merge_col character string. Column used as "matching key", as a link between the original data frame \code{df} and the data frame 
 #' containing the flag information \code{df_flag_info}.
 #' Advice: In time series applications the column containing date and time information is suitable.
 #' If working with a master data frame where different sensors are separated by ID a specification using \code{id_col} covers that case.
-#' 
 #' @param df_flag_info data frame. Contains the rows where at least one values did not pass the executed QC test. 
 #' The rows defined provide the information which rows will be flagged in \code{df}.
-#' 
 #' @param id_col (optional) character string. Column name of a master data frame containing a clear identifier.
 #' Used for cases when multiple measurement devices with equal time frames are concatenated in a master data frame.
 #' When supplied, records are matched using the combination of id_col and merge_col.
@@ -69,7 +66,6 @@
 #' Default: FALSE to prevent a unwanted change of a predefined sorting logic defined by the operator.
 #' If \code{id_col} is provided, sorting is performed by \code{id_col} (e.g. Sensor ID) and \code{merge_col} (e.g. date column)
 #' Otherwise sorting is performed by \code{merge_col} only.
-#' 
 #' @param conflict_mode in case of a merging conflict. Which is the case when identical columns overlap and a QC flag value is already assigned to a specific records.
 #' The operator has different options to solve this issue: 
 #'  \describe{
@@ -103,8 +99,16 @@ apply_qc_flags <- function(
   conflict_mode = c("stop", "overwrite", "combine")
   ) {
   # ===== Input validation =====
+  if (missing(df)) {
+    stop("df must be supplied.")
+  }
+  
   if (!is.data.frame(df)) {
     stop("df must be a data frame or tibble")
+  }
+  
+  if (missing(df_flag_info)) {
+    stop("df_flag_info must be supplied.")
   }
 
   if (!is.data.frame(df_flag_info)) {

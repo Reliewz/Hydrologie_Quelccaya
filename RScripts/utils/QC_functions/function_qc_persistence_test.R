@@ -19,12 +19,18 @@
 #' The function is able to process multi-sensor data sets where individual files or whole sensor groups are identified via a grouping column (e.g. Source.Code or ID).
 #' The function can also be applied on a single data frame without identifier by not providing \code{source_column} and \code{source_ids}.
 #' 
+#' The sliding \code{window} has to fully form before any outputs are generated or \code{min_coverage} is tested.
+#' 
 #' The function uses a sliding window with a customizable length.
 #' Available test metrics is the range (| max - min |) and standard deviation.
 #' 
 #' When a new temporal window some values can not be tested. Therefore, they will be reported in \code{$coverage_problems} for manual workflows
 #' 
-#' @note The operator has to be aware of the selected test \code{metric}, as the nomenclature in the final report \code{$detection_summary} is equal
+#' @note 
+#' 
+#' 
+#' 
+#' The operator has to be aware of the selected test \code{metric}, as the nomenclature in the final report \code{$detection_summary} is equal
 #' for both \code{metric} options.
 #' 
 #' The user must be aware of the set thresholds in relation to the measured variable, environmental circumstances, location and examined time steps. (WMO, 2011)
@@ -57,6 +63,7 @@
 #' If a master data frame is used \code{source_column} and \code{source_ids} need to be specified.
 #' 
 #' The test can be executed if the time series contains NA values. They will considered in terms of decision-making. NA handling is executed as following:
+#' 
 #' 1. If the \code{min_coverage} condition is met but the value in question (last in the slider window) is \code{NA} the function returns \code{NA}.
 #' 2. If a sequence of \code{NA} values are present the sliding windows starts to form when actual measurement values are present. The values that have not been tested
 #' during the reformation of the window will be reported in \code{coverage_problems}.
@@ -69,8 +76,8 @@
 #' @param date_column Character string. Column which contains the temporal information for the time series. Used for sort mechanism for final report in $data.
 #' @param metric Character vector. Two options either "range" or "sd" to select the desired statistical metric which will be used to calculate the results for
 #' threshold comparison.
-#' @param thresholds Named list. Containing the names of each measurement variable, has to match exactly the column name of the respective 
-#' measurement variable in \code{df} and each element must be a numeric vector.
+#' @param thresholds Named list containing named numeric vectors. Containing the names of each measurement variable, has to match exactly the column name of the 
+#' respective measurement variable in \code{df} and each element must be a numeric vector.
 #' See the example provided at the end of the roxygen documentation on how to structure the input for this variable.
 #' @param window numeric string. A number that determines the total amount of examined values of the sliding window. Previous time steps + the present time step.
 #' @param min_coverage A single numeric value between 0 and 1 defining the minimum required values inside the sliding temporal window where
@@ -85,7 +92,7 @@
 #' 
 #' @param source_column Character string. Specifying the column that contains the values provided in `source_ids`.
 #' "source_column" and "source_ids" are interdependent.
-#' @param source_ids Character vector defining the groups that should undergo the test. 
+#' @param source_ids Character string or vector defining the groups that should undergo the test. 
 #' Values usually represent file identifiers (f.e. Source.Code or Sensor ID).
 #' Individual files of a master data frame can be selected by providing a character vector containing their source name or another clear identifier. 
 #' Whole hydrological sensors or meteorological stations can be tested by providing a shared identification ID describing the whole sensor group.
@@ -96,7 +103,7 @@
 #'    is marked as \code{TRUE} in the test outcome column}
 #'    \item{detection_summary}{Contains further information how many values for each measurement variable have been detected.
 #'    On a group level (if \code{source_column} & \code{source_ids} are provided) or for the entire data frame (if not), \code{n_group} reports the total 
-#'    number of tested rows, 
+#'    number of tested rows ignoring rows where all measurement values are \code{NA}, 
 #'    \code{n_group_detected} the number of rows with at least one detected value, and \code{pct_group_detected} the respective percentage. 
 #'    These three column names are used identically in both scenarios (grouped and single data frame).
 #'    On a per-variable level, \code{n_detected} is the total amount of detected values, and \code{pct_detected} is the percentage of the detected values 
@@ -105,7 +112,7 @@
 #'    Both metrics are reported for each measurement column individually, e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}.}
 #'    \item{coverage_problems}{Contains the rows where at least one variable could not be tested because the threshold dictated by \code{min_coverage}
 #'    was not met to achieve a a robust test result.
-#'    The variable causing the threshold violation can be identified as it is marked as FALSE in the column \code{<var>_coverage_status}.
+#'    The variable causing the threshold violation can be identified as it is marked as FALSE in the column \code{<var>_coverage_problem}.
 #'    Scenarios where values will be stored in \code{Coverage_problems} are for example at the start of each data set when the sliding window is formed.
 #'    A second scenario is described when the sensor is disconnected from the logger (maintenance or data collection events) 
 #'    and a series of NA values are produced. After that series when new measurement values are recorded a new formation of the sliding window takes place.}
@@ -285,15 +292,6 @@ qc_persistence_test <- function(df,
       ))
     }
   }
-  if (is.null(source_column) && is.null(source_ids)) {
-    message("The persistence will be performed on the whole data frame without a grouping mechanism. \n",
-            "If you run this function on a master data frame in a pipeline setting please use a grouping mechanism by providing `source_ids` \n",
-            "and `source_column` \n",
-            "`source_column` defines the grouping column and `source_ids` define either individual files or whole sensor-groups that ", 
-            "should undergo the persistence test. "
-    )
-  }  
-  
   
   # filter condition for the master data frame workflow
   if(!is.null(source_column) && !is.null(source_ids)){
@@ -306,31 +304,33 @@ qc_persistence_test <- function(df,
   
     
     #coverage test
-    coverage_status_marked <- filtered_df |> # data frame containing the evaluated min coverage results.
+    coverage_problem_detected <- filtered_df |> # data frame containing the evaluated min coverage results.
       mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
         across(
          .cols = names(thresholds),
          .fns = ~ slider::slide_lgl( # slide_dbl function as the function argument for across to run for every measurement variable
             .x = .x, # .x the vector from the across command. means the current variable.
             # "." convention as placeholder to separate the operational area of across and slider_dbl placeholder
-            .f = ~ sum(!is.na(.)) >= (min_coverage * window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
-            .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones. 
-            .after = 0),
-         .names = "{.col}_coverage_status"
+            .f = ~ sum(!is.na(.)) < (min_coverage * window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
+            .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones.
+            .after = 0,
+            .complete = TRUE),
+         .names = "{.col}_coverage_problem"
         )
       )
             
          
     if(metric == "range") { # min_coverage rows not filtered beforehand. this would alter calculation of the sliding window. and is against the nature of the
       #persistence test.
-      marked_detections_df <- coverage_status_marked |>
+      marked_detections_df <- coverage_problem_detected |>
         mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
           across(
             .cols = names(thresholds),
             .fns = ~ slider::slide_lgl( # slide_dbl function as the function argument for across to run for every measurement variable
               .x = .x, # .x the vector from the across command. means the current variable.
               # "." convention as placeholder to separate the operational area of across and slider_dbl placeholder
-              .f = ~ if(is.na(dplyr::last(.))) { # NA check before the statistical metric is calculated. For the case coverage_problem okay, value in question = NA
+              .f = ~ if(is.na(dplyr::last(.)) || sum(!is.na(.)) < (min_coverage * window)) { # NA check before the statistical metric is calculated. For the case 
+                #no coverage_problem, value in question (last value) = NA.
                 NA
               }else { # range case
                 max(., na.rm = TRUE) - min(., na.rm = TRUE) < unname(thresholds[[dplyr::cur_column()]]["range"]) # cur_column get the name of the variable 
@@ -339,25 +339,28 @@ qc_persistence_test <- function(df,
                 # . as we still operate inside the sliding window. How many values are inside the sliding window.
                 }, 
               .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones. 
-              .after = 0),
+              .after = 0,
+              .complete = TRUE),
             .names = "{.col}_CVE"
           )
         )
     
     } else{
-      marked_detections_df <- coverage_status_marked |>
+      marked_detections_df <- coverage_problem_detected |>
         mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
           across(
             .cols = names(thresholds),
             .fns = ~ slider::slide_lgl(
               .x = .x, 
-              .f = ~ if(is.na(dplyr::last(.))) { # NA check before the statistical metric is calculated. For the case coverage_problem okay, value in question = NA
+              .f = ~ if(is.na(dplyr::last(.)) || sum(!is.na(.)) < (min_coverage * window)) { # NA check before the statistical metric is calculated. For the case 
+                # no coverage_problem, value in question = NA.
                 NA 
               }else {
                 sd(., na.rm = TRUE) < unname(thresholds[[dplyr::cur_column()]]["sd"]) 
                 }, 
               .before = window - 1, 
-              .after = 0),
+              .after = 0,
+              .complete = TRUE),
             .names = "{.col}_CVE"
           )
         )
@@ -370,9 +373,9 @@ qc_persistence_test <- function(df,
     coverage_problems <- marked_detections_df |>
       filter(
         if_any(
-          .cols = ends_with("_coverage_status"), # Column selection scheme using the end of the column names defined in .names above to select the columns
+          .cols = ends_with("_coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ isFALSE(.x), #equivalent to isTRUE() Report all rows that have not fullfilled the coverage conditions
+          .fns = ~ isTRUE(.x), #equivalent to isTRUE() Report all rows that have not fullfilled the coverage conditions
         )
       ) |>
       arrange(.data[[source_column]], .data[[date_column]])
@@ -463,31 +466,33 @@ qc_persistence_test <- function(df,
       arrange(.data[[date_column]])
     
     
-    coverage_status_marked <- arranged_df |> # data frame containing the evaluated min coverage results.
+    coverage_problem_detected <- arranged_df |> # data frame containing the evaluated min coverage results.
       mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
         across(
           .cols = names(thresholds),
           .fns = ~ slider::slide_lgl( # slide_dbl function as the function argument for across to run for every measurement variable
             .x = .x, # .x the vector from the across command. means the current variable.
             # "." convention as placeholder to separate the operational area of across and slider_dbl placeholder
-            .f = ~ sum(!is.na(.)) >= (min_coverage * window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
+            .f = ~ sum(!is.na(.)) < (min_coverage * window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
             .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones. 
-            .after = 0),
-          .names = "{.col}_coverage_status"
+            .after = 0,
+            .complete = TRUE),
+          .names = "{.col}_coverage_problem"
         )
       )
     
     
     if(metric == "range") { 
-      marked_detections_df <- coverage_status_marked |>
+      marked_detections_df <- coverage_problem_detected |>
         mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
           across(
             .cols = names(thresholds),
             .fns = ~ slider::slide_lgl( # slide_dbl function as the function argument for across to run for every measurement variable
               .x = .x, # .x the vector from the across command. means the current variable.
               # "." convention as placeholder to separate the operational area of across and slider_dbl placeholder
-              .f = ~ if(is.na(dplyr::last(.))) { # NA check before the statistical metric is calculated. For the case coverage_problem okay, value in question = NA
-                NA
+              .f = ~ if(is.na(dplyr::last(.)) || sum(!is.na(.)) < (min_coverage * window)) { # NA check before the statistical metric is calculated. For the case
+                # coverage_problem okay, value in question = NA OR min coverage not reached.
+                NA # return NA for the measurement values that cant be tested.
               }else { # range case
                 max(., na.rm = TRUE) - min(., na.rm = TRUE) < unname(thresholds[[dplyr::cur_column()]]["range"]) # cur_column get the name of the variable 
                 #currently processed
@@ -495,30 +500,38 @@ qc_persistence_test <- function(df,
                 # . as we still operate inside the sliding window. How many values are inside the sliding window.
               }, 
               .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones. 
-              .after = 0),
+              .after = 0,
+              .complete = TRUE),
             .names = "{.col}_CVE"
           )
         )
       
     } else{
-      marked_detections_df <- coverage_status_marked |>
+      marked_detections_df <- coverage_problem_detected |>
         mutate( # uses the output of the across() function to generate a column for each variable in names(thresholds). The name is provided by .names.
           across(
             .cols = names(thresholds),
             .fns = ~ slider::slide_lgl(
               .x = .x, 
-              .f = ~ if(is.na(dplyr::last(.))) { # NA check before the statistical metric is calculated. For the case coverage_problem okay, value in question = NA
+              .f = ~ if(is.na(dplyr::last(.)) || sum(!is.na(.)) < (min_coverage * window)) { # NA check before the statistical metric is calculated. For the case coverage_problem okay, value in question = NA
                 NA 
               }else {
                 sd(., na.rm = TRUE) < unname(thresholds[[dplyr::cur_column()]]["sd"]) 
-              }, 
+              },
+              
               .before = window - 1, 
-              .after = 0),
+              .after = 0,
+              .complete = TRUE),
             .names = "{.col}_CVE"
           )
         )
       
     }
+    
+    #########BUG FIX CHECK.##################
+    marked_detections_df |> 
+      select(ends_with("_CVE")) |> 
+      print(n = 20)
     
     # Reporting section for both options range and sd within source_ids workflow
     
@@ -526,9 +539,9 @@ qc_persistence_test <- function(df,
     coverage_problems <- marked_detections_df |>
       filter(
         if_any(
-          .cols = ends_with("_coverage_status"), # Column selection scheme using the end of the column names defined in .names above to select the columns
+          .cols = ends_with("coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ isFALSE(.x), #equivalent to isTRUE() Report all rows that have not fullfilled the coverage conditions
+          .fns = ~ isTRUE(.x), #Report all rows that have a coverage problem
         )
       )
     
@@ -556,7 +569,7 @@ qc_persistence_test <- function(df,
           if_any( # if at least one fulfills the condition
             .cols = ends_with("_CVE"),
             .fns = ~ isTRUE(.x))), #How many rows have at least one value that did not pass the test and is not NA
-        pct_group_detected = round(n_group_detected / n_group * 100, digits = 2),
+        pct_group_detected = round(n_group_detected / n_group * 100, digits = 2), 
         
         across( #Entering variable specific reporting workflow using across()
           .cols = ends_with("_CVE"),
