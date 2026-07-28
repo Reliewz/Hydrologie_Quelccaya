@@ -89,10 +89,16 @@ This supports reproducibility and transparent data governance by documenting exp
 
 * Missing value assessment
 * Completeness test
+* Functions to assess temporal completeness
 
 ### WMO Gross Error Check
 
 * Gross Error Check (Range test)
+
+### Temporal Consistency
+
+* Traditional Persistence Test (Customizable sliding window of previous timesteps using range metric for comparison).
+* Modified Persistence Test (Customizable sliding window using Standard Deviation (SD) metric to detect sensor drift).
 
 ## Quality Control Tests Under Current Development
 
@@ -100,7 +106,6 @@ The following station-internal quality control procedures are currently under de
 
 ### Temporal Consistency
 
-* Persistence test
 * Step-change test
 
 ### Internal Consistency
@@ -129,7 +134,7 @@ renv.lock
 
 ## Development Background
 
-The quality control framework is informed by international guidance and literature on hydrometeorological quality control, environmental monitoring and reproducible scientific computing, including recommendations from WMO (2011), Estévez et al. (2011), Bushnell & Worthington (2016), Manola et al. (2020) and Wilson et al. (2017).
+The quality control framework is informed by international guidance and literature on hydrometeorological quality control, environmental monitoring and reproducible scientific computing, including recommendations from WMO (2011), Estévez et al. (2011), Bushnell & Worthington (2016), Manola et al. (2020), Zahumenský (2004) and Wilson et al. (2017).
 
 ## Citation
 
