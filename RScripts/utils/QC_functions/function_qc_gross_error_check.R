@@ -44,14 +44,16 @@
 #' 
 #' @return list with a data frame and a report on how many values have been detected by the test. The generated data frame can then be used for further flagging workflows.
 #'  \describe{
-#'    \item{data}{Contains all records where at least one measurement variable did not pass the test.}
+#'    \item{data}{Contains all rows where at least one measurement variable did not pass the test.}
 #'    \item{detection_summary}{Contains further information how many values for each measurement variable have been detected.
-#'    On a group level (or for the entire data frame if no \code{source_column}/\code{source_ids} are provided), \code{n_group}/\code{n_total} report 
-#'    the total number of tested rows, \code{n_group_detected}/\code{n_detected_total} the number of rows with at least one detected value, and 
-#'    \code{pct_group_detected}/\code{pct_detected_total} the respective percentage. On a per-variable level, \code{n_detected} is the total amount 
-#'    of detected values, and \code{pct_detected} is the percentage of the detected values in relation to the total values examined. Both metrics are 
-#'    reported for each measurement column individually, e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}. In all statistics, rows or 
-#'    values where the respective measurement column(s) are NA are excluded.}
+#'    On a group level (or for the entire data frame if no \code{source_column} \code{source_ids} are provided), \code{n_total_tested} reports 
+#'    the total number of tested measurement values, \code{n_total_detected} the total number of values that did not pass the test.
+#'    \code{pct_total_detected} the respective percentage of detected values compared to the total number of examined values. (NA excluded) 
+#'    On a per-variable level, \code{n_group_<var>} reflects the total number of values of the respective variable.
+#'    \code{n_detected_<var>} is the total amount of detected values for the respective variable, and \code{pct_detected<var>} is the percentage of the 
+#'    detected values in relation to the total number of values examined. Both metrics are reported for each measurement column individually, 
+#'    (e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}). 
+#'    In all statistics, rows or values where the respective measurement column(s) are \code{NA} are excluded.}
 #'  }
 #'  
 #' @references
@@ -221,35 +223,29 @@ qc_gross_error_check <- function(df,
     detection_summary <- marked_detections_df |> 
       group_by(.data[[source_column]]) |> 
         summarise( # workflow numbers for each group (row-based)
-          n_group            = sum(
-                                !if_all(ends_with("_out_of_range"), is.na)), # Answers the question: How many rows exist in that group, without the rows where every
+          n_total_tested     = sum(!is.na(c_across(ends_with("_out_of_range")))), # Answers the question: How many rows exist in that group, without the rows where every
     #measurement variable is NA. if_all is used as the condition when all are NA. ! to exclude them.
-          n_group_detected   = sum(
-                                if_any(ends_with("_out_of_range"), .fns = ~ !is.na(.x) & .x)), #How many rows have at least one value that did not pass the test and is not NA
-          pct_group_detected = round(n_group_detected / n_group * 100, digits = 2 ),
+          n_total_detected   = sum(c_across(ends_with("_out_of_range")), na.rm = TRUE),
+          pct_total_detected = round(n_total_detected / n_total_tested * 100, digits = 2),
           
             across( # worflow for group + each variable documentation
               .cols = ends_with("_out_of_range"),
               .fns = list(
+                n_group          = ~ sum(!is.na(.x)),
                 n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group.
-                pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
+                pct_detected     = ~ round(n_detected / n_group * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
               .names = "{.fn}_{.col}"
             )
         )|> 
       rename_with(~ str_remove(.x, "_out_of_range"), .cols = contains("out_of_range")) |>
       ungroup()
     
-    # General summary for console message excluding NA
-    total_values <- sum(detection_summary$n_group)
-    total_detected_output <- sum(detection_summary$n_group_detected)
-    total_percentage <- round(total_detected_output / total_values * 100, digits = 2)
-    
     message(
       paste0(
         "WMO's Gross Error Check has been executed successfully ✓.\n",
-        "In total '", total_values, "' values have been examined.\n",
-        "From which '", total_detected_output, "' rows had at least one measurement value failed the test.\n",
-        "This makes a total percentage of '", total_percentage, "'%.\n\n", 
+        "In total '", detection_summary$n_total_tested, "' values have been examined.\n",
+        "From which '", detection_summary$n_total_detected, "' values failed the test.\n",
+        "This makes a total percentage of '", detection_summary$pct_total_detected, "'%.\n\n", 
         "Check detection_summary in the generated list inside the global environment ",
         "for a detailed description for each measurement value.\n\n", 
         "The $data point inside this list shows all rows where at least one ",
@@ -292,17 +288,17 @@ qc_gross_error_check <- function(df,
       # generating detection_summary for the output list
       detection_summary <- marked_detections_df |> 
         summarise( # workflow numbers for each group (row-based)
-          n_total            = sum(
-            !if_all(ends_with("_out_of_range"), is.na)), # Answers the question: How many rows exist in that group, without the rows where every
+          n_total_tested     = sum(!is.na(c_across(ends_with("_out_of_range")))), # Answers the question: How many rows exist in that group, without the rows where every
           #measurement variable is NA. if_all is used as the condition when all are NA. ! to exclude them.
-          n_detected_total   = sum(
-            if_any(ends_with("_out_of_range"), .fns = ~ !is.na(.x) & .x)), #How many rows have at least one value that did not pass the test.
-          pct_detected_total = round(n_detected_total / n_total * 100, digits = 2 ),
+          n_total_detected   = sum(c_across(ends_with("_out_of_range")), na.rm = TRUE),
+          pct_total_detected = round(n_total_detected / n_total_tested * 100, digits = 2),
+          
           across( # worflow for group + each variable documentation
             .cols = ends_with("_out_of_range"),
             .fns = list(
+              n_group          = ~ sum(!is.na(.x)),
               n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group.
-              pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # this does not work. length and sum will produce the exact same values as all of them are already detected.
+              pct_detected     = ~ round(n_detected / n_group * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
             .names = "{.fn}_{.col}"
           )
         )|>
@@ -312,9 +308,9 @@ qc_gross_error_check <- function(df,
        message(
         paste0(
           "WMO's Gross Error Check has been executed successfully .\n",
-          "In total '", detection_summary$n_total, "' values have been examined.\n",
-          "From which '", detection_summary$n_detected_total, "' failed the test.\n",
-          "This makes a total percentage of '", detection_summary$pct_detected_total, "'%.\n\n", 
+          "In total '", detection_summary$n_total_tested, "' rows have been examined.\n",
+          "From which '", detection_summary$n_total_detected, "' rows had at least one measurement value fail the test.\n",
+          "This makes a total percentage of '", detection_summary$pct_total_detected, "'%.\n\n", 
           "Check detection_summary in the generated list inside the global environment ",
           "for a detailed description for each measurement value.\n\n", 
           "The $data point inside this list shows all rows where at least one ",

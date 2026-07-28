@@ -100,19 +100,23 @@
 #' @return list with a data frame and a report on how many values have been detected by the test. The generated data frame can then be used for further flagging workflows.
 #'  \describe{
 #'    \item{data}{Contains all records where at least one measurement variable did not pass the test. The variable that did not pass the test
-#'    is marked as \code{TRUE} in the test outcome column}
+#'    is marked as \code{TRUE} in the test outcome column (_CVE)}
 #'    \item{detection_summary}{Contains further information how many values for each measurement variable have been detected.
-#'    On a group level (if \code{source_column} & \code{source_ids} are provided) or for the entire data frame (if not), \code{n_group} reports the total 
-#'    number of tested rows ignoring rows where all measurement values are \code{NA}, 
-#'    \code{n_group_detected} the number of rows with at least one detected value, and \code{pct_group_detected} the respective percentage. 
+#'    On a group level (if \code{source_column} & \code{source_ids} are provided) or for the entire data frame (if not), \code{n_total_tested} reports the total 
+#'    number of tested values across all measurement variables ignoring \code{NA}, 
+#'    \code{n_total_detected} the total number of values that did not pass the test., 
+#'    \code{pct_total_detected} the respective percentage out of the previous two. (Detected values compared to the total number of examined values). 
 #'    These three column names are used identically in both scenarios (grouped and single data frame).
-#'    On a per-variable level, \code{n_detected} is the total amount of detected values, and \code{pct_detected} is the percentage of the detected values 
-#'    in relation to the total values examined (Values that violated the min_coverage condition are included in the total, see \code{note} for the resulting
-#'    reporting-BIAS. 
-#'    Both metrics are reported for each measurement column individually, e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}.}
+#'    On a per-variable level, \code{n_group_<var>} reflects the total number of values of the respective variable.
+#'    \code{n_detected_<var>} is the total amount of detected values for the respective variable, and \code{pct_detected<var>} is the percentage of the 
+#'    detected values in relation to the total number of values examined. Both metrics are reported for each measurement column individually, 
+#'    (e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}). 
+#'    In all statistics, rows or values where the respective measurement column(s) are \code{NA} are excluded.} 
+#'    Values that violated the min_coverage condition are included in the total, see \code{note} for the resulting reporting-BIAS. 
+#'    }
 #'    \item{coverage_problems}{Contains the rows where at least one variable could not be tested because the threshold dictated by \code{min_coverage}
-#'    was not met to achieve a a robust test result.
-#'    The variable causing the threshold violation can be identified as it is marked as FALSE in the column \code{<var>_coverage_problem}.
+#'    was not met to achieve a a robust test result and if the sliding windows has not formed fully.
+#'    The variable causing the threshold violation can be identified as it is marked as TRUE in the column \code{<var>_coverage_problem}.
 #'    Scenarios where values will be stored in \code{Coverage_problems} are for example at the start of each data set when the sliding window is formed.
 #'    A second scenario is described when the sensor is disconnected from the logger (maintenance or data collection events) 
 #'    and a series of NA values are produced. After that series when new measurement values are recorded a new formation of the sliding window takes place.}
@@ -120,10 +124,10 @@
 #'  
 #' @references Approach for the two test statistics and sliding time window. Threshold values for the range version are adopted here.
 #' Zahumenský, Igor, 2004. - Guidelines on Quality Control Procedures for Data from Automatic Weather Stations,
+#' Chapter 2 - BASIC QUALITY CONTROL PROCEDURES b) Page 5 - 6.
 #' Slovak Hydrometeorological Institute, Slovakia. 
 #' Originally published in: 
 #' WMO, 1993: WMO Guide on Global Data Processing System (WMO-No. 305).
-#' Chapter 6 - Quality Control Procedures Page 5 - 6.
 #' World Meteorological Organization, Geneva, No. 305,
 #' VI.1-VI.27, ISBN 92-63-13305-0 
 #' 978-92-63-13305-2.
@@ -311,10 +315,9 @@ qc_persistence_test <- function(df,
          .fns = ~ slider::slide_lgl( # slide_dbl function as the function argument for across to run for every measurement variable
             .x = .x, # .x the vector from the across command. means the current variable.
             # "." convention as placeholder to separate the operational area of across and slider_dbl placeholder
-            .f = ~ sum(!is.na(.)) < (min_coverage * window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
+            .f = ~ sum(!is.na(.)) < (min_coverage * window) | (length(.) < window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
             .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones.
-            .after = 0,
-            .complete = TRUE),
+            .after = 0),
          .names = "{.col}_coverage_problem"
         )
       )
@@ -375,7 +378,7 @@ qc_persistence_test <- function(df,
         if_any(
           .cols = ends_with("_coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ isTRUE(.x), #equivalent to isTRUE() Report all rows that have not fullfilled the coverage conditions
+          .fns = ~ !is.na(.x) & .x, #Report all rows that have not fulfilled the coverage conditions
         )
       ) |>
       arrange(.data[[source_column]], .data[[date_column]])
@@ -386,8 +389,8 @@ qc_persistence_test <- function(df,
         if_any(
           .cols = ends_with("_CVE"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ isTRUE(.x) # isTRUE checks if the values is TRUE and if it is NA it provides FALSE. Stores the values in detected_records
-          # that are detected by the test
+          .fns = ~ !is.na(.x) & .x # Stores the values in detected_records
+          # that are detected by the test (TRUE) and not NA.
         )
       ) |>
       arrange(.data[[source_column]], .data[[date_column]])
@@ -396,47 +399,34 @@ qc_persistence_test <- function(df,
     detection_summary <- marked_detections_df |> 
       group_by(.data[[source_column]]) |> 
       summarise( # summarise always summarises the row-based results and expresses them in a number.
-        n_group = 
-          sum(
-           !if_all(
-            .cols = ends_with("_CVE"), 
-            .fns = is.na)), # Answers the question: How many rows exist in that group, without the rows where every
-        #measurement variable is NA. if_all is used as the condition when all are NA. ! to exclude them.
-        n_group_detected   = sum( # sum used to count the logical TRUES
-          if_any( # if at least one fulfills the condition
-            .cols = ends_with("_CVE"),
-            .fns = ~ isTRUE(.x))), #How many rows have at least one value that did not pass the test and is not NA
-        pct_group_detected = round(n_group_detected / n_group * 100, digits = 2),
+        n_total_tested     = sum(!is.na(c_across(ends_with("_CVE")))), #c_across to aggregate the statistics over multiple columns here all that end with CVE.
+        n_total_detected   = sum(c_across(ends_with("_CVE")), na.rm = TRUE), # na.rm ignores NA to achieve a calculation result.
+        pct_total_detected = round(n_total_detected / n_total_tested * 100, digits = 2),
         
         across( #Entering variable specific reporting workflow using across()
           .cols = ends_with("_CVE"),
           .fns = list(
+            n_group          = ~ sum(!is.na(.x)),
             n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group that are TRUE (detected)
-            pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # denominator counts every value excepct NA.
+            pct_detected     = ~ round(n_detected / n_group * 100, digits = 2)),
           .names = "{.fn}_{.col}"
         )
       ) |> 
       rename_with(~ stringr::str_remove(.x, "_CVE"), .cols = contains("CVE")) |> # remove the _CVE content from the column names
       ungroup()
-    
-    
-    # General summary for console message excluding NA
-    total_values <- sum(detection_summary$n_group)
-    total_detected_output <- sum(detection_summary$n_group_detected)
-    total_percentage <- round(total_detected_output / total_values * 100, digits = 2)
-    
+   
     message(
       paste0(
         "Persistence test has been executed successfully ✓.\n",
-        "In total '", total_values, "' values have been examined.\n",
-        "From which '", total_detected_output, "' rows had at least one measurement value failed the test.\n",
-        "This makes a total percentage of '", total_percentage, "'%.\n\n", 
+        "In total '", detection_summary$n_total_tested, "' values have been examined.\n",
+        "From which '", detection_summary$n_total_detected, "' values failed the test.\n",
+        "This makes a total percentage of '", detection_summary$pct_total_detected, "'%.\n\n", 
         "Check detection_summary in the generated list inside the global environment ",
         "for a detailed description for each measurement value.\n\n", 
         "The $data point inside this list shows all rows where at least one\n ",
         "measurement value has failed the test.\n",
-        "$coverage_problems show the values which have not been tested as they\n",
-        "did not exceed the minimum amount of required values defined by `min_coverage`."
+        "$coverage_problems shows the values which have not been tested as they\n",
+        "did not exceed the minimum amount of required values."
       )
     )
     
@@ -473,10 +463,10 @@ qc_persistence_test <- function(df,
           .fns = ~ slider::slide_lgl( # slide_dbl function as the function argument for across to run for every measurement variable
             .x = .x, # .x the vector from the across command. means the current variable.
             # "." convention as placeholder to separate the operational area of across and slider_dbl placeholder
-            .f = ~ sum(!is.na(.)) < (min_coverage * window), # . as we still operate inside the sliding window. How many values are inside the sliding window.
+            .f = ~ sum(!is.na(.)) < (min_coverage * window) | (length(.) < window), # . as we still operate inside the sliding window. How many values are inside 
+            #the sliding window. Add length condition analog to .complete in slider. But produces a logical result for better human readability.
             .before = window - 1, # -1 as slider counts the present examined value, as well as the previous ones. 
-            .after = 0,
-            .complete = TRUE),
+            .after = 0),
           .names = "{.col}_coverage_problem"
         )
       )
@@ -525,23 +515,16 @@ qc_persistence_test <- function(df,
             .names = "{.col}_CVE"
           )
         )
-      
-    }
-    
-    #########BUG FIX CHECK.##################
-    marked_detections_df |> 
-      select(ends_with("_CVE")) |> 
-      print(n = 20)
+     }
     
     # Reporting section for both options range and sd within source_ids workflow
-    
     # coverage problems filter
     coverage_problems <- marked_detections_df |>
       filter(
         if_any(
           .cols = ends_with("coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ isTRUE(.x), #Report all rows that have a coverage problem
+          .fns = ~ !is.na(.x) & .x, #Report all rows that have a coverage problem and is not NA
         )
       )
     
@@ -551,49 +534,40 @@ qc_persistence_test <- function(df,
         if_any(
           .cols = ends_with("_CVE"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ isTRUE(.x) # isTRUE checks if the values is TRUE and if it is NA it provides FALSE. Stores the values in detected_records
-          # that are detected by the test
+          .fns = ~ !is.na(.x) & .x
         )
       )
     
     #detection summary reporting detected results excluding the values who failed min_coverage.
     detection_summary <- marked_detections_df |> 
       summarise( # summarise always summarises the row-based results and expresses them in a number.
-        n_group = 
-          sum(
-            !if_all(
-              .cols = ends_with("_CVE"), 
-              .fns = is.na)), # Answers the question: How many rows exist without the rows where every
-        #measurement variable is NA. if_all is used as the condition when all are NA. ! to exclude them.
-        n_group_detected   = sum( # sum used to count the logical TRUES
-          if_any( # if at least one fulfills the condition
+        n_total_tested     = sum(!is.na(c_across(ends_with("_CVE")))), #c_across to aggregate the statistics over multiple columns here all that end with CVE.
+        n_total_detected   = sum(c_across(ends_with("_CVE")), na.rm = TRUE), # na.rm ignores NA to achieve a calculation result.
+        pct_total_detected = round(n_total_detected / n_total_tested * 100, digits = 2),
+          
+          across( #Entering variable specific reporting workflow using across()
             .cols = ends_with("_CVE"),
-            .fns = ~ isTRUE(.x))), #How many rows have at least one value that did not pass the test and is not NA
-        pct_group_detected = round(n_group_detected / n_group * 100, digits = 2), 
-        
-        across( #Entering variable specific reporting workflow using across()
-          .cols = ends_with("_CVE"),
-          .fns = list(
-            n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group that are TRUE (detected)
-            pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # denominator counts every value excepct NA.
-          .names = "{.fn}_{.col}"
+            .fns = list(
+              n_group          = ~ sum(!is.na(.x)),
+              n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group that are TRUE (detected)
+              pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # denominator counts every value excepct NA.
+            .names = "{.fn}_{.col}"
         )
       ) |> 
       rename_with(~ stringr::str_remove(.x, "_CVE"), .cols = contains("CVE")) # remove the _CVE content from the column names
     
-    
     message(
       paste0(
         "The Peristence Test has been executed successfully on a single data frame .\n",
-        "In total '", detection_summary$n_group, "' values have been examined.\n",
-        "From which '", detection_summary$n_group_detected, "' rows had at least one measurement value failed the test.\n",
-        "This makes a total percentage of '", detection_summary$pct_group_detected, "'%.\n\n", 
+        "In total '", detection_summary$n_total_tested, "' values have been examined.\n",
+        "From which '", detection_summary$n_total_detected, "' values failed the test.\n",
+        "This makes a total percentage of '", detection_summary$pct_total_detected, "'%.\n\n", 
         "Check detection_summary in the generated list inside the global environment ",
         "for a detailed description for each measurement value.\n\n", 
         "The $data point inside this list shows all rows where at least one\n ",
         "measurement value has failed the test.\n",
         "$coverage_problems show the values which have not been tested as they\n",
-        "did not exceed the minimum amount of required values defined by `min_coverage`."
+        "did not exceed the minimum amount of required values."
       )
     )
     

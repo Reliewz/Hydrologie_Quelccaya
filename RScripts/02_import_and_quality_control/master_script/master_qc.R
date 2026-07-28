@@ -45,8 +45,6 @@ source("RScripts/utils/qc_functions/function_ensure_required_columns_qk.R")
 source("RScripts/utils/qc_functions/function_parse_datetime_column.R")
 source("RScripts/utils/qc_functions/function_drop_columns.R")
 source("RScripts/utils/qc_functions/function_load_qk_csv.R")
-
-
 #Harmonization Functions
 source("RScripts/utils/QC_functions/function_harmonize_NA_codes.R")
 source("RScripts/utils/QC_functions/function_convert_column_types.R")
@@ -57,7 +55,6 @@ source("RScripts/utils/qc_functions/function_vector_mean_wd.R")
 source("RScripts/utils/qc_functions/function_aggregate_15min_to_hourly.R")
 source("RScripts/utils/qc_functions/function_check_temporal_inconsistencies.R")
 source("RScripts/utils/qc_functions/function_coordinate_transformation.R")
-
 #QC Tests and Functions for Flagging Workflow
 source("RScripts/utils/qc_functions/function_qc_completeness_test.R")
 source("RScripts/utils/qc_functions/function_qc_gross_error_check.R")
