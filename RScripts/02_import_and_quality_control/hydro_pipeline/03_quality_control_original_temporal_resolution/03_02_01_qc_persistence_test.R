@@ -46,12 +46,12 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   process_step = "QC Test: Persistence Test",
   action = "initial_assignment",
   df = hydro_results_persistence_test$data,
-  to_flag = HYDRO_QC_CONFIG$PERSISTENCE_TEST$FLAG_VALUE,
+  to_flag = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$FLAG_VALUE,
   operator = "Kai Zwießler",
   device = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$SOURCE_IDS,
   reason = paste("Persistence Test results: the data set contains one constant value episode in $data for absolute pressure and temperature alike. ",
-                 "Both values are frozen for the same time interval. It was not associated with a protocoled data collection or maintenence event. ",
-                 "In the list segement $coverage_problems the data values in absolute presure repeat itself while temperature continues to varry. ",
+                 "Both values are frozen for the same time interval. It was not associated with a protocoled data collection or maintenance event. ",
+                 "In the list segment $coverage_problems the data values in absolute pressure repeats itself while temperature continues to vary. "
                   ))
 
 

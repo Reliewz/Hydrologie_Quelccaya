@@ -378,8 +378,7 @@ qc_persistence_test <- function(df,
         if_any(
           .cols = ends_with("_coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ !is.na(.x) & .x, #Report all rows that have not fulfilled the coverage conditions
-        )
+          .fns = ~ !is.na(.x) & .x)#Report all rows that have not fulfilled the coverage conditions
       ) |>
       arrange(.data[[source_column]], .data[[date_column]])
     
@@ -525,8 +524,8 @@ qc_persistence_test <- function(df,
         if_any(
           .cols = ends_with("coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
-          .fns = ~ !is.na(.x) & .x, #Report all rows that have a coverage problem and is not NA
-        )
+          .fns = ~ !is.na(.x) & .x
+        ) #Report all rows that have a coverage problem and is not NA
       )
     
     # $data filter
