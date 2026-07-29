@@ -414,13 +414,17 @@ qc_persistence_test <- function(df,
       ) |> 
       rename_with(~ stringr::str_remove(.x, "_CVE"), .cols = contains("CVE")) |> # remove the _CVE content from the column names
       ungroup()
+    
+    total_tested   <- sum(detection_summary$n_total_tested)
+    total_detected <- sum(detection_summary$n_total_detected)
+    total_pct      <- round(total_detected / total_tested * 100, digits = 2)
    
     message(
       paste0(
         "Persistence test has been executed successfully ✓.\n",
-        "In total '", detection_summary$n_total_tested, "' values have been examined.\n",
-        "From which '", detection_summary$n_total_detected, "' values failed the test.\n",
-        "This makes a total percentage of '", detection_summary$pct_total_detected, "'%.\n\n", 
+        "In total '", total_tested, "' values have been examined.\n",
+        "From which '", total_detected, "' values failed the test.\n",
+        "This makes a total percentage of '", total_pct, "'%.\n\n", 
         "Check detection_summary in the generated list inside the global environment ",
         "for a detailed description for each measurement value.\n\n", 
         "The $data point inside this list shows all rows where at least one\n ",
@@ -435,9 +439,6 @@ qc_persistence_test <- function(df,
       detection_summary = detection_summary,
       coverage_problems = coverage_problems
     ))
-    
-    
-    
     
     
     

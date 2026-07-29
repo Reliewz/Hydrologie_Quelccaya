@@ -13,7 +13,7 @@
 #======================================================================
 
 # ------------------------------------------------------------------------------
-# Execution of persistence test for barometer data
+# Execution of persistence test for BAROMETER DATA
 # ------------------------------------------------------------------------------
 hydro_results_persistence_test <- qc_persistence_test(
   df = data_hydro15_gross_error_flagged,
@@ -52,8 +52,7 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   reason = paste("Persistence Test results: the data set contains one constant value episode in $data for absolute pressure and temperature alike. ",
                  "Both values are frozen for the same time interval. It was not associated with a protocoled data collection or maintenence event. ",
                  "In the list segement $coverage_problems the data values in absolute presure repeat itself while temperature continues to varry. ",
-                 "A loss of connection is protocolled. The data set is approved for further analysis. Total examined values: 3736."
-  ))
+                  ))
 
 
 # Final rename

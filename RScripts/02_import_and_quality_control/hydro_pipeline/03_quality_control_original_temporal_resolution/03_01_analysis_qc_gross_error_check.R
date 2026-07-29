@@ -31,7 +31,7 @@ readr::write_csv(
   hydro_results_gross_error_check_calibration$detection_summary,
   file.path(
     HYDRO_OUTPUT_DIRECTORIES$DIR_QC_SUMMARY,
-    "gross_error_calibraton_summary.csv"
+    "HYDRO_gross_error_calibraton_summary.csv"
   ))
 
 
@@ -40,5 +40,5 @@ readr::write_csv(
   meteo_results_gross_error_check$detection_summary,
   file.path(
     METEO_OUTPUT_DIRECTORIES$DIR_QC_SUMMARY,
-    "gross_error_check_summary.csv"
+    "METEO_gross_error_check_summary.csv"
   ))
