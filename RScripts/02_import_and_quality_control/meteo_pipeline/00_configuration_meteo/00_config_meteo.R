@@ -169,18 +169,20 @@ METEO_QC_CONFIG <- list(
     )
   ),
   PERSISTENCE_TEST15 = list(
-    FLAG_VALUE = "FLAT_LINE",
+    FLAG_VALUE = "CVE",
     WINDOW     = 4,
     THRESHOLDS = list(
-      AirTC     = c(range = 0.1, sd = 1),
-      RH        = c(range = 1, sd = 1),
-      WS        = c(range = 0.1, sd = 1),
-      Wind_gust = c(range = 0.1, sd = 1),
-      WD        = c(range = 0.1, sd = 1)
-    )
+      AirTC     = c(range = 0.1, sd = 0),
+      RH        = c(range = 1, sd = 0),
+      WS        = c(range = 0.5, sd = 0),
+      Wind_gust = c(range = 0.1, sd = 0),
+      WD        = c(range = 10, sd = 0)
+    ),
+    METRIC       = "range",
+    MIN_COVERAGE = 0.5
   ),
   PERSISTENCE_TEST60 = list(
-    FLAG_VALUE = "FLAT_LINE",
+    FLAG_VALUE = "CVE",
     WINDOW     = 3,
       THRESHOLDS = list(
         AirTC     = c(range = 0.1, sd = 1), #sd tbd

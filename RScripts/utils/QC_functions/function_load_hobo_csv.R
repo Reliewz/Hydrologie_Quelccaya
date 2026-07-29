@@ -1,27 +1,49 @@
 #======================================================================
-# Scriptname: utils/function_load_hobo_csv.R
-# Function name: load_hobo_csv
-# Goal(s): 
-  # Folder import function for .csv data (Default: pressure sensor HOBO U20L
-  # Csv import, skip function to skip stored metadata
-  # imports all .csv files stored in a folder
-  # A new column called "Date" is generated, where the type is converted to POSIXct format and automatically to ISO 8601 YYYY.MM.DD hh:mm:ss.
-  # the function informs via message about date format for validation
-# Author: Kai Albert Zwießler
-# Outputs:
-  # integrated data, without duplicates and converted date column
-
+# Script name: function_load_hobo_csv.R
+# Function name: load_hobo_csv()
 #======================================================================
 
-#' # ========== CONFIGURATION ==========
-#' @param folder_path the file path where all the data of this sensor is stored
-#' @param keep_files Character vector of file names to import. If NULL, all .csv files in folder_path are imported.
-#' @param date_col the original name of the date column, later should be renamed
-#' @param timezone timezone in which the sensor data is recorded
-#' @param skip amount of the skipped rows when importing. Default = 1 as this works for the HOBO U20L and can be adjusted depending on amount of rows containing metadata before the actual headlines begin. 
-#' @return tibble
-#' @export
+#' @title Import function for the HOBO U20L pressure sensor.
 #' 
+#' @description Folder import workflow. Designed to import the raw .csv files directly after the .hobo transformation.
+#' 
+#' @details
+#' The columns import type is \code{character} to prevent errors resulting from different and erroneously assigned column types.
+#' 
+#' Ignoring metadata above the actual headline row using \code{skip}.
+#' 
+#' A new column called "Date" is generated, where the type is converted to POSIXct format according to ISO 8601 YYYY.MM.DD hh:mm:ss standards.
+#' A sort mechanism is then executed using the newly generated column "Date".
+#' 
+#' A verification is implemented for the case any errors during the date parse process had occurred.
+#' A message is provided to the operator reporting the first timestamp and last timestamp and the total number of rows.
+#' 
+#' @note
+#' This function is a part of different import and standardization functions. Please check the scripts \code{load_and_standardize} to see how they can be
+#' combined for a successful import workflow.
+#'  
+#' @param folder_path the file path where individual files for the meteorological station is stored.
+#' @param keep_files Character vector. Containing the names of the files which should be selected for the import. The names have to match the names in the folder
+#' selected for import.
+#' If \code{NULL}, all .csv files in \code{folder_path} are imported.
+#' @param date_col Character string. Using the original column name of the date column.
+#' @param timezone character string. Containing the timezone in which the sensor data is recorded. 
+#' Must be a valid Olson timezone name.
+#' @examples
+#' \dontrun{
+#' Examples are:
+#' TIMEZONE_DATA <- "America/Lima"
+#' TIMEZONE_PROCESS <- "Europe/Berlin"}
+#' 
+#' @param skip Numeric string. Amount of skipped rows above the headders during the import. Default: 1 as this works for the HOBO U20L 
+#' and can be adjusted depending on amount of rows containing metadata before the actual headlines begin.
+#'  
+#' @return tibble where all selected files are concatenated. The new file contains an additional \code{date_col} with the name "Date" in ISO 8601 format:
+#' YYYY.MM.DD hh:mm:ss. 
+#' 
+#' @author Kai Albert Zwießler
+#' 
+#' @export
 
 load_hobo_csv <- function(folder_path, 
                           keep_files = NULL,
