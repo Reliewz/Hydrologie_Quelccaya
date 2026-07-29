@@ -1,31 +1,30 @@
 #======================================================================
-# Scriptname: utils/parse_datetime_column.R
-# Function name: parse_datetime_column
-# Goal(s):
-  # Converting date column into ISO format YYYY.MM.DD hh:mm:ss and POSIXct date type
-  # Adding timezone information to the date column
-
-# Author: Kai Albert Zwießler
-# Date: 2026.06.10
-# Input:  data frame or tibble
-# Output: data frame or tibble with converted date columns
+# Script name: function_parse_datetime_column.R
+# Function name: parse_datetime_column()
 #======================================================================
 
-#' Parse a raw datetime column into POSIXct format
+#' @title Parse a column containing date and time into POSIXct format.
 #'
+#' @desciprtion
 #' Converts a character-based datetime column to a POSIXct datetime object
-#' using the specified timezone. A new column named "Date" is created and
-#' added to the input data frame.
+#' using the specified timezone. A new column named "Date" is created and added to the input data frame.
 #'
 #' @param df data frame or tibble containing the raw datetime column.
-#' @param date_column character string containing the name of the raw
-#' datetime column to be converted.
-#' @param timezone character string defining the timezone used for datetime
-#' parsing. Must be a valid Olson timezone name.
-#' @param orders character string describing the original datetime format
-#' used by lubridate::parse_date_time(). Default = "mdy IMS p".
-#' @return data frame or tibble containing an additional POSIXct column
-#' named "Date".
+#' @param date_column character string. containing the name of the raw name of the column with the date and time information.
+#' @param timezone character string. Containing the timezone in which the sensor has been recorded. 
+#' Must be a valid Olson timezone name.
+#' @examples
+#' \dontrun{
+#' Examples are:
+#' TIMEZONE_DATA <- "America/Lima"
+#' TIMEZONE_PROCESS <- "Europe/Berlin"}
+#' @param orders Character string. Describing the original datetime format compatible with lubridate::parse_date_time(). Default = "mdy IMS p".
+#' Others can be specified if required.
+#' 
+#' @return data frame or tibble containing an additional column named "Date" from type \code{POSIXct} according to ISO 8601 YYYY.MM.DD hh:mm:ss standards and added
+#' \code{timezone} information.
+#' 
+#' @author Kai Albert Zwießler
 #'
 #' @export
 
