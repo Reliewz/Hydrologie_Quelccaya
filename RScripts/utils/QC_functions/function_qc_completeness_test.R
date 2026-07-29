@@ -1,45 +1,59 @@
 #======================================================================
 # Script name: function_qc_completeness_test.R
-# Function name: qc_completeness_test
-# Goal(s): 
-  # Check in the assigned measurement columns for at least one missing value
-  # report to the operator via a list how many values were detected for each measurement variable absolute count and percent.
-  # Also in the final report detection_summary are the values that have no missing values and are 100% complete for a comprehensive summary.
-  # report the total amount of checked values, detected values and their percentage to the operator in the console.
-# Author: 
-# Date: 2026.07.07
+# Function name: qc_completeness_test()
 #======================================================================
 
-#' @title Quality control completeness test.
-#' @description  Extracts and provides information if one value in the measurement columns is missing. Works for a master data frame or individual files. 
+#' @title completeness test for Quality Control of time series data.
+#' 
+#' @description Detects missing values in defined \code{measurement_columns}.
+#' Extracts the row and provides a summary if at least one value in the defined \code{measurement_columns} is missing. 
+#' Works for a master data frame or single data files.
 #' The function is intended for multi-sensor data sets where individual series are identified via a grouping column (e.g. Source.Code or ID).
 #' But can also be applied on a single data frame without identifier.
+#' 
+#' @details
+#' Row based reports and variable based reports.
+#' 
+#' @note
+#' The data is sorted internally for better human readability in \code{$data}.
+#' For the master \code{df} workflow the data is sorted by \code{source_column} for the respective groups and \code{date_column} for the temporal arrangement.
+#' The single data frame workflow is only sorted by \code{date_column}.
+#' The original structure of \code{df} is maintained.
+#' 
 #' @param df master data frame, data frame or tibble
-#' @param date_column Character string. Column which contains the temporal information for the time series. Used for sort mechanism for final report in $data.
-#' Default: "Date".
-#' @param measurement_columns Character vector containing all columns where the measurement values are stored.
-#' @param source_column Character string. Specifying the column that contains the values provided in `source_ids`.
-#' @param source_ids Character vector defining the groups that should undergo the completeness test. 
+#' @param date_column Character string. Column which contains the temporal information for the time series. Default: "Date".
+#' @param measurement_columns Character vector. Containing all column names where the measurement values are stored.
+#' @param source_column Character string. Specifying the column that contains the specific identifier provided by \code{source_ids}.
+#' @param source_ids Character vector. Defining the groups that should undergo the completeness test. 
 #' Values usually represent file identifiers (f.e. Source.Code or Sensor ID).
-#' Individual files of a master data frame can be selected by providing a character vector containing their source name or another clear identifier. 
-#' Whole hydrological sensors or meteorological stations can be tested by providing a shared identification ID describing the whole sensor group.
-#' @return list with a data frame and a report on how many values have been detected by the test. The data frame can then be used for further flagging workflows.
+#' Individual files of a master data frame can be selected by providing a character vector containing their source name or another identifier. 
+#' Whole hydrological sensors or meteorological stations can be tested by providing a shared ID uniting the sensor group.
+#' 
+#' @return list with two different data frames.
 #'  \describe{
-#'    \item{data}{Contains all records where at least one measurement column is NA.}
+#'    \item{data}{Contains all records where at least one measurement column is \code{NA}.}
 #'    \item{detection_summary}{Contains further information how many values for each measurement variable have been detected.
-#'    \code{n_detected} is the total amount of detected values, and \code{pct_detected} is the percentage of the detected values in relation
-#'    to the total values examined (both reported per measurement column, e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}).}
+#'      On a group level, (if \code{source_column} & \code{source_ids} are provided) or for the entire data frame (if not),
+#'      \code{n_group} represents the total number of rows examined.
+#'      \code{n_group_detected} reflects the total number of rows where at least one measurement value is \code{NA}.
+#'      \code{pct_detected<var>} is the percentage of the detected values in relation to the total number of values examined. 
+#'      On a per-variable level, \code{n_total} reflects the total number of values examined. 
+#'      \code{n_detected_<var>} is the total amount of detected \code{NA} values, and \code{pct_detected_<var>} is the percentage of the 
+#'      detected \code{NA} values in relation to the total number of values examined. 
+#'      Both metrics are reported for each measurement column individually, 
+#'      (e.g. \code{n_detected_Abs_pres}, \code{pct_detected_Abs_pres}).  (both reported per measurement column, e.g. \code{n_detected_Abs_pres}, 
+#'      \code{pct_detected_Abs_pres}).   
+#'      These three column names are used identically in both scenarios (grouped and single data frame).
 #'  }
 #' 
 #' @references 
-#' WMO, 2011. Guide to Climatological Practices (WMO-No. 100), Third Edition. ed.
+#' WMO, 2011. Guide to climatological Practices (WMO-No. 100), Third Edition. ed.
 #' pp. 9–11 (Chapter 3) 
 #' World Meteorological Organization, Geneva, Switzerland.
 #' 
-#' @export
-#' 
 #' @author Kai Albert Zwießler
 #' 
+#' @export
 #' @seealso Workflow suggestion using the integrated functions:
 #' \code{\link{function_apply_qc_flags}} to assign the respective QC flags using the generated data frame & 
 #' \code{\link{function_log_qc_decisions}} for documentation of the results concerning data quality.
@@ -138,21 +152,21 @@ qc_completeness_test <- function(df,
         all_of(measurement_columns),
         is.na
       )
-    ) |> 
-    arrange(.data[[source_column]], .data[[date_column]])
+    )
   
   # Statistic of detected values
   detection_summary <- filtered_df |> 
     group_by(.data[[source_column]]) |>
       summarise(
-        n_group = n(), # All values inside the group to report this value as well in detection_summary
+        n_group = n(), # All rows inside the group to report this statistic as well in detection_summary
         n_group_detected = sum(
           if_any(
-            all_of(measurement_columns), is.na)), # how many rows contain atleast one NA measurement value
+            all_of(measurement_columns), is.na)), # how many rows contain at least one NA measurement value
         percent_detected = round(n_group_detected / n_group * 100, digits = 2),
         across( # across workflow to report for each variable.
           all_of(
           measurement_columns), .fns = list(
+            n = ~ length(.x),
             n_detected = ~ sum(is.na(.x)),
             pct_detected = ~ round(sum(is.na(.x)) / length(.x) * 100, digits = 2)), 
           .names = "{.fn}_{.col}" # {.fn} is defined in the names in the function list
@@ -161,19 +175,19 @@ qc_completeness_test <- function(df,
       ungroup()
   
   # General statistic derivation for message output
-  total_values <- nrow(filtered_df)
-  total_detected_output <- nrow(rows_with_NA)
-  total_percentage <- round(total_detected_output / total_values * 100, digits = 2)
+  total_rows <- nrow(filtered_df)
+  total_detected_rows <- nrow(rows_with_NA)
+  total_percentage <- round(total_detected_rows / total_rows * 100, digits = 2)
   
   message(
     paste0(
       "Completeness Test has been executed successfully ✓.\n",
-      "In total '", total_values, "' values have been examined.\n",
-      "From which '", total_detected_output, "' failed the test.\n",
+      "In total '", total_rows, "' rows have been examined.\n",
+      "From which '", total_detected_rows, "' rows had at least one missing value and therefore, failed the test.\n",
       "This makes a total percentage of '", total_percentage, "'%.\n\n", 
       "Check detection_summary in the generated list inside the global environment ",
-      "for a detailed description for each measurement value.\n\n", 
-      "The $data point inside this list shows all rows where at least one ",
+      "for a detailed report of each measurement variable.\n\n", 
+      "The `$data` point inside this list shows all rows where at least one ",
       "measurement value was NA."
     )
   )
@@ -195,14 +209,15 @@ qc_completeness_test <- function(df,
   
   detection_summary <- df |> 
     summarise(
-      n_total = n(),
-      n_detected = sum(
+      n_group = n(),
+      n_group_detected = sum(
         if_any(
           all_of(measurement_columns), is.na)),
-      percent_detected = round(n_detected / n_total * 100, digits = 2),
+      percent_detected = round(n_group_detected / n_group * 100, digits = 2),
       across(
         all_of(
           measurement_columns), .fns = list(
+            n = ~ length(.x),
             n_detected = ~ sum(is.na(.x)),
             pct_detected = ~ round(sum(is.na(.x)) / length(.x) * 100, digits = 2)), 
         .names = "{.fn}_{.col}"
@@ -213,17 +228,21 @@ qc_completeness_test <- function(df,
   
   
   # General statistic derivation for message output
-  total_values <- nrow(df)
-  total_detected_output <- nrow(rows_with_NA)
-  total_percentage <- round(total_detected_output / total_values * 100, digits = 2)
+  total_rows <- nrow(df)
+  total_detected_rows <- nrow(rows_with_NA)
+  total_percentage <- round(total_detected_rows / total_rows * 100, digits = 2)
   
   message(
     paste0(
-  "Completeness Test has been executed successfully ✓.\n",
-  "In total '", total_values ,"' values have been examined.\n",
-  "From which '",total_detected_output, "' failed the test.\n",
-  "This makes a total percentage of '",total_percentage, "'%.\n\n", 
-  "Check detection_summary in the generated list inside the global environment for a detailed description for each measurement value. ")
+      "Completeness Test has been executed successfully ✓.\n",
+      "In total '", total_rows, "' rows have been examined.\n",
+      "From which '", total_detected_rows, "' rows had at least one missing value and therefore, failed the test.\n",
+      "This makes a total percentage of '", total_percentage, "'%.\n\n", 
+      "Check detection_summary in the generated list inside the global environment ",
+      "for a detailed report of each measurement variable.\n\n", 
+      "The `$data` point inside this list shows all rows where at least one ",
+      "measurement value was NA."
+    )
   )
   
   
@@ -231,8 +250,8 @@ qc_completeness_test <- function(df,
     paste0(
       "The Completeness Test has been executed successfully on the whole data frame.\n",
       "If you use a master data frame as input which contains different sensors, separated with a unique identifier\n",
-      "You want to use source_column and source_ids for specification.\n",
-      "Please check the returned data and detection_summary in the global environment. ")
+      "You want to use `source_column` and `source_ids` for specification.\n",
+      "Please check the returned `$data` and `$detection_summary` in the global environment. ")
   )
       
   

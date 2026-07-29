@@ -23,7 +23,7 @@ meteo_results_completeness_test <- qc_completeness_test(
   source_column = METEO_MASTER_DF_FRAMEWORK$SOURCE_COLUMN_FILE,
   source_ids = METEO_MASTER_DF_FRAMEWORK$SOURCE_IDS15
 )
-
+print(meteo_results_completeness_test)
 # ------------------------------------------------------------------------------
 # Application of quality control flag information
 # ------------------------------------------------------------------------------
