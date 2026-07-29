@@ -233,7 +233,7 @@ qc_gross_error_check <- function(df,
               .fns = list(
                 n_group          = ~ sum(!is.na(.x)),
                 n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group.
-                pct_detected     = ~ round(n_detected / n_group * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
+                pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
               .names = "{.fn}_{.col}"
             )
         )|> 
@@ -298,7 +298,7 @@ qc_gross_error_check <- function(df,
             .fns = list(
               n_group          = ~ sum(!is.na(.x)),
               n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group.
-              pct_detected     = ~ round(n_detected / n_group * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
+              pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)), # only true values / all values TRUE FALSE except NA.
             .names = "{.fn}_{.col}"
           )
         )|>

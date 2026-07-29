@@ -90,6 +90,18 @@ rows_with_both_na %>%
   )
 
 # ------------------------------------------------------------------------------
+# Re-attachment of maintenance related flags
+# ------------------------------------------------------------------------------
+# extract info columns containing the protocolled events
+data_hydro_maintenance_flags <- data_hydro_standardized |> 
+  filter(
+    if_any( # required to check all columns (comes from across family)
+      all_of(HYDRO_MASTER_DF_FRAMEWORK$INFO_COLUMNS), ~ !is.na(.) & . != "")) |> # filter all not NA and not empty
+  select(Date, Source.Code, ID, all_of(HYDRO_MASTER_DF_FRAMEWORK$INFO_COLUMNS)) # select columns for join 
+  
+print(data_hydro_maintenance_flags)
+
+# ------------------------------------------------------------------------------
 # Duplicates
 # ------------------------------------------------------------------------------
 

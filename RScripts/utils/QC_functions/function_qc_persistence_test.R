@@ -408,7 +408,7 @@ qc_persistence_test <- function(df,
           .fns = list(
             n_group          = ~ sum(!is.na(.x)),
             n_detected       = ~ sum(.x, na.rm = TRUE), # sum for all records inside a certain group that are TRUE (detected)
-            pct_detected     = ~ round(n_detected / n_group * 100, digits = 2)),
+            pct_detected     = ~ round(sum(.x, na.rm = TRUE) / sum(!is.na(.x)) * 100, digits = 2)),
           .names = "{.fn}_{.col}"
         )
       ) |> 

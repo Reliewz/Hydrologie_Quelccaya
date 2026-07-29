@@ -196,10 +196,12 @@ if (KEEP_INTERMEDIATE) {
 PIPELINE_STEP <- "PERSISTENCE_TEST"
 
 if (PIPELINE_MODE == "METEO"){
-  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
+  source("RScripts/02_import_and_quality_control/meteo_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")
+}
 
 if (PIPELINE_MODE == "HYDRO"){
-  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")}
+  source("RScripts/02_import_and_quality_control/hydro_pipeline/03_quality_control_original_temporal_resolution/03_02_01_qc_persistence_test.R")
+}
 
 # Verify expected outputs were generated
 expected_obj <- if (PIPELINE_MODE == "METEO") "data_meteo15_persistence_flagged" else "data_hydro15_persistence_flagged"

@@ -100,7 +100,7 @@ HYDRO_MASTER_DF_FRAMEWORK <- list(
                    "PZ04_02_14_08_2025_21826519.csv", "PZ05_02_14_08_2025_21826512.csv", "PZ06_02_14_08_2025_21826504.csv",
                    "PZ07_02_14_08_2025_21826505.csv", "PZ08_02_14_08_2025_21826496.csv", "PZ09_02_14_08_2025_21826494.csv",
                    "PZ10_02_14_08_2025_21826516.csv", "PZ11_02_14_08_2025_21826500.csv", "PZ12_02_14_08_2025_21826503.csv"),
-  MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end", "Stop"),
+  MEASUREMENT_COLUMNS = c("Abs_pres", "Temp"), INFO_COLUMNS = c("Connection_off", "Connection_on", "Host_connected", "Data_end"),
   MEASUREMENT_UNITS = list(Abs_pres = "kPa", Temp = "°C")
 )
 
@@ -136,17 +136,21 @@ HYDRO_QC_CONFIG <- list(
     # Temporal resolution 15 minutes
     FLAG_VALUE = "CVE",
     WINDOW     = 4,
-    THRESHOLDS_BARO = list(
-      Abs_pres   = c(range = 0.2, sd = 0.2), #tbd threshold range & sd
-      Temp       = c(range = 1, sd = 1) #tbd threshold range & sd
+    THRESHOLDS_BARO =
+      list(
+      Abs_pres   = c(range = 0.01, sd = 0), #tbd threshold range & sd
+      Temp       = c(range = 0.1, sd = 0) #tbd threshold range & sd
     ),
+    SOURCE_IDS   = c("21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv"),
+    METRIC       = "range",
+    
     THRESHOLDS_WLS  = list(
-      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd thresholds
-      Temp       = c(range = 0.1, sd = 1) #tbd thresholds
+      Abs_pres   = c(range = 0.01, sd = 0), #tbd thresholds
+      Temp       = c(range = 0.1, sd = 0) #tbd thresholds
     ),
     THRESHOLDS_PZ = list(
-      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd
-      Temp       = c(range = 0.1, sd = 1) #tbd threshold sd
+      Abs_pres   = c(range = 0.01, sd = 0), #tbd threshold sd
+      Temp       = c(range = 0.1, sd = 0) #tbd threshold sd
     ),
     MIN_COVERAGE = 0.5,
     SOURCE_IDS = c("21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv")
@@ -156,16 +160,16 @@ HYDRO_QC_CONFIG <- list(
     FLAG_VALUE = "CVE", # Constant Value Episode: used in Kaffashzadeh (2023)
     WINDOW     = 3,
     THRESHOLDS_BARO = list(
-      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd
-      Temp       = c(range = 0.1, sd = 1) #tbd threshold sd
+      Abs_pres   = c(range = 0.01, sd = 0), #tbd threshold sd
+      Temp       = c(range = 0.1, sd = 0) #tbd threshold sd
       ),
     THRESHOLDS_WLS  = list(
-      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd thresholds
-      Temp       = c(range = 0.01, sd = 1) #tbd thresholds
+      Abs_pres   = c(range = 0.01, sd = 0), #tbd thresholds
+      Temp       = c(range = 0.01, sd = 0) #tbd thresholds
     ),
     THRESHOLDS_PZ = list(
-      Abs_pres   = c(range = 0.01, sd = 0.2), #tbd threshold sd
-      Temp       = c(range = 0.1, sd = 1) #tbd threshold sd
+      Abs_pres   = c(range = 0.01, sd = 0), #tbd threshold sd
+      Temp       = c(range = 0.1, sd = 0) #tbd threshold sd
     ),
     MIN_COVERAGE = 0.66,
     SOURCE_IDS = c("21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv")

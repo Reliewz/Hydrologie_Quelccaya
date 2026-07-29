@@ -1,28 +1,31 @@
 #======================================================================
-# Script name: 03_02_01_qc_peristence_test.R
+# Script name: 03_02_01_qc_persistence_test.R
 # Goal(s): 
-  # Execution of the persistence test (part of temporal consistency tests).
+  # Execution of the persistence test using range metric (part of temporal consistency tests).
   # Provides a report of the results of the persistence test function
   # Flags assignment workflow using apply_qc_flags function
   # Documentation of the results using log_qc_decisions function
 # Author: Kai Albert Zwießler
-# Date: 2026.07.11
 # Input Data set:
-# gross error checked-flagged master data frame of hydrological data
+# gross error checked-flagged master data frame for hydrological data
 # Output: 
-  # flagged data frame or tibble with a new column of the test name, containing the flag information.
+  # flagged data frame or tibble with a new column of the test name, containing the flag information and renamed df.
 #======================================================================
 
 # ------------------------------------------------------------------------------
-# Execution of persistence test
+# Execution of persistence test for barometer data
 # ------------------------------------------------------------------------------
-hydro_results_persistence_test <- qc_completeness_test(
+hydro_results_persistence_test <- qc_persistence_test(
   df = data_hydro15_gross_error_flagged,
-  measurement_columns = HYDRO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS,
+  metric = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$METRIC,
+  thresholds = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$THRESHOLDS_BARO,
+  window = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$WINDOW,
+  min_coverage = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$MIN_COVERAGE,
   date_column = HYDRO_MASTER_DF_FRAMEWORK$DATE_COLUMN,
   source_column = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_COLUMN_FILE,
-  source_ids = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_IDS15
+  source_ids = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$SOURCE_IDS
 )
+purrr::walk(hydro_results_persistence_test, print, width = Inf)
 
 # ------------------------------------------------------------------------------
 # Application of quality control flag information
@@ -30,8 +33,8 @@ hydro_results_persistence_test <- qc_completeness_test(
 data_hydro15_gross_error_flagged <- apply_qc_flags(
   df = data_hydro15_gross_error_flagged,
   df_flag_info = hydro_results_persistence_test$data,
-  flag_value = HYDRO_QC_CONFIG$PERSISTENCE_TEST$FLAG_VALUE,
-  qc_test = "PERSISTENCE_TEST",
+  flag_value = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$FLAG_VALUE,
+  qc_test = "PERSISTENCE_TEST15",
   merge_col = HYDRO_MASTER_DF_FRAMEWORK$DATE_COLUMN,
   id_col = HYDRO_MASTER_DF_FRAMEWORK$SOURCE_COLUMN_FILE
 )
@@ -45,10 +48,11 @@ qc_logs[[length(qc_logs) + 1]] <- log_qc_decision(
   df = hydro_results_persistence_test$data,
   to_flag = HYDRO_QC_CONFIG$PERSISTENCE_TEST$FLAG_VALUE,
   operator = "Kai Zwießler",
-  device = "Datasheet: 10_QORIKALIS_18_08_2025.csv",
-  reason = paste("Gross Error Test results: the data set contains one missing value for the precipitation variable. ",
-                 "All other hydrological variables reached 100% completeness for the respective time frame while precipitation reached 99.97% completeness. ",
-                 "The data set is approved for further analysis. Total examined values: 3736."
+  device = HYDRO_QC_CONFIG$PERSISTENCE_TEST15$SOURCE_IDS,
+  reason = paste("Persistence Test results: the data set contains one constant value episode in $data for absolute pressure and temperature alike. ",
+                 "Both values are frozen for the same time interval. It was not associated with a protocoled data collection or maintenence event. ",
+                 "In the list segement $coverage_problems the data values in absolute presure repeat itself while temperature continues to varry. ",
+                 "A loss of connection is protocolled. The data set is approved for further analysis. Total examined values: 3736."
   ))
 
 

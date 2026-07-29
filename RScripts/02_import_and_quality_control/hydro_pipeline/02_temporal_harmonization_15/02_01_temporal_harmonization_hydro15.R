@@ -16,7 +16,16 @@
 # =======================================
 
 # ------------------------------------------------------------------------------
-# Elimination of maintenance related fractional time steps
+# Preparation of sensor maintenance information
+# ------------------------------------------------------------------------------
+data_sensor_maintenance_events <- data_hydro_standardized |> 
+  filter(
+    if_any( # required to check all columns (comes from across family)
+      all_of(HYDRO_MASTER_DF_FRAMEWORK$INFO_COLUMNS), ~ !is.na(.) & . != "")) |> # filter all not NA and not empty
+  select(Date, Source.Code, ID, all_of(HYDRO_MASTER_DF_FRAMEWORK$INFO_COLUMNS)) # select columns relevant to display when the columns were disconnected
+
+# ------------------------------------------------------------------------------
+# Elimination of maintenance caused fractional time steps
 # ------------------------------------------------------------------------------
 data_hydro_standardized <- data_hydro_standardized %>%
   filter(!if_all(all_of(HYDRO_MASTER_DF_FRAMEWORK$MEASUREMENT_COLUMNS), is.na
