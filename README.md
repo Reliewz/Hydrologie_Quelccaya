@@ -2,11 +2,11 @@
 
 A modular and reproducible framework for importing, harmonizing, quality-controlling, flagging and documenting hydrometeorological monitoring data.
 
-The project was originally developed and tested as part of a glacio-hydrological modelling workflow within the hydrometeorological monitoring network of the Qori-Kalis catchment, Quelccaya Ice Cap (Peru), and is designed for broader use in environmental monitoring programs, NGOs, governmental agencies and applied research projects.
+The project was originally developed and tested as part of a glacio-hydrological modeling workflow within the hydrometeorological monitoring network of the Qori-Kalis catchment, Quelccaya Ice Cap (Peru), and is designed for broader use in environmental monitoring programs, NGOs, governmental agencies and applied research projects.
 
 ## Why this project?
 
-Hydrometeorological monitoring networks often combine data from multiple sensors, manufacturers and file formats. Before these data can be used for scientific analyses, hydrological modelling or operational decision-making, they must be standardized, validated and documented.
+Hydrometeorological monitoring networks often combine data from multiple sensors, manufacturers and file formats. Before these data can be used for scientific analyses, hydrological modeling or operational decision-making, they must be standardized, validated and documented.
 
 While individual tools exist for specific quality control tasks, integrated and reproducible workflows for hydrometeorological data harmonization, quality control and documentation remain limited within the R ecosystem. A central objective of this project is to provide transparent and reproducible quality control workflows while preserving full traceability of all quality control decisions.
 
@@ -97,7 +97,7 @@ This supports reproducibility and transparent data governance by documenting exp
 
 ### Temporal Consistency
 
-* Traditional Persistence Test (Customizable sliding window of previous timesteps using range metric for comparison).
+* Traditional Persistence Test (Customizable sliding window of previous timesteps using range metric for comparison to detect a frozen sensor).
 * Modified Persistence Test (Customizable sliding window using Standard Deviation (SD) metric to detect sensor drift).
 
 ## Quality Control Tests Under Current Development

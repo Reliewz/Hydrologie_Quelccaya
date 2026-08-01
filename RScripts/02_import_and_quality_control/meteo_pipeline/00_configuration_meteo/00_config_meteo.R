@@ -191,6 +191,24 @@ METEO_QC_CONFIG <- list(
         Wind_gust = c(range = 0.8, sd = 1),
         WD        = c(range = 0.1, sd = 1)
       )
+  ),
+  STEP_TEST15 = list(
+    FLAG_VALUE = "STEP_EXCEEDED",
+    THRESHOLDS = list(
+      AirTC     = c(suspect = 3),
+      RH        = c(suspect = 10, erroneous = 15),
+      WS        = c(suspect = 10, erroneous = 20),
+      Wind_gust = c(suspect = 10, erroneous = 20)
+    )
+  ),
+  STEP_TEST_HOURLY = list(
+    FLAG_VALUE = "STEP_EXCEEDED",
+    THRESHOLDS = list(
+      AirTC     = c(suspect = 3),
+      RH        = c(suspect = 10, erroneous = 15),
+      WS        = c(suspect = 10, erroneous = 20),
+      Wind_gust = c(suspect = 10, erroneous = 20)
+    )
   )
 )
 

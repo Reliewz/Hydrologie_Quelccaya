@@ -173,7 +173,37 @@ HYDRO_QC_CONFIG <- list(
     ),
     MIN_COVERAGE = 0.66,
     SOURCE_IDS = c("21826507_QK_baro_19_11_25.csv", "21826507_QK_baro_24_03_26.csv")
+    ),
+  STEP_TEST15 = list(
+    FLAG_VALUE = "STEP_EXCEEDED",
+    THRESHOLDS_BARO = list(
+      Abs_pres   = c(suspect = 0.05, erroneous = 0.2),
+      Temp       = c(suspect = 3, erroneous = 5) # mix between AirTC and soil temperature
+    ),
+    THRESHOLDS_WLS  = list(
+      Abs_pres   = c(suspect = 0), #tbd threshold
+      Temp       = c(suspect = 0) # tbd threshold water temperature
+    ),
+    THRESHOLDS_PZ = list(
+      Abs_pres   = c(suspect = 0), # tbd threshold PZ soil
+      Temp       = c(suspect = 0.1, erroneous = 0.2) 
+    ),
+  ),
+  STEP_TEST_HOURLY = list(
+    FLAG_VALUE = "STEP_EXCEEDED",
+    THRESHOLDS_BARO = list(
+      Abs_pres   = c(suspect = 0.05, erroneous = 0.2),
+      Temp       = c(suspect = 3, erroneous = 5) # threshold reflect a compromise between AirTC and soil temperature
+    ),
+    THRESHOLDS_WLS  = list(
+      Abs_pres   = c(suspect = 0), #tbd threshold
+      Temp       = c(suspect = 0) # tbd threshold water temperature
+    ),
+    THRESHOLDS_PZ = list(
+      Abs_pres   = c(suspect = 0), # tbd threshold PZ soil
+      Temp       = c(suspect = 0.1, erroneous = 0.2) 
     )
+  )
 )
 
 

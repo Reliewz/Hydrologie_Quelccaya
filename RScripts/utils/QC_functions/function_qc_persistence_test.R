@@ -379,8 +379,7 @@ qc_persistence_test <- function(df,
           .cols = ends_with("_coverage_problem"), # Column selection scheme using the end of the column names defined in .names above to select the columns
           # containing the detection information generated from the marked_detections_df pipeline.
           .fns = ~ !is.na(.x) & .x)#Report all rows that have not fulfilled the coverage conditions
-      ) |>
-      arrange(.data[[source_column]], .data[[date_column]])
+      )
     
     # $data filter
     detected_records <- marked_detections_df|>
@@ -391,8 +390,7 @@ qc_persistence_test <- function(df,
           .fns = ~ !is.na(.x) & .x # Stores the values in detected_records
           # that are detected by the test (TRUE) and not NA.
         )
-      ) |>
-      arrange(.data[[source_column]], .data[[date_column]])
+      )
     
     #detection summary reporting detected results excluding the values who failed min_coverage.
     detection_summary <- marked_detections_df |> 
